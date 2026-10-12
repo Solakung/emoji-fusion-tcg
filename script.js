@@ -1405,7 +1405,7 @@
     q.onclick = function () {
       if (!onlineReady()) return;
       q.disabled = true;
-      window.Online.quick(myPayload(), false).then(function (r) { openNet(r.code, r.role); }).catch(netFail)
+      window.Online.quick(myPayload(), false).then(function (r) { openNet(r.code, r.role, false, { quick: true, ranked: false }); }).catch(netFail)
         .then(function () { q.disabled = false; });
     };
     c.onclick = function () {
@@ -1423,7 +1423,7 @@
       if (!onlineReady()) return;
       if (!window.Online.isMember()) { toast('โหมดจัดอันดับต้องล็อกอินด้วยอีเมลก่อน'); openAuthModal('login'); return; }
       if (!cloud.name) { toast('ตั้งชื่อผู้เล่นก่อน (ปุ่มตั้งชื่อด้านบน)'); return; }
-      window.Online.quick(myPayload(), true).then(function (r) { openNet(r.code, r.role); }).catch(netFail);
+      window.Online.quick(myPayload(), true).then(function (r) { openNet(r.code, r.role, false, { quick: true, ranked: true }); }).catch(netFail);
     };
     $('#on-board').onclick = showBoard;
     $('#on-replay').onclick = openReplays;
@@ -1466,9 +1466,9 @@
     });
   }
 
-  function openNet(code, role, rejoin) {
+  function openNet(code, role, rejoin, opts) {
     closeNet();
-    net = { code: code, role: role, queue: {}, hold: {}, st: {}, rejoin: !!rejoin, sawRoom: false, started: false, lastEmote: 0 };
+    net = { code: code, role: role, queue: {}, hold: {}, st: {}, rejoin: !!rejoin, sawRoom: false, started: false, lastEmote: 0, quick: !!(opts && opts.quick), ranked: !!(opts && opts.ranked), t0: Date.now() };
     var mine = net;
     net.off = window.Online.listen(code, {
       state: function (st) { if (net === mine) netState(st); },
@@ -1484,6 +1484,7 @@
 
   function closeNet() {
     if (!net) return;
+    if (net.tick) { clearInterval(net.tick); net.tick = null; }
     try { if (net.off) net.off(); } catch (e) { }
     try { if (net.pres) net.pres(); } catch (e) { }
     net = null;
@@ -1503,11 +1504,36 @@
       try { navigator.clipboard.writeText(n.code); toast('คัดลอกแล้ว'); } catch (e) { toast('รหัสห้อง: ' + n.code); }
     };
     $('#rc-cancel').onclick = function () { closeModal(); };
+    if (n.role === 'host' && !n.rejoin) startWaitClock(n);
+  }
+
+  // นาฬิกานับเวลารอ + เสนอสู้บอทเมื่อรอเกิน 60 วินาที (เฉพาะจับคู่เร็วแบบไม่จัดอันดับ)
+  var WAIT_BOT_MS = 60000;
+  function startWaitClock(n) {
+    var line = make('div', 'subline wait-clock'); line.id = 'rc-time';
+    var box = $('#modal-body .detail'); if (box) box.insertBefore(line, box.querySelector('.actions'));
+    var offered = false;
+    function upd() {
+      if (net !== n || n.started || modalKind !== 'wait') { clearInterval(n.tick); n.tick = null; return; }
+      var sec = Math.floor((Date.now() - n.t0) / 1000);
+      var el = $('#rc-time'); if (!el) return;
+      el.textContent = '⏱️ รอมาแล้ว ' + Math.floor(sec / 60) + ':' + (sec % 60 < 10 ? '0' : '') + (sec % 60);
+      if (n.quick && !n.ranked && !offered && Date.now() - n.t0 >= WAIT_BOT_MS) {
+        offered = true;
+        var offer = make('div', 'bot-offer', '<p>ยังไม่มีใครเข้ามา 😴 สู้กับบอทระหว่างรอไหม?</p><div class="actions"><button class="btn" id="rc-bot">🤖 เล่นกับบอท</button><button class="btn" id="rc-keep">รอต่อ</button></div>');
+        var bx = $('#modal-body .detail'); if (bx) bx.insertBefore(offer, bx.querySelector('.actions'));
+        $('#rc-bot').onclick = function () { closeModal(); startBattle('medium'); };
+        $('#rc-keep').onclick = function () { offer.remove(); };
+      }
+    }
+    if (n.tick) clearInterval(n.tick);
+    n.tick = setInterval(upd, 1000); upd();
   }
 
   function cancelWaiting() {
     modalKind = '';
     var n = net;
+    if (n && n.tick) { clearInterval(n.tick); n.tick = null; }
     if (!n || n.started) return;
     if (n.role === 'host' && !n.rejoin) window.Online.cancelRoom(n.code, false);
     roomMark(null);
@@ -2429,8 +2455,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.19').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.19')
+    var setsP = fetch('sets.json?v=0.20').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.20')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });

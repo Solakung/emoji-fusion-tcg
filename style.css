@@ -500,3 +500,7 @@ body.shake-s { animation: bodyshake .45s; }
 
 .search { width: 100%; box-sizing: border-box; margin: 10px 0 4px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border, #3a3370); background: #1b1740; color: inherit; font: inherit; font-size: 16px; }
 .search:focus { outline: 2px solid var(--accent, #8b6bff); }
+
+.wait-clock { font-weight: 700; letter-spacing: .5px; }
+.bot-offer { margin: 10px 0; padding: 10px 12px; border-radius: 12px; background: #2a2458; border: 1px solid #5a4fb0; }
+.bot-offer p { margin: 0 0 8px; }
