@@ -24,6 +24,17 @@ for k, (nm, tx) in {
 }.items():
     AB.setdefault(k, {"id": k, "name": nm, "text": tx})
 
+for k, (nm, tx) in {
+    "shock": ("ช็อต", "เป้าหมายที่ถูกโจมตีข้ามการโจมตีเทิร์นถัดไป"),
+    "stone": ("สะสมหิน", "จบเทิร์นของเรา ถ้าตัวนี้ไม่ได้โจมตีเทิร์นนี้ ATK +1 ถาวร (สูงสุด +4)"),
+    "bulwark": ("ค่ายกลโกเลม", "พวกเดียวกันที่มีปราการ (ล่อ) ลดดาเมจที่โดนทุกครั้ง 1 ตราบที่ตัวนี้อยู่"),
+    "repair": ("ซ่อมแซม", "จบเทิร์นของเรา พวกเดียวกันที่มีปราการ (ล่อ) ทุกตัวฟื้น HP 1"),
+    "forge": ("ตีก้อนหิน", "ตอนลงสนาม เสกก้อนหินมีชีวิต (1/2 ปราการ) ลงสนามถ้ามีที่ว่าง"),
+    "trick": ("มายากล", "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุด ถ้า ATK มากกว่า HP จะสลับ ATK กับ HP ถาวร"),
+    "vanish": ("หายตัว", "ตอนถูกกำจัด กลับเข้ามือเจ้าของ (ถ้ามือไม่เต็ม)"),
+}.items():
+    AB.setdefault(k, {"id": k, "name": nm, "text": tx})
+
 # (emoji, ชื่อ, ธาตุ, cost, atk, hp, ความหายาก, [ability ids], [keywords])
 SETS = [{
     "id": "dragon", "name": "ตำนานมังกร", "emoji": "🐉", "color": ["#7a2cff", "#ff5ab0"],
@@ -97,6 +108,46 @@ SETS = [{
         ("🎇", "ประกายคอมโบ", "fire", 3, 3, 2, "uncommon", ["combo", "spark"], []),
         ("🏺", "หม้อกำเนิดใหม่", "earth", 4, 3, 4, "rare", ["recall", "seeker"], []),
         ("💠", "ผลึกพลังงาน", "electric", 4, 3, 4, "rare", ["tinker", "surge"], []),
+    ]}, {
+    "id": "golem", "atkBonus": 0, "name": "กองทัพโกเลม", "emoji": "🗿", "color": ["#4a4a5a", "#c8a15a"],
+    "desc": "สายตั้งรับ: เกราะหนา ล่อ ซ่อมแซม ยิ่งรอยิ่งแรง 16 ใบ",
+    "cards": [
+        ("🧱", "อิฐกลิ้ง", "earth", 1, 1, 2, "common", ["guard"], []),
+        ("🪨", "หินหลับใหล", "earth", 1, 0, 2, "common", ["stone"], []),
+        ("⚒️", "ช่างตีเหล็ก", "earth", 2, 1, 2, "common", ["forge"], []),
+        ("🛡️", "โล่มีชีวิต", "earth", 2, 1, 3, "common", ["metal"], []),
+        ("🌵", "กระบองเพชรหิน", "plant", 2, 1, 3, "common", ["thorns"], []),
+        ("⚱️", "โอ่งโบราณ", "earth", 2, 1, 3, "common", ["repair"], []),
+        ("🧊", "โกเลมน้ำแข็ง", "water", 2, 1, 3, "common", ["guard"], []),
+        ("🤖", "หุ่นเหล็กเฝ้ายาม", "electric", 3, 2, 4, "common", ["metal"], []),
+        ("🗿", "โกเลมหิน", "earth", 3, 2, 4, "uncommon", ["guard", "stone"], []),
+        ("🏛️", "เสาศิลา", "earth", 3, 1, 5, "uncommon", ["bulwark"], []),
+        ("🦾", "แขนกลดักจับ", "electric", 3, 3, 3, "uncommon", ["trap"], []),
+        ("♨️", "โกเลมลาวา", "fire", 3, 3, 3, "uncommon", ["fall"], []),
+        ("🏔️", "โกเลมภูผา", "earth", 4, 3, 6, "rare", ["guard", "bulwark"], []),
+        ("🗽", "เทพีศิลา", "wind", 4, 2, 6, "rare", ["fortify", "repair"], []),
+        ("🏰", "ปราสาทเดินได้", "earth", 4, 2, 7, "rare", ["stone", "guard"], []),
+        ("🌑", "โกเลมนิรันดร์", "earth", 4, 3, 5, "rare", ["stone", "metal"], []),
+    ]}, {
+    "id": "circus", "atkBonus": 1, "hpBonus": 1, "name": "ละครสัตว์มายากล", "emoji": "🎪", "color": ["#c2185b", "#ffd54f"],
+    "desc": "สายคอนโทรล: หายตัว สลับพลัง ช็อต แช่แข็ง 16 ใบ",
+    "cards": [
+        ("🎈", "ลูกโป่งลอยหนี", "wind", 1, 1, 1, "common", ["vanish"], []),
+        ("🤡", "ตัวตลกล่อ", "earth", 1, 1, 1, "common", ["guard"], []),
+        ("🎩", "หมวกมายากล", "wind", 2, 1, 2, "common", ["vanish"], []),
+        ("🃏", "ไพ่โจ๊กเกอร์", "electric", 2, 2, 1, "common", ["shock"], []),
+        ("🎯", "เป้าปาลูกดอก", "earth", 2, 1, 3, "common", ["trap"], []),
+        ("🤹", "นักเล่นกล", "wind", 2, 2, 2, "common", ["gust"], []),
+        ("🐒", "ลิงไต่เชือก", "plant", 2, 2, 2, "common", [], ["evade"]),
+        ("🎠", "ม้าหมุนวนเวียน", "water", 3, 2, 3, "common", ["freeze"], []),
+        ("🐘", "ช้างละครสัตว์", "earth", 3, 3, 4, "uncommon", ["guard"], []),
+        ("🦁", "สิงโตกระโดดห่วง", "fire", 3, 4, 2, "uncommon", ["rampage"], []),
+        ("🎭", "หน้ากากสองหน้า", "water", 3, 2, 3, "uncommon", ["trick"], []),
+        ("🎪", "เต็นท์ละครสัตว์", "earth", 3, 2, 4, "uncommon", ["wisp"], []),
+        ("🦜", "นกแก้วล้อเลียน", "wind", 3, 2, 3, "uncommon", ["attract"], []),
+        ("🧙", "จอมมายากล", "electric", 4, 3, 4, "rare", ["trick", "gust"], []),
+        ("🎻", "ไวโอลินมนตร์", "water", 4, 2, 5, "rare", ["freeze", "wisp"], []),
+        ("🎡", "ชิงช้าสวรรค์ย้อนเวลา", "wind", 4, 3, 5, "rare", ["gale", "vanish"], []),
     ]}]
 
 out = []
@@ -104,9 +155,9 @@ for s in SETS:
     cards = []
     for i, (em, nm, el, co, at, hp, ra, abs_, kws) in enumerate(s["cards"], 1):
         cards.append({"id": "%s%02d" % (s["id"][:2].upper(), i), "type": "creature", "tier": 1, "emoji": em, "name": nm,
-                      "element": el, "cost": co, "atk": at + s.get("atkBonus", 0), "hp": hp + 1,  # +1 HP: ปรับสมดุลจากการจำลอง (การ์ดชุดผสมไม่ได้)
+                      "element": el, "cost": co, "atk": at + s.get("atkBonus", 0), "hp": hp + 1 + s.get("hpBonus", 0),  # +1 HP: ปรับสมดุลจากการจำลอง (การ์ดชุดผสมไม่ได้)
                        "keywords": kws,
                       "abilities": [AB[a] for a in abs_], "rarity": ra, "set": s["id"]})
-    out.append({k: v for k, v in s.items() if k not in ("cards", "atkBonus")} | {"cards": cards})
+    out.append({k: v for k, v in s.items() if k not in ("cards", "atkBonus", "hpBonus")} | {"cards": cards})
 json.dump({"sets": out}, open("sets.json", "w"), ensure_ascii=False, indent=1)
 print("sets:", [(s["id"], len(s["cards"])) for s in out])

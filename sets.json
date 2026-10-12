@@ -1228,6 +1228,738 @@
      "set": "alchemy"
     }
    ]
+  },
+  {
+   "id": "golem",
+   "name": "กองทัพโกเลม",
+   "emoji": "🗿",
+   "color": [
+    "#4a4a5a",
+    "#c8a15a"
+   ],
+   "desc": "สายตั้งรับ: เกราะหนา ล่อ ซ่อมแซม ยิ่งรอยิ่งแรง 16 ใบ",
+   "cards": [
+    {
+     "id": "GO01",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🧱",
+     "name": "อิฐกลิ้ง",
+     "element": "earth",
+     "cost": 1,
+     "atk": 1,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      }
+     ],
+     "rarity": "common",
+     "set": "golem"
+    },
+    {
+     "id": "GO02",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🪨",
+     "name": "หินหลับใหล",
+     "element": "earth",
+     "cost": 1,
+     "atk": 0,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "stone",
+       "name": "สะสมหิน",
+       "text": "จบเทิร์นของเรา ถ้าตัวนี้ไม่ได้โจมตีเทิร์นนี้ ATK +1 ถาวร (สูงสุด +4)"
+      }
+     ],
+     "rarity": "common",
+     "set": "golem"
+    },
+    {
+     "id": "GO03",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "⚒️",
+     "name": "ช่างตีเหล็ก",
+     "element": "earth",
+     "cost": 2,
+     "atk": 1,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "forge",
+       "name": "ตีก้อนหิน",
+       "text": "ตอนลงสนาม เสกก้อนหินมีชีวิต (1/2 ปราการ) ลงสนามถ้ามีที่ว่าง"
+      }
+     ],
+     "rarity": "common",
+     "set": "golem"
+    },
+    {
+     "id": "GO04",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🛡️",
+     "name": "โล่มีชีวิต",
+     "element": "earth",
+     "cost": 2,
+     "atk": 1,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "metal",
+       "name": "เกล็ดเหล็ก",
+       "text": "ลดดาเมจที่โดนทุกครั้ง 1"
+      }
+     ],
+     "rarity": "common",
+     "set": "golem"
+    },
+    {
+     "id": "GO05",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🌵",
+     "name": "กระบองเพชรหิน",
+     "element": "plant",
+     "cost": 2,
+     "atk": 1,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "thorns",
+       "name": "หนาม",
+       "text": "ตอนถูกโจมตี ผู้โจมตีโดน 1 ดาเมจเพิ่ม"
+      }
+     ],
+     "rarity": "common",
+     "set": "golem"
+    },
+    {
+     "id": "GO06",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "⚱️",
+     "name": "โอ่งโบราณ",
+     "element": "earth",
+     "cost": 2,
+     "atk": 1,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "repair",
+       "name": "ซ่อมแซม",
+       "text": "จบเทิร์นของเรา พวกเดียวกันที่มีปราการ (ล่อ) ทุกตัวฟื้น HP 1"
+      }
+     ],
+     "rarity": "common",
+     "set": "golem"
+    },
+    {
+     "id": "GO07",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🧊",
+     "name": "โกเลมน้ำแข็ง",
+     "element": "water",
+     "cost": 2,
+     "atk": 1,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      }
+     ],
+     "rarity": "common",
+     "set": "golem"
+    },
+    {
+     "id": "GO08",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🤖",
+     "name": "หุ่นเหล็กเฝ้ายาม",
+     "element": "electric",
+     "cost": 3,
+     "atk": 2,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "metal",
+       "name": "เกล็ดเหล็ก",
+       "text": "ลดดาเมจที่โดนทุกครั้ง 1"
+      }
+     ],
+     "rarity": "common",
+     "set": "golem"
+    },
+    {
+     "id": "GO09",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🗿",
+     "name": "โกเลมหิน",
+     "element": "earth",
+     "cost": 3,
+     "atk": 2,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      },
+      {
+       "id": "stone",
+       "name": "สะสมหิน",
+       "text": "จบเทิร์นของเรา ถ้าตัวนี้ไม่ได้โจมตีเทิร์นนี้ ATK +1 ถาวร (สูงสุด +4)"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "golem"
+    },
+    {
+     "id": "GO10",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🏛️",
+     "name": "เสาศิลา",
+     "element": "earth",
+     "cost": 3,
+     "atk": 1,
+     "hp": 6,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "bulwark",
+       "name": "ค่ายกลโกเลม",
+       "text": "พวกเดียวกันที่มีปราการ (ล่อ) ลดดาเมจที่โดนทุกครั้ง 1 ตราบที่ตัวนี้อยู่"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "golem"
+    },
+    {
+     "id": "GO11",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦾",
+     "name": "แขนกลดักจับ",
+     "element": "electric",
+     "cost": 3,
+     "atk": 3,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "trap",
+       "name": "กับดัก",
+       "text": "ตอนถูกโจมตี ผู้โจมตีเสีย ATK 1 ถาวร"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "golem"
+    },
+    {
+     "id": "GO12",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "♨️",
+     "name": "โกเลมลาวา",
+     "element": "fire",
+     "cost": 3,
+     "atk": 3,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "fall",
+       "name": "หินร่วง",
+       "text": "ตอนถูกกำจัด ศัตรูตัวที่ HP ต่ำสุดโดน 2 ดาเมจ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "golem"
+    },
+    {
+     "id": "GO13",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🏔️",
+     "name": "โกเลมภูผา",
+     "element": "earth",
+     "cost": 4,
+     "atk": 3,
+     "hp": 7,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      },
+      {
+       "id": "bulwark",
+       "name": "ค่ายกลโกเลม",
+       "text": "พวกเดียวกันที่มีปราการ (ล่อ) ลดดาเมจที่โดนทุกครั้ง 1 ตราบที่ตัวนี้อยู่"
+      }
+     ],
+     "rarity": "rare",
+     "set": "golem"
+    },
+    {
+     "id": "GO14",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🗽",
+     "name": "เทพีศิลา",
+     "element": "wind",
+     "cost": 4,
+     "atk": 2,
+     "hp": 7,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "fortify",
+       "name": "เสริมเกราะ",
+       "text": "ตอนลงสนาม พวกเดียวกันทุกตัว HP +1 ถาวร"
+      },
+      {
+       "id": "repair",
+       "name": "ซ่อมแซม",
+       "text": "จบเทิร์นของเรา พวกเดียวกันที่มีปราการ (ล่อ) ทุกตัวฟื้น HP 1"
+      }
+     ],
+     "rarity": "rare",
+     "set": "golem"
+    },
+    {
+     "id": "GO15",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🏰",
+     "name": "ปราสาทเดินได้",
+     "element": "earth",
+     "cost": 4,
+     "atk": 2,
+     "hp": 8,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "stone",
+       "name": "สะสมหิน",
+       "text": "จบเทิร์นของเรา ถ้าตัวนี้ไม่ได้โจมตีเทิร์นนี้ ATK +1 ถาวร (สูงสุด +4)"
+      },
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      }
+     ],
+     "rarity": "rare",
+     "set": "golem"
+    },
+    {
+     "id": "GO16",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🌑",
+     "name": "โกเลมนิรันดร์",
+     "element": "earth",
+     "cost": 4,
+     "atk": 3,
+     "hp": 6,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "stone",
+       "name": "สะสมหิน",
+       "text": "จบเทิร์นของเรา ถ้าตัวนี้ไม่ได้โจมตีเทิร์นนี้ ATK +1 ถาวร (สูงสุด +4)"
+      },
+      {
+       "id": "metal",
+       "name": "เกล็ดเหล็ก",
+       "text": "ลดดาเมจที่โดนทุกครั้ง 1"
+      }
+     ],
+     "rarity": "rare",
+     "set": "golem"
+    }
+   ]
+  },
+  {
+   "id": "circus",
+   "name": "ละครสัตว์มายากล",
+   "emoji": "🎪",
+   "color": [
+    "#c2185b",
+    "#ffd54f"
+   ],
+   "desc": "สายคอนโทรล: หายตัว สลับพลัง ช็อต แช่แข็ง 16 ใบ",
+   "cards": [
+    {
+     "id": "CI01",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🎈",
+     "name": "ลูกโป่งลอยหนี",
+     "element": "wind",
+     "cost": 1,
+     "atk": 2,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "vanish",
+       "name": "หายตัว",
+       "text": "ตอนถูกกำจัด กลับเข้ามือเจ้าของ (ถ้ามือไม่เต็ม)"
+      }
+     ],
+     "rarity": "common",
+     "set": "circus"
+    },
+    {
+     "id": "CI02",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🤡",
+     "name": "ตัวตลกล่อ",
+     "element": "earth",
+     "cost": 1,
+     "atk": 2,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      }
+     ],
+     "rarity": "common",
+     "set": "circus"
+    },
+    {
+     "id": "CI03",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🎩",
+     "name": "หมวกมายากล",
+     "element": "wind",
+     "cost": 2,
+     "atk": 2,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "vanish",
+       "name": "หายตัว",
+       "text": "ตอนถูกกำจัด กลับเข้ามือเจ้าของ (ถ้ามือไม่เต็ม)"
+      }
+     ],
+     "rarity": "common",
+     "set": "circus"
+    },
+    {
+     "id": "CI04",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🃏",
+     "name": "ไพ่โจ๊กเกอร์",
+     "element": "electric",
+     "cost": 2,
+     "atk": 3,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "shock",
+       "name": "ช็อต",
+       "text": "เป้าหมายที่ถูกโจมตีข้ามการโจมตีเทิร์นถัดไป"
+      }
+     ],
+     "rarity": "common",
+     "set": "circus"
+    },
+    {
+     "id": "CI05",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🎯",
+     "name": "เป้าปาลูกดอก",
+     "element": "earth",
+     "cost": 2,
+     "atk": 2,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "trap",
+       "name": "กับดัก",
+       "text": "ตอนถูกโจมตี ผู้โจมตีเสีย ATK 1 ถาวร"
+      }
+     ],
+     "rarity": "common",
+     "set": "circus"
+    },
+    {
+     "id": "CI06",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🤹",
+     "name": "นักเล่นกล",
+     "element": "wind",
+     "cost": 2,
+     "atk": 3,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "gust",
+       "name": "ลมหมุน",
+       "text": "ตอนลงสนาม จั่วการ์ด 1 ใบ"
+      }
+     ],
+     "rarity": "common",
+     "set": "circus"
+    },
+    {
+     "id": "CI07",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐒",
+     "name": "ลิงไต่เชือก",
+     "element": "plant",
+     "cost": 2,
+     "atk": 3,
+     "hp": 4,
+     "keywords": [
+      "evade"
+     ],
+     "abilities": [],
+     "rarity": "common",
+     "set": "circus"
+    },
+    {
+     "id": "CI08",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🎠",
+     "name": "ม้าหมุนวนเวียน",
+     "element": "water",
+     "cost": 3,
+     "atk": 3,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "freeze",
+       "name": "แช่แข็ง",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุดโจมตีไม่ได้ 1 เทิร์น"
+      }
+     ],
+     "rarity": "common",
+     "set": "circus"
+    },
+    {
+     "id": "CI09",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐘",
+     "name": "ช้างละครสัตว์",
+     "element": "earth",
+     "cost": 3,
+     "atk": 4,
+     "hp": 6,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "circus"
+    },
+    {
+     "id": "CI10",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦁",
+     "name": "สิงโตกระโดดห่วง",
+     "element": "fire",
+     "cost": 3,
+     "atk": 5,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "rampage",
+       "name": "คลั่ง",
+       "text": "ถ้าโจมตีแล้วกำจัดการ์ดศัตรูได้ โจมตีได้อีก 1 ครั้ง"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "circus"
+    },
+    {
+     "id": "CI11",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🎭",
+     "name": "หน้ากากสองหน้า",
+     "element": "water",
+     "cost": 3,
+     "atk": 3,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "trick",
+       "name": "มายากล",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุด ถ้า ATK มากกว่า HP จะสลับ ATK กับ HP ถาวร"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "circus"
+    },
+    {
+     "id": "CI12",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🎪",
+     "name": "เต็นท์ละครสัตว์",
+     "element": "earth",
+     "cost": 3,
+     "atk": 3,
+     "hp": 6,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "wisp",
+       "name": "วิญญาณลม",
+       "text": "ตอนถูกกำจัด จั่วการ์ด 1 ใบ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "circus"
+    },
+    {
+     "id": "CI13",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦜",
+     "name": "นกแก้วล้อเลียน",
+     "element": "wind",
+     "cost": 3,
+     "atk": 3,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "attract",
+       "name": "ดูดพลัง",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุด ATK -2 เทิร์นนี้"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "circus"
+    },
+    {
+     "id": "CI14",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🧙",
+     "name": "จอมมายากล",
+     "element": "electric",
+     "cost": 4,
+     "atk": 4,
+     "hp": 6,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "trick",
+       "name": "มายากล",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุด ถ้า ATK มากกว่า HP จะสลับ ATK กับ HP ถาวร"
+      },
+      {
+       "id": "gust",
+       "name": "ลมหมุน",
+       "text": "ตอนลงสนาม จั่วการ์ด 1 ใบ"
+      }
+     ],
+     "rarity": "rare",
+     "set": "circus"
+    },
+    {
+     "id": "CI15",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🎻",
+     "name": "ไวโอลินมนตร์",
+     "element": "water",
+     "cost": 4,
+     "atk": 3,
+     "hp": 7,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "freeze",
+       "name": "แช่แข็ง",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุดโจมตีไม่ได้ 1 เทิร์น"
+      },
+      {
+       "id": "wisp",
+       "name": "วิญญาณลม",
+       "text": "ตอนถูกกำจัด จั่วการ์ด 1 ใบ"
+      }
+     ],
+     "rarity": "rare",
+     "set": "circus"
+    },
+    {
+     "id": "CI16",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🎡",
+     "name": "ชิงช้าสวรรค์ย้อนเวลา",
+     "element": "wind",
+     "cost": 4,
+     "atk": 4,
+     "hp": 7,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "gale",
+       "name": "ลมหอบ",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ Cost สูงสุดถูกตีกลับเข้ามือ"
+      },
+      {
+       "id": "vanish",
+       "name": "หายตัว",
+       "text": "ตอนถูกกำจัด กลับเข้ามือเจ้าของ (ถ้ามือไม่เต็ม)"
+      }
+     ],
+     "rarity": "rare",
+     "set": "circus"
+    }
+   ]
   }
  ]
 }

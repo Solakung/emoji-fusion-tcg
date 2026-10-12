@@ -45,12 +45,16 @@
   }
   function knows(P, id) { return !!(P.knows && (P.knows.all || (P.knows.set && P.knows.set[id]))); }
 
+  // โทเค็น: ก้อนหินจากช่างตีเหล็ก (ไม่เข้าสุสาน/มือ ผสมไม่ได้)
+  var TOKEN_ROCK = { id: 'TK01', type: 'creature', tier: 1, token: true, emoji: '🪨', name: 'ก้อนหินมีชีวิต', element: 'earth', cost: 1, atk: 1, hp: 2,
+    keywords: [], abilities: [{ id: 'guard', name: 'ปราการ', text: 'ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)' }], rarity: 'common' };
+
   function mkUnit(G, card) {
     return {
       uid: G.nextUid++, card: card, name: card.name, emoji: card.emoji, element: card.element, tier: card.tier,
       atk: card.atk, tempAtk: 0, fieldAtk: 0, baseMax: card.hp, hp: card.hp, fieldBonus: 0, tempHp: 0,
       keywords: card.keywords.slice(), abil: card.abilities.map(function (a) { return a.id; }),
-      attacksLeft: 0, attacked: false, burn: 0, stun: 0, evaded: false, grown: 0, unstable: false
+      attacksLeft: 0, attacked: false, burn: 0, stun: 0, evaded: false, grown: 0, unstable: false, aura: 0, stoned: 0
     };
   }
 
@@ -146,17 +150,22 @@
       });
       if (!dead.length) break;
       dead.forEach(function (d) {
-        G.players[d.side].grave.push(d.u.card);
+        var Pd = G.players[d.side];
+        if (d.u.card.token) { /* โทเค็นหายไปเลย */ }
+        else if (has(d.u, 'vanish') && Pd.hand.length < MAX_HAND) { Pd.hand.push(d.u.card); log(G, d.u.name + ': หายตัว กลับเข้ามือ'); }
+        else Pd.grave.push(d.u.card);
         log(G, d.u.name + ' ถูกกำจัด');
         onDeath(G, d.side, d.u);
       });
     }
+    syncBoth(G);
     checkOver(G);
   }
 
   // สนาม: โบนัส HP/ATK ให้ฝั่งเจ้าของ (E = ฝั่งตรงข้าม ใช้กับสนามที่ลดพลังศัตรู)
   function syncField(P, E) {
     var f = P.field, ef = E && E.field;
+    var bulwark = P.board.some(function (x) { return has(x, 'bulwark'); });
     P.board.forEach(function (u) {
       var b = (f && f.element && f.element === u.element) ? 1 : 0;
       var a = 0;
@@ -164,6 +173,7 @@
       if (f && f.fx === 'arena') a += 1;
       if (ef && ef.fx === 'haze') a -= 1;
       u.fieldAtk = a;
+      u.aura = (bulwark && (has(u, 'guard') || has(u, 'taunt'))) ? 1 : 0;
       var d = b - u.fieldBonus;
       if (d !== 0) {
         u.fieldBonus = b;
@@ -176,6 +186,7 @@
   function dmgUnit(u, amount) {
     if (amount <= 0) return 0;
     if (has(u, 'metal')) amount = Math.max(0, amount - 1);
+    if (u.aura) amount = Math.max(0, amount - u.aura);
     u.hp -= amount;
     return amount;
   }
@@ -240,6 +251,15 @@
     if (has(u, 'attract') && O.board.length) { var at = highestAtk(O.board); at.tempAtk -= 2; log(G, u.name + ': ' + at.name + ' ATK -2 เทิร์นนี้'); }
     if (has(u, 'fortify')) { P.board.forEach(function (x) { x.baseMax += 1; x.hp += 1; }); log(G, u.name + ': พวกเดียวกันทุกตัว HP +1'); }
     if (has(u, 'gust')) { draw(G, side); log(G, u.name + ': จั่วการ์ด'); }
+    if (has(u, 'forge') && P.board.length < MAX_BOARD) { place(G, side, TOKEN_ROCK); log(G, u.name + ': เสก ' + TOKEN_ROCK.name + ' ลงสนาม'); }
+    if (has(u, 'trick') && O.board.length) {
+      var tr = highestAtk(O.board);
+      if (tr.atk > tr.hp) {
+        var oa = tr.atk, oh = tr.hp;
+        tr.atk = Math.max(1, oh); tr.baseMax = Math.max(1, oa); tr.tempHp = 0; tr.hp = maxHp(tr);
+        log(G, u.name + ': สลับ ATK/HP ของ ' + tr.name + ' (' + oa + '/' + oh + ' → ' + tr.atk + '/' + tr.hp + ')');
+      } else log(G, u.name + ': มายากลไม่ได้ผล');
+    }
     if (has(u, 'tinker')) { P.fusionsLeft += 1; log(G, u.name + ': ผสมเพิ่มได้อีก 1 ครั้ง'); }
     if (has(u, 'seeker')) tutor(G, side, null, 'low');
     if (has(u, 'recall')) recallGrave(G, side);
@@ -248,7 +268,7 @@
     if (has(u, 'gale') && O.board.length) {
       var bt = O.board.slice().sort(function (a, b) { return b.card.cost - a.card.cost || a.uid - b.uid; })[0];
       O.board = O.board.filter(function (x) { return x !== bt; });
-      if (O.hand.length < MAX_HAND) O.hand.push(bt.card); else O.grave.push(bt.card);
+      if (bt.card.token) { /* โทเค็นหายไป */ } else if (O.hand.length < MAX_HAND) O.hand.push(bt.card); else O.grave.push(bt.card);
       log(G, u.name + ': ตี ' + bt.name + ' กลับเข้ามือ');
     }
     cleanup(G);
@@ -315,6 +335,7 @@
     var fa = findUnit(G, uidA), fb = findUnit(G, uidB);
     if (!fa || !fb || fa.side !== side || fb.side !== side) return { ok: false, error: 'ต้องเลือกการ์ดฝั่งเรา 2 ใบ' };
     if (uidA === uidB) return { ok: false, error: 'ต้องเลือกคนละใบ' };
+    if (fa.u.card.token || fb.u.card.token) return { ok: false, error: 'โทเค็นผสมไม่ได้' };
     if (P.fusionsLeft <= 0) return { ok: false, error: 'เทิร์นนี้ผสมครบแล้ว' };
     if (fa.u.attacked || fb.u.attacked) return { ok: false, error: 'การ์ดที่โจมตีแล้วผสมไม่ได้' };
     if (!F.canFuse(fa.u.card, fb.u.card)) return { ok: false, error: 'ผสมคู่นี้ไม่ได้ (ขั้น 3 / ใบเดียวกัน)' };
@@ -348,7 +369,7 @@
         if (tu) {
           var owner = G.players[tu.side];
           owner.board.splice(tu.idx, 1);
-          if (owner.hand.length < MAX_HAND) owner.hand.push(tu.u.card); else owner.grave.push(tu.u.card);
+          if (tu.u.card.token) { /* โทเค็นหายไป */ } else if (owner.hand.length < MAX_HAND) owner.hand.push(tu.u.card); else owner.grave.push(tu.u.card);
           log(G, card.name + ': ' + tu.u.name + ' กลับมือ');
         }
         break;
@@ -686,6 +707,10 @@
   function endTurn(G) {
     var side = G.active, P = G.players[side];
     if (P.field && P.field.fx === 'spring') { P.board.forEach(function (u) { u.hp = Math.min(maxHp(u), u.hp + 1); }); P.hp = Math.min(START_HP, P.hp + 1); }
+    P.board.forEach(function (u) {
+      if (has(u, 'stone') && !u.attacked && (u.stoned || 0) < 4) { u.atk += 1; u.stoned = (u.stoned || 0) + 1; }
+      if (has(u, 'repair')) P.board.forEach(function (x) { if (has(x, 'guard') || has(x, 'taunt')) x.hp = Math.min(maxHp(x), x.hp + 1); });
+    });
     P.board.forEach(function (u) {
       if (kw(u, 'regen')) u.hp = Math.min(maxHp(u), u.hp + 1);
       if (has(u, 'rainforest')) P.hp = Math.min(START_HP, P.hp + 1);
