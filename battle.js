@@ -12,7 +12,8 @@
   var SPELL_TARGET = {
     S01: 'enemy-any', S02: 'none', S03: 'ally-any', S04: 'enemy-unit', S05: 'none', S06: 'any-unit',
     S07: 'none', S08: 'none', S09: 'none', S10: 'ally-unit', S11: 'ally-fused', S12: 'enemy-any',
-    S13: 'ally-unit', S14: 'none', S15: 'ally-unit', S16: 'none', S17: 'ally-unit', S18: 'none'
+    S13: 'ally-unit', S14: 'none', S15: 'ally-unit', S16: 'none', S17: 'ally-unit', S18: 'none',
+    S19: 'none', S20: 'none', S21: 'ally-unit', S22: 'none', S23: 'none', S24: 'none'
   };
 
   /* ---------- เครื่องมือ ---------- */
@@ -63,7 +64,7 @@
       G.players.push({
         name: (opts.names && opts.names[i]) || ('ผู้เล่น ' + (i + 1)),
         hp: START_HP, deck: opts.decks[i].slice(), hand: [], board: [], mana: 0, maxMana: 0,
-        field: null, sets: [], fusionsLeft: 0, fusionBoost: false, fatigue: 0, grave: [],
+        field: null, sets: [], fusionsLeft: 0, fusionBoost: false, fusedNow: 0, combo: 0, fatigue: 0, grave: [],
         knows: (opts.knows && opts.knows[i]) || { all: false, set: {} }
       });
       shuffle(G, G.players[i].deck);
@@ -100,6 +101,7 @@
     P.mana = P.maxMana;
     P.fusionsLeft = 1;
     P.fusionBoost = false;
+    G.players.forEach(function (Q) { Q.fusedNow = 0; Q.combo = 0; }); // ตัวนับคอมโบ: การลงการ์ด/เวทย์/ผสมในเทิร์นนี้
     O.board.forEach(function (u) { u.evaded = false; });
     P.board.forEach(function (u) {
       u.attacked = false;
@@ -185,6 +187,34 @@
     return null;
   }
 
+  // ค้นตัวละครจากเด็คขึ้นมือ (เลือกตาม Cost ต่ำสุด/สูงสุด — กำหนดตายตัว ไม่สุ่ม)
+  function tutor(G, side, pred, mode) {
+    var P = G.players[side], best = -1;
+    for (var i = 0; i < P.deck.length; i++) {
+      var c = P.deck[i];
+      if (c.type !== 'creature' || (pred && !pred(c))) continue;
+      if (best < 0 || (mode === 'high' ? c.cost > P.deck[best].cost : c.cost < P.deck[best].cost)) best = i;
+    }
+    if (best < 0) return null;
+    var got = P.deck.splice(best, 1)[0];
+    if (P.hand.length >= MAX_HAND) { P.grave.push(got); log(G, P.name + ' ค้นได้ ' + got.name + ' แต่มือเต็ม'); return null; }
+    P.hand.push(got); log(G, P.name + ' ค้นได้ ' + got.emoji + ' ' + got.name);
+    return got;
+  }
+  // เก็บตัวละครจากสุสานคืนมือ (Cost สูงสุด; เท่ากันเอาใบล่าสุด)
+  function recallGrave(G, side) {
+    var P = G.players[side], best = -1;
+    for (var i = 0; i < P.grave.length; i++) {
+      var c = P.grave[i];
+      if (c.type === 'creature' && (best < 0 || c.cost >= P.grave[best].cost)) best = i;
+    }
+    if (best < 0) return null;
+    var got = P.grave.splice(best, 1)[0];
+    if (P.hand.length >= MAX_HAND) { P.grave.push(got); return null; }
+    P.hand.push(got); log(G, P.name + ' เก็บ ' + got.emoji + ' ' + got.name + ' จากสุสานคืนมือ');
+    return got;
+  }
+
   // เอฟเฟกต์ตอนลงสนาม
   function enter(G, side, u) {
     var P = G.players[side], O = G.players[1 - side];
@@ -210,6 +240,11 @@
     if (has(u, 'attract') && O.board.length) { var at = highestAtk(O.board); at.tempAtk -= 2; log(G, u.name + ': ' + at.name + ' ATK -2 เทิร์นนี้'); }
     if (has(u, 'fortify')) { P.board.forEach(function (x) { x.baseMax += 1; x.hp += 1; }); log(G, u.name + ': พวกเดียวกันทุกตัว HP +1'); }
     if (has(u, 'gust')) { draw(G, side); log(G, u.name + ': จั่วการ์ด'); }
+    if (has(u, 'tinker')) { P.fusionsLeft += 1; log(G, u.name + ': ผสมเพิ่มได้อีก 1 ครั้ง'); }
+    if (has(u, 'seeker')) tutor(G, side, null, 'low');
+    if (has(u, 'recall')) recallGrave(G, side);
+    if (has(u, 'combo') && P.combo >= 2) { u.atk += 2; log(G, u.name + ': คอมโบ! ATK +2 ถาวร'); }
+    if (has(u, 'surge') && P.fusedNow > 0) { var sg = Math.min(3, P.fusedNow); u.atk += sg; log(G, u.name + ': ผสมมาแล้ว ' + P.fusedNow + ' ครั้ง ATK +' + sg + ' ถาวร'); }
     if (has(u, 'gale') && O.board.length) {
       var bt = O.board.slice().sort(function (a, b) { return b.card.cost - a.card.cost || a.uid - b.uid; })[0];
       O.board = O.board.filter(function (x) { return x !== bt; });
@@ -326,6 +361,12 @@
       case 'S15': if (tu) { tu.u.hp = 0; log(G, card.name + ': สังเวย ' + tu.u.name); cleanup(G); draw(G, side); draw(G, side); } break;
       case 'S16': P.mana += 2; log(G, card.name + ': Mana +2'); break;
       case 'S17': if (tu) { tu.u.attacksLeft += 1; tu.u.attacked = false; } log(G, card.name + ': โจมตีได้อีก 1 ครั้ง'); break;
+      case 'S19': P.fusionsLeft += 1; draw(G, side); log(G, card.name + ': ผสมเพิ่มได้อีก 1 ครั้ง + จั่ว 1 ใบ'); break;
+      case 'S20': tutor(G, side, null, 'high'); break;
+      case 'S21': if (tu) { tutor(G, side, function (c) { return c.element === tu.u.element; }, 'low'); } break;
+      case 'S22': { var cd = Math.max(0, Math.min(5, P.combo - 1)); O.hp -= cd; log(G, card.name + ': ศัตรูโดน ' + cd + ' ดาเมจ (คอมโบ ' + cd + ')'); break; }
+      case 'S23': recallGrave(G, side); break;
+      case 'S24': P.board.forEach(function (u) { if (u.tier >= 2 && u.card.parts) { u.atk += 1; u.baseMax += 1; u.hp += 1; } }); log(G, card.name + ': การ์ดผสมฝั่งเรา +1/+1 ถาวร'); break;
       case 'S18': G.players.forEach(function (Q) { Q.board.forEach(function (u) { dmgUnit(u, 3); }); }); log(G, card.name + ': ทุกใบบนสนามโดน 3 ดาเมจ'); break;
       case 'S11':
         if (tu && tu.u.card.parts) {
@@ -361,6 +402,7 @@
       case 'R12': return !!(opp && top.kind === 'fuse');
       case 'R13': return !!(opp && top.kind === 'summon');
       case 'R14': return !!opp;
+      case 'R17': return !!(opp && O.combo >= 4 && (top.kind === 'spell' || top.kind === 'summon' || top.kind === 'fuse' || top.kind === 'field'));
       case 'R15': return P.deck.length > 0;
       case 'R16': return O.board.length > 0;
       case 'R08': return P.board.length < MAX_BOARD && P.grave.some(function (c) { return c.type === 'creature'; });
@@ -447,7 +489,7 @@
         }
         break;
       case 'R10': if (below && below.kind === 'attack') { var kt = findUnit(G, below.unit); if (kt) { kt.u.hp = 0; } } break;
-      case 'R11': case 'R12': if (below) below.negated = true; break;
+      case 'R11': case 'R12': case 'R17': if (below) below.negated = true; break;
       case 'R13': if (below) { below.negated = true; below.bounce = true; } break;
       case 'R14': O.hp -= 4; break;
       case 'R15': draw(G, side); draw(G, side); break;
@@ -468,6 +510,15 @@
     var idx = Math.min(fa.idx, fb.idx);
     P.board = P.board.filter(function (x) { return x.uid !== l.a && x.uid !== l.b; });
     var nu = place(G, side, res, idx);
+    var cat = (has(fa.u, 'catalyst') ? 1 : 0) + (has(fb.u, 'catalyst') ? 1 : 0);
+    if (cat) { nu.atk += cat; nu.baseMax += cat; nu.hp += cat; log(G, 'ตัวเร่งปฏิกิริยา: ' + res.name + ' +' + cat + '/+' + cat); }
+    if (has(fa.u, 'salvage')) draw(G, side);
+    if (has(fb.u, 'salvage')) draw(G, side);
+    if (P.field && P.field.fx === 'lab') {
+      nu.atk += 1;
+      if (P.fusedNow >= 2) { nu.baseMax += 2; nu.hp += 2; }
+      log(G, P.field.name + ': ' + res.name + ' ATK +1' + (P.fusedNow >= 2 ? ' HP +2 (ผสมต่อเนื่อง)' : ''));
+    }
     if (RULES.fuseInherit && fa.u.attacksLeft > 0 && fb.u.attacksLeft > 0) nu.attacksLeft = maxAttacks(nu);
     if (P.fusionBoost) { nu.atk += 1; nu.baseMax += 1; nu.hp += 1; }
     if (l.x) { nu.unstable = true; (G.disc = G.disc || []).push({ side: side, id: res.id }); log(G, '🧪 ' + P.name + ' ผสมมั่ว! ได้ ' + res.name + ' (ไม่เสถียร)'); }
@@ -523,18 +574,25 @@
       if (card.cost > P.mana) return { ok: false, error: 'Mana ไม่พอ' };
       if (card.type === 'creature') {
         if (P.board.length >= MAX_BOARD) return { ok: false, error: 'สนามเต็ม' };
-        P.hand.splice(a.hand, 1); P.mana -= card.cost;
+        P.hand.splice(a.hand, 1); P.mana -= card.cost; P.combo++;
         return { ok: true, link: { kind: 'summon', side: side, speed: 1, card: card } };
       }
       if (card.type === 'field') {
-        P.hand.splice(a.hand, 1); P.mana -= card.cost;
+        P.hand.splice(a.hand, 1); P.mana -= card.cost; P.combo++;
         return { ok: true, link: { kind: 'field', side: side, speed: 1, card: card } };
       }
       if (card.type === 'spell') {
         var legal = spellTargets(G, side, card);
         if (needsTarget(card) && legal.indexOf(a.target) < 0) return { ok: false, error: 'เป้าหมายไม่ถูกต้อง' };
         if (card.id === 'S11' && P.board.length >= MAX_BOARD) return { ok: false, error: 'สนามเต็ม แยกตัวไม่ได้' };
-        P.hand.splice(a.hand, 1); P.mana -= card.cost;
+        if (card.id === 'S19' && P.fusedNow < 1) return { ok: false, error: 'ต้องผสมในเทิร์นนี้อย่างน้อย 1 ครั้งก่อน' };
+        if (card.id === 'S20' && !P.deck.some(function (c) { return c.type === 'creature'; })) return { ok: false, error: 'ไม่มีตัวละครในเด็คให้ค้น' };
+        if (card.id === 'S21') {
+          var te = findUnit(G, a.target);
+          if (!te || !P.deck.some(function (c) { return c.type === 'creature' && c.element === te.u.element; })) return { ok: false, error: 'ไม่มีตัวละครธาตุเดียวกันในเด็ค' };
+        }
+        if (card.id === 'S23' && !P.grave.some(function (c) { return c.type === 'creature'; })) return { ok: false, error: 'ไม่มีตัวละครในสุสาน' };
+        P.hand.splice(a.hand, 1); P.mana -= card.cost; P.combo++;
         P.grave.push(card);
         return { ok: true, link: { kind: 'spell', side: side, speed: 1, card: card, target: a.target } };
       }
@@ -544,7 +602,7 @@
       var pv = fusePreview(G, side, a.a, a.b, a.x);
       if (!pv.ok) return pv;
       if (pv.cost > P.mana) return { ok: false, error: 'Mana ไม่พอ (ต้องใช้ ' + pv.cost + ')' };
-      P.mana -= pv.cost; P.fusionsLeft--;
+      P.mana -= pv.cost; P.fusionsLeft--; P.fusedNow++; P.combo++;
       return { ok: true, card: pv.card, link: { kind: 'fuse', side: side, speed: 1, a: a.a, b: a.b, x: !!a.x } };
     }
     if (a.t === 'attack') {

@@ -16,7 +16,7 @@ srv.listen(0, async () => {
   ok(r.bad === 0, 'ซองชุด 5 ใบ ใบทั้งหมดอยู่ในชุด'); ok(r.dup === 0, 'ซองชุดไม่ซ้ำ'); ok(r.last === 0, 'ใบสุดท้ายพิเศษขึ้นไป'); ok(r.d2 === 0, 'ซองอื่นไม่ซ้ำในซอง ' + r.d);
   await pg.evaluate(() => { EFL.state().coins = 100; });
   await pg.click('[data-view="shop"], #tab-shop, nav button:has-text("ร้าน")').catch(() => { });
-  const btn = pg.locator('.set-btn'); ok(await btn.count() === 2, 'มีปุ่มซองชุดในร้าน');
+  const btn = pg.locator('.set-btn'); ok(await btn.count() === 4, 'มีปุ่มซองชุดในร้าน (4 ชุด)');
   await btn.first().click(); await pg.waitForTimeout(300);
   const st = await pg.evaluate(() => { const s = EFL.state(); return { coins: s.coins, n: Object.keys(s.owned).filter(i => /^DR/.test(i)).length }; });
   ok(st.coins === 60, 'หักเหรียญ 40'); ok(st.n >= 1 && st.n <= 5, 'การ์ดชุดเข้าคลัง ' + st.n);

@@ -2675,8 +2675,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.27').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.27')
+    var setsP = fetch('sets.json?v=0.28').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.28')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });

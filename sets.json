@@ -520,6 +520,714 @@
      "set": "space"
     }
    ]
+  },
+  {
+   "id": "ocean",
+   "name": "ใต้สมุทรลึก",
+   "emoji": "🌊",
+   "color": [
+    "#04476b",
+    "#2de2c4"
+   ],
+   "desc": "สัตว์ทะเลและขุมทรัพย์ใต้น้ำ 16 ใบ",
+   "cards": [
+    {
+     "id": "OC01",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦐",
+     "name": "กุ้งน้อย",
+     "element": "water",
+     "cost": 1,
+     "atk": 3,
+     "hp": 2,
+     "keywords": [
+      "haste"
+     ],
+     "abilities": [],
+     "rarity": "common",
+     "set": "ocean"
+    },
+    {
+     "id": "OC02",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐚",
+     "name": "หอยสังข์",
+     "element": "earth",
+     "cost": 1,
+     "atk": 2,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      }
+     ],
+     "rarity": "common",
+     "set": "ocean"
+    },
+    {
+     "id": "OC03",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🌴",
+     "name": "ป่าชายเลน",
+     "element": "plant",
+     "cost": 2,
+     "atk": 2,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "bloom",
+       "name": "ออกดอก",
+       "text": "ตอนลงสนาม พวกเดียวกันทุกตัวฟื้น HP 2"
+      }
+     ],
+     "rarity": "common",
+     "set": "ocean"
+    },
+    {
+     "id": "OC04",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦀",
+     "name": "ปูก้ามโต",
+     "element": "water",
+     "cost": 2,
+     "atk": 3,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "thorns",
+       "name": "หนาม",
+       "text": "ตอนถูกโจมตี ผู้โจมตีโดน 1 ดาเมจเพิ่ม"
+      }
+     ],
+     "rarity": "common",
+     "set": "ocean"
+    },
+    {
+     "id": "OC05",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐠",
+     "name": "ปลาเขตร้อน",
+     "element": "wind",
+     "cost": 2,
+     "atk": 3,
+     "hp": 3,
+     "keywords": [
+      "evade"
+     ],
+     "abilities": [],
+     "rarity": "common",
+     "set": "ocean"
+    },
+    {
+     "id": "OC06",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐡",
+     "name": "ปักเป้าพิษ",
+     "element": "water",
+     "cost": 2,
+     "atk": 3,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "poison",
+       "name": "พิษ",
+       "text": "โจมตีแล้วเป้าหมายโดนพิษ 1 ดาเมจ/เทิร์น (2 เทิร์น)"
+      }
+     ],
+     "rarity": "common",
+     "set": "ocean"
+    },
+    {
+     "id": "OC07",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦭",
+     "name": "แมวน้ำ",
+     "element": "water",
+     "cost": 2,
+     "atk": 3,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "lifesteal",
+       "name": "ดูดชีวิต",
+       "text": "ทุกครั้งที่โจมตี ฟื้น HP ผู้เล่น 1"
+      }
+     ],
+     "rarity": "common",
+     "set": "ocean"
+    },
+    {
+     "id": "OC08",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "⚓",
+     "name": "สมอเรือ",
+     "element": "earth",
+     "cost": 2,
+     "atk": 2,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "trap",
+       "name": "กับดัก",
+       "text": "ตอนถูกโจมตี ผู้โจมตีเสีย ATK 1 ถาวร"
+      }
+     ],
+     "rarity": "common",
+     "set": "ocean"
+    },
+    {
+     "id": "OC09",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐬",
+     "name": "โลมา",
+     "element": "water",
+     "cost": 3,
+     "atk": 4,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "dew",
+       "name": "น้ำค้าง",
+       "text": "ตอนลงสนาม ฟื้น HP ผู้เล่น 2"
+      }
+     ],
+     "rarity": "common",
+     "set": "ocean"
+    },
+    {
+     "id": "OC10",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦑",
+     "name": "ปลาหมึกยักษ์",
+     "element": "water",
+     "cost": 3,
+     "atk": 4,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "freeze",
+       "name": "แช่แข็ง",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุดโจมตีไม่ได้ 1 เทิร์น"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "ocean"
+    },
+    {
+     "id": "OC11",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🧜",
+     "name": "เงือกสาว",
+     "element": "water",
+     "cost": 3,
+     "atk": 3,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "tide",
+       "name": "น้ำขึ้น",
+       "text": "ตอนลงสนาม พวกเดียวกัน 1 ตัว (HP ต่ำสุด) HP +1 ถาวร"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "ocean"
+    },
+    {
+     "id": "OC12",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🏝️",
+     "name": "เกาะลอยฟ้า",
+     "element": "earth",
+     "cost": 3,
+     "atk": 3,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "gust",
+       "name": "ลมหมุน",
+       "text": "ตอนลงสนาม จั่วการ์ด 1 ใบ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "ocean"
+    },
+    {
+     "id": "OC13",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🚢",
+     "name": "เรือโจรสลัด",
+     "element": "wind",
+     "cost": 3,
+     "atk": 5,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "chain",
+       "name": "ฟ้าแลบต่อ",
+       "text": "โจมตีการ์ดศัตรู แล้วศัตรูอีก 1 ตัว (HP ต่ำสุด) โดน 1 ดาเมจ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "ocean"
+    },
+    {
+     "id": "OC14",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐋",
+     "name": "วาฬหลังค่อม",
+     "element": "water",
+     "cost": 4,
+     "atk": 4,
+     "hp": 6,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "tide",
+       "name": "น้ำขึ้น",
+       "text": "ตอนลงสนาม พวกเดียวกัน 1 ตัว (HP ต่ำสุด) HP +1 ถาวร"
+      }
+     ],
+     "rarity": "rare",
+     "set": "ocean"
+    },
+    {
+     "id": "OC15",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🔱",
+     "name": "ตรีศูลโพไซดอน",
+     "element": "electric",
+     "cost": 4,
+     "atk": 5,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "attract",
+       "name": "ดูดพลัง",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุด ATK -2 เทิร์นนี้"
+      }
+     ],
+     "rarity": "rare",
+     "set": "ocean"
+    },
+    {
+     "id": "OC16",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦞",
+     "name": "กุ้งมังกรเกราะหนา",
+     "element": "earth",
+     "cost": 4,
+     "atk": 4,
+     "hp": 6,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      },
+      {
+       "id": "thorns",
+       "name": "หนาม",
+       "text": "ตอนถูกโจมตี ผู้โจมตีโดน 1 ดาเมจเพิ่ม"
+      }
+     ],
+     "rarity": "rare",
+     "set": "ocean"
+    }
+   ]
+  },
+  {
+   "id": "alchemy",
+   "name": "แล็บเล่นแร่",
+   "emoji": "🧪",
+   "color": [
+    "#5b2a86",
+    "#9dff3a"
+   ],
+   "desc": "ชุดคอมโบ: ผสมต่อเนื่อง ค้นการ์ด เก็บกู้ 16 ใบ",
+   "cards": [
+    {
+     "id": "AL01",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🧪",
+     "name": "หลอดทดลอง",
+     "element": "water",
+     "cost": 1,
+     "atk": 2,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "salvage",
+       "name": "เก็บกู้",
+       "text": "ตอนถูกใช้เป็นวัตถุดิบผสม จั่วการ์ด 1 ใบ"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL02",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "📜",
+     "name": "ม้วนตำรา",
+     "element": "wind",
+     "cost": 1,
+     "atk": 2,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "seeker",
+       "name": "นักค้นหา",
+       "text": "ตอนลงสนาม ค้นตัวละคร Cost ต่ำสุดจากเด็คขึ้นมือ"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL03",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🧫",
+     "name": "จานเพาะเชื้อ",
+     "element": "plant",
+     "cost": 1,
+     "atk": 2,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "catalyst",
+       "name": "ตัวเร่งปฏิกิริยา",
+       "text": "ตอนถูกใช้เป็นวัตถุดิบผสม การ์ดที่ได้ +1/+1"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL04",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🧰",
+     "name": "กล่องเครื่องมือ",
+     "element": "earth",
+     "cost": 1,
+     "atk": 2,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "tinker",
+       "name": "ช่างประกอบ",
+       "text": "ตอนลงสนาม ผสมเพิ่มได้อีก 1 ครั้งเทิร์นนี้"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL05",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "⚗️",
+     "name": "หม้อกลั่น",
+     "element": "fire",
+     "cost": 2,
+     "atk": 2,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "tinker",
+       "name": "ช่างประกอบ",
+       "text": "ตอนลงสนาม ผสมเพิ่มได้อีก 1 ครั้งเทิร์นนี้"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL06",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🔬",
+     "name": "กล้องจุลทรรศน์",
+     "element": "electric",
+     "cost": 2,
+     "atk": 2,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "seeker",
+       "name": "นักค้นหา",
+       "text": "ตอนลงสนาม ค้นตัวละคร Cost ต่ำสุดจากเด็คขึ้นมือ"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL07",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🪄",
+     "name": "ไม้กายสิทธิ์",
+     "element": "electric",
+     "cost": 2,
+     "atk": 3,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "combo",
+       "name": "คอมโบ",
+       "text": "ตอนลงสนาม ถ้าเทิร์นนี้ลงการ์ด/ใช้เวทย์/ผสมมาก่อนแล้ว ATK +2 ถาวร"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL08",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "⚙️",
+     "name": "เฟืองกล",
+     "element": "earth",
+     "cost": 2,
+     "atk": 3,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "catalyst",
+       "name": "ตัวเร่งปฏิกิริยา",
+       "text": "ตอนถูกใช้เป็นวัตถุดิบผสม การ์ดที่ได้ +1/+1"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL09",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "⏳",
+     "name": "นาฬิกาทราย",
+     "element": "wind",
+     "cost": 2,
+     "atk": 2,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "recall",
+       "name": "เรียกคืน",
+       "text": "ตอนลงสนาม เก็บตัวละคร Cost สูงสุดจากสุสานคืนมือ"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL10",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🧿",
+     "name": "ลูกแก้วทำนาย",
+     "element": "water",
+     "cost": 2,
+     "atk": 2,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "salvage",
+       "name": "เก็บกู้",
+       "text": "ตอนถูกใช้เป็นวัตถุดิบผสม จั่วการ์ด 1 ใบ"
+      }
+     ],
+     "rarity": "common",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL11",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🔗",
+     "name": "โซ่เชื่อมธาตุ",
+     "element": "earth",
+     "cost": 3,
+     "atk": 4,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "tinker",
+       "name": "ช่างประกอบ",
+       "text": "ตอนลงสนาม ผสมเพิ่มได้อีก 1 ครั้งเทิร์นนี้"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL12",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🪞",
+     "name": "กระจกสะท้อน",
+     "element": "wind",
+     "cost": 3,
+     "atk": 3,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "recall",
+       "name": "เรียกคืน",
+       "text": "ตอนลงสนาม เก็บตัวละคร Cost สูงสุดจากสุสานคืนมือ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL13",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🧬",
+     "name": "สายพันธุ์ใหม่",
+     "element": "plant",
+     "cost": 3,
+     "atk": 3,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "surge",
+       "name": "พลังสะสม",
+       "text": "ตอนลงสนาม ATK +1 ถาวรต่อการผสมที่ทำในเทิร์นนี้ (สูงสุด +3)"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL14",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🎇",
+     "name": "ประกายคอมโบ",
+     "element": "fire",
+     "cost": 3,
+     "atk": 4,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "combo",
+       "name": "คอมโบ",
+       "text": "ตอนลงสนาม ถ้าเทิร์นนี้ลงการ์ด/ใช้เวทย์/ผสมมาก่อนแล้ว ATK +2 ถาวร"
+      },
+      {
+       "id": "spark",
+       "name": "ประกายไฟ",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ HP ต่ำสุดโดน 1 ดาเมจ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL15",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🏺",
+     "name": "หม้อกำเนิดใหม่",
+     "element": "earth",
+     "cost": 4,
+     "atk": 4,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "recall",
+       "name": "เรียกคืน",
+       "text": "ตอนลงสนาม เก็บตัวละคร Cost สูงสุดจากสุสานคืนมือ"
+      },
+      {
+       "id": "seeker",
+       "name": "นักค้นหา",
+       "text": "ตอนลงสนาม ค้นตัวละคร Cost ต่ำสุดจากเด็คขึ้นมือ"
+      }
+     ],
+     "rarity": "rare",
+     "set": "alchemy"
+    },
+    {
+     "id": "AL16",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "💠",
+     "name": "ผลึกพลังงาน",
+     "element": "electric",
+     "cost": 4,
+     "atk": 4,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "tinker",
+       "name": "ช่างประกอบ",
+       "text": "ตอนลงสนาม ผสมเพิ่มได้อีก 1 ครั้งเทิร์นนี้"
+      },
+      {
+       "id": "surge",
+       "name": "พลังสะสม",
+       "text": "ตอนลงสนาม ATK +1 ถาวรต่อการผสมที่ทำในเทิร์นนี้ (สูงสุด +3)"
+      }
+     ],
+     "rarity": "rare",
+     "set": "alchemy"
+    }
+   ]
   }
  ]
 }
