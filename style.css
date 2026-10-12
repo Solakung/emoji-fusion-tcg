@@ -490,3 +490,10 @@ body.shake-s { animation: bodyshake .45s; }
 @keyframes toptear { 0% { transform: none; } 30% { transform: translate(-6px,-4px) rotate(-6deg); } 100% { transform: translate(150px,-220px) rotate(48deg); opacity: 0; } }
 @keyframes bodydrop { to { transform: translateY(40px) scale(.9); opacity: 0; } }
 @keyframes glowburst { 0% { opacity: 0; transform: scale(.4); } 30% { opacity: 1; transform: scale(1.4); } 100% { opacity: 0; transform: scale(9); } }
+.pack-stage { touch-action: none; user-select: none; -webkit-user-select: none; }
+.foil.dragging { animation: none; }
+.foil-top { transform-origin: 0 100%; transition: transform .12s; }
+.foil.dragging .foil-top { transition: none; }
+.tear-line { position: absolute; left: 0; right: 0; top: 44px; height: 0; border-top: 3px dashed rgba(255,255,255,.85); z-index: 3; pointer-events: none; }
+.tear-line i { position: absolute; left: 0; top: -3px; height: 3px; width: 0; background: #fff; box-shadow: 0 0 10px 3px rgba(255,255,255,.9); }
+.scissor { position: absolute; left: 0; top: 30px; font-size: 26px; transform: translateX(-50%) rotate(90deg); z-index: 4; opacity: 0; pointer-events: none; }

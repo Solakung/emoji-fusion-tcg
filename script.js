@@ -646,19 +646,36 @@
     if (reduce || (window.EFL && window.EFL.noTear)) { done(); return; }
     var st = make('div', 'pack-stage');
     var foil = make('div', 'foil ' + kind + (kind === 'elem' ? ' e-' + elem : ''));
-    foil.innerHTML = '<div class="foil-top"></div><div class="foil-body"><span class="foil-ico">🧪</span><b>EMOJI FUSION</b><small>' + (kind === 'rare' ? 'ซองหายาก' : kind === 'elem' ? 'ซองธาตุ ' + F.ELEMENTS[elem].emoji : 'ซองการ์ด') + '</small></div><div class="foil-glow"></div>';
+    foil.innerHTML = '<div class="foil-top"></div><div class="foil-body"><span class="foil-ico">🧪</span><b>EMOJI FUSION</b><small>' + (kind === 'rare' ? 'ซองหายาก' : kind === 'elem' ? 'ซองธาตุ ' + F.ELEMENTS[elem].emoji : 'ซองการ์ด') + '</small></div><div class="foil-glow"></div><div class="tear-line"><i></i></div><span class="scissor">✂️</span>';
     st.appendChild(foil);
-    var hint = make('div', 'tear-hint', 'แตะเพื่อฉีกซอง');
+    var hint = make('div', 'tear-hint', 'ลากนิ้วตัดตามรอยประ (หรือแตะ)');
     st.appendChild(hint);
     document.body.appendChild(st);
     var torn = false;
     function tear() {
       if (torn) return; torn = true;
-      hint.remove(); foil.classList.add('tearing'); st.classList.add('burst');
+      hint.remove(); foil.classList.remove('dragging'); sc.style.opacity = 0; top.style.transform = ''; fill.style.width = '100%'; foil.classList.add('tearing'); st.classList.add('burst');
       setTimeout(function () { st.classList.add('out'); setTimeout(function () { if (st.parentNode) st.parentNode.removeChild(st); done(); }, 320); }, 950);
     }
-    st.onclick = tear;
-    setTimeout(tear, 3500);
+    var top = foil.querySelector('.foil-top'), fill = foil.querySelector('.tear-line i'), sc = foil.querySelector('.scissor');
+    var down = null, prog = 0, moved = false;
+    function show(pg) {
+      prog = pg;
+      fill.style.width = (pg * 100) + '%';
+      sc.style.left = (pg * 100) + '%'; sc.style.opacity = pg > 0 ? 1 : 0;
+      top.style.transform = pg > 0 ? 'translate(' + (pg * 10) + 'px,' + (-pg * 8) + 'px) rotate(' + (-pg * 7) + 'deg)' : '';
+    }
+    st.addEventListener('pointerdown', function (e) { if (torn) return; down = { x: e.clientX, y: e.clientY }; moved = false; foil.classList.add('dragging'); try { st.setPointerCapture(e.pointerId); } catch (x) { } });
+    st.addEventListener('pointermove', function (e) {
+      if (!down || torn) return;
+      var dx = Math.abs(e.clientX - down.x);
+      if (dx > 8) moved = true;
+      show(Math.min(1, dx / 150));
+      if (prog >= 0.98) { down = null; tear(); }
+    });
+    function up() { if (!down || torn) return; down = null; foil.classList.remove('dragging'); if (!moved) tear(); else show(0); }
+    st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+    setTimeout(tear, 6000);
   }
 
   function revealPack(res) {
