@@ -139,6 +139,9 @@
     art.appendChild(spriteEl(card, mode === 'full' ? 128 : 56));
     d.appendChild(art);
     d.appendChild(make('div', 'name', card.name));
+    if (card.type === 'creature' && card.tier === 1 && card.abilities && card.abilities.length) {
+      d.appendChild(make('div', 'ab', '✧ ' + card.abilities[0].name));
+    }
     if (card.type === 'creature') {
       d.appendChild(make('div', 'stats-row', '<span class="a">⚔' + card.atk + '</span> <span class="h">❤' + card.hp + '</span>'));
     } else {
@@ -619,7 +622,7 @@
 
   function statusIcons(u) {
     var s = '';
-    if (u.abil.indexOf('taunt') >= 0) s += '🛡️';
+    if (u.abil.indexOf('taunt') >= 0 || u.abil.indexOf('guard') >= 0) s += '🛡️';
     if (B.isEvade(u)) s += '💨';
     if (u.keywords.indexOf('regen') >= 0) s += '♻️';
     if (B.isHaste(u)) s += '⏩';
@@ -836,7 +839,7 @@
       if (sel && sel.k === 'unit' && sel.mode === 'attack') {
         if (B.attackTargets(G, 0, sel.uid).indexOf(uid) >= 0) act({ t: 'attack', unit: sel.uid, target: uid });
         else {
-          var hasTaunt = G.players[1].board.some(function (x) { return x.abil.indexOf('taunt') >= 0; });
+          var hasTaunt = G.players[1].board.some(function (x) { return x.abil.indexOf('taunt') >= 0 || x.abil.indexOf('guard') >= 0; });
           toast(hasTaunt ? 'ต้องโจมตีตัวล่อก่อน' : 'โจมตีไม่ได้');
         }
         return;

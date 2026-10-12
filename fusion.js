@@ -60,6 +60,11 @@
     return out;
   }
 
+  function dominantCard(a, b) {
+    if (a.cost !== b.cost) return a.cost > b.cost ? a : b;
+    return CYCLE.indexOf(a.element) <= CYCLE.indexOf(b.element) ? a : b;
+  }
+
   function fuse(x, y) {
     if (!canFuse(x, y)) return null;
     var pair = [x, y].sort(function (p, q) { return p.id < q.id ? -1 : p.id > q.id ? 1 : 0; });
@@ -80,14 +85,18 @@
         abilities = [{ id: pr.id, name: pr.name, text: pr.text }];
         name = pr.name;
       }
+      // สืบทอดความสามารถเฉพาะตัวของแม่ที่ Cost สูงกว่า
+      dominantCard(a, b).abilities.forEach(function (ab) {
+        if (ab.id !== 'empower') abilities.push({ id: ab.id, name: ab.name, text: ab.text });
+      });
     } else {
       var notEmpower = function (ab) { return ab.id !== 'empower'; };
       var t2s = [a, b].filter(function (c) { return c.tier === 2; });
       if (t2s.length === 2) {
-        abilities = uniqAbilities(a.abilities.filter(notEmpower).concat(b.abilities.filter(notEmpower))).slice(0, 2);
+        abilities = uniqAbilities(a.abilities.filter(notEmpower).concat(b.abilities.filter(notEmpower))).slice(0, 3);
       } else {
         var p = t2s[0], o = (p === a) ? b : a;
-        abilities = p.abilities.filter(notEmpower);
+        abilities = p.abilities.filter(notEmpower).slice();
         if (p.element !== o.element) {
           var pr2 = PAIR[pairKey(p.element, o.element)];
           if (pr2.id === 'lava') hp += 2;
@@ -95,9 +104,9 @@
             abilities.push({ id: pr2.id, name: pr2.name, text: pr2.text });
           }
         }
-        abilities = abilities.slice(0, 2);
+        abilities = abilities.slice(0, 3);
       }
-      name = abilities.map(function (ab) { return ab.name; }).join('·') || 'ผสมซ้อน';
+      name = abilities.slice(0, 2).map(function (ab) { return ab.name; }).join('·') || 'ผสมซ้อน';
     }
 
     var keywords = [];

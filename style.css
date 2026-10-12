@@ -320,3 +320,6 @@ body.in-battle { overflow: hidden; }
 /* หัวเว็บบนจอแคบ */
 h1 { white-space: nowrap; font-size: 16px; }
 @media (max-width: 440px) { .brand p { display: none; } .logo { font-size: 26px; } }
+
+/* ความสามารถเฉพาะตัวของการ์ดพื้นฐาน */
+.card .ab { font-size: 10px; line-height: 1.1; margin-top: 2px; color: #ffe08a; opacity: .95; }

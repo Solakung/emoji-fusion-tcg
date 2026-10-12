@@ -42,6 +42,33 @@ PAIR = {
     ("electric", "wind"): ("พายุฟ้า", "⛈️", "stormbolt", "ลงแล้วโจมตีได้เลย และถ้า ATK <= 3 โจมตีได้ 2 ครั้ง/เทิร์น"),
     ("earth", "wind"): ("พายุทราย", "🏜️", "sandstorm", "ตอนลงสนาม เป้าหมาย 1 ตัว ATK -1 ถาวร"),
 }
+# ความสามารถเฉพาะตัวของการ์ดพื้นฐาน 24 ใบ (id, ชื่อ, คำอธิบาย) เรียงตาม BASE
+BASE_ABILITY = [
+    ("lastflame", "ไฟสุดท้าย", "ตอนถูกกำจัด ผู้เล่นศัตรูโดน 1 ดาเมจ"),
+    ("spark", "ประกายไฟ", "ตอนลงสนาม ศัตรูตัวที่ HP ต่ำสุดโดน 1 ดาเมจ"),
+    ("eruption", "ภูเขาไฟระเบิด", "ตอนถูกกำจัด ศัตรูทุกตัวโดน 1 ดาเมจ"),
+    ("radiance", "รังสี", "จบเทิร์น ศัตรูตัวที่ HP ต่ำสุดโดน 1 ดาเมจ"),
+    ("dew", "น้ำค้าง", "ตอนลงสนาม ฟื้น HP ผู้เล่น 2"),
+    ("tide", "น้ำขึ้น", "ตอนลงสนาม พวกเดียวกัน 1 ตัว (HP ต่ำสุด) HP +1 ถาวร"),
+    ("freeze", "แช่แข็ง", "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุดโจมตีไม่ได้ 1 เทิร์น"),
+    ("lifesteal", "ดูดชีวิต", "ทุกครั้งที่โจมตี ฟื้น HP ผู้เล่น 1"),
+    ("sprout", "งอกงาม", "จบเทิร์น ATK +1 ถาวร (สูงสุด +3)"),
+    ("poison", "พิษ", "โจมตีแล้วเป้าหมายโดนพิษ 1 ดาเมจ/เทิร์น (2 เทิร์น)"),
+    ("bloom", "ออกดอก", "ตอนลงสนาม พวกเดียวกันทุกตัวฟื้น HP 2"),
+    ("thorns", "หนาม", "ตอนถูกโจมตี ผู้โจมตีโดน 1 ดาเมจเพิ่ม"),
+    ("charge", "ชาร์จ", "ตอนลงสนาม Mana +1 (เทิร์นนี้)"),
+    ("jolt", "ช็อตไฟ", "ตอนลงสนาม ผู้เล่นศัตรูโดน 1 ดาเมจ"),
+    ("attract", "ดูดพลัง", "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุด ATK -2 เทิร์นนี้"),
+    ("chain", "ฟ้าแลบต่อ", "โจมตีการ์ดศัตรู แล้วศัตรูอีก 1 ตัว (HP ต่ำสุด) โดน 1 ดาเมจ"),
+    ("fall", "หินร่วง", "ตอนถูกกำจัด ศัตรูตัวที่ HP ต่ำสุดโดน 2 ดาเมจ"),
+    ("trap", "กับดัก", "ตอนถูกโจมตี ผู้โจมตีเสีย ATK 1 ถาวร"),
+    ("fortify", "เสริมเกราะ", "ตอนลงสนาม พวกเดียวกันทุกตัว HP +1 ถาวร"),
+    ("guard", "ปราการ", "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"),
+    ("gust", "ลมหมุน", "ตอนลงสนาม จั่วการ์ด 1 ใบ"),
+    ("wisp", "วิญญาณลม", "ตอนถูกกำจัด จั่วการ์ด 1 ใบ"),
+    ("gale", "ลมหอบ", "ตอนลงสนาม ศัตรูตัวที่ Cost สูงสุดถูกตีกลับเข้ามือ"),
+    ("rampage", "คลั่ง", "ถ้าโจมตีแล้วกำจัดการ์ดศัตรูได้ โจมตีได้อีก 1 ครั้ง"),
+]
 SAME = ("เสริมพลัง", "✨", "empower", "ไม่มีความสามารถใหม่ แต่ได้ +1/+1")
 
 # ค่าโดดเด่นของความสามารถ (ใช้ปรับสมดุลในตัวเลข: สำหรับหักลบสถิติ)
@@ -52,6 +79,13 @@ ABILITY_VALUE = {  # แต้มสถิติที่ความสาม�
     "empower": 0, "inherited": 0,
 }
 
+def dedupe(lst):
+    seen, out = set(), []
+    for x in lst:
+        if x["id"] not in seen:
+            seen.add(x["id"]); out.append(x)
+    return out
+
 def pair_key(a, b):
     return tuple(sorted((a, b)))
 
@@ -60,6 +94,11 @@ def dominant(a, b):
     if a["cost"] != b["cost"]:
         return (a if a["cost"] > b["cost"] else b)["element"]
     return min(a["element"], b["element"], key=CYCLE.index)
+
+def dominant_card(a, b):
+    if a["cost"] != b["cost"]:
+        return a if a["cost"] > b["cost"] else b
+    return a if CYCLE.index(a["element"]) <= CYCLE.index(b["element"]) else b
 
 def fuse(a, b, bonus_stat=0):
     """ผสมการ์ดสองใบ คืน dict การ์ดใหม่"""
@@ -84,11 +123,13 @@ def fuse(a, b, bonus_stat=0):
             if aid == "lava":
                 hp += 2
         abilities = [{"id": aid, "text": desc}]
+        # สืบทอดความสามารถเฉพาะตัวของแม่ที่ Cost สูงกว่า
+        abilities += [dict(x) for x in dominant_card(a, b)["abilities"] if x["id"] != "empower"]
         title = f"{name}"
     else:
         # ขั้น 3
         if a["tier"] == 2 and b["tier"] == 2:
-            abilities = inherited[:2]  # ได้ความสามารถของแม่ทั้งสอง
+            abilities = dedupe(inherited)[:3]  # ได้ความสามารถของแม่ทั้งสอง (สูงสุด 3)
         else:
             parent_t2 = a if a["tier"] == 2 else b
             other = b if parent_t2 is a else a
@@ -102,7 +143,7 @@ def fuse(a, b, bonus_stat=0):
             abilities = [x for x in parent_t2["abilities"] if x["id"] != "empower"]
             if new and all(new["id"] != x["id"] for x in abilities):
                 abilities.append(new)
-            abilities = abilities[:2]
+            abilities = abilities[:3]
         title = "ผสม3"
     cost = min(math.ceil((a["cost"] + b["cost"]) / 2) + 1, 6)
     emoji = a["emoji"] + b["emoji"]
@@ -119,7 +160,8 @@ def make_base():
         cards.append({
             "id": f"B{i+1:02d}", "type": "creature", "tier": 1, "emoji": e, "name": n,
             "element": el, "cost": c, "atk": atk, "hp": hp,
-            "keywords": [KEYWORD[el]] if el in KEYWORD else [], "abilities": [],
+            "keywords": [KEYWORD[el]] if el in KEYWORD else [],
+            "abilities": [{"id": BASE_ABILITY[i][0], "name": BASE_ABILITY[i][1], "text": BASE_ABILITY[i][2]}],
             "rarity": "common",
         })
     return cards
@@ -225,7 +267,7 @@ def main():
     # วงจรธาตุ
     lines.append("\nT2 จำนวนต่อธาตุหลัก: " + ", ".join(f"{k}={sum(1 for c in t2 if c['element']==k)}" for k in ELEMENTS))
     # ความสามารถที่ T3 ได้เกิน 2 ?
-    bad = [c for c in t3 if len(c["abilities"]) > 2]
+    bad = [c for c in t3 if len(c["abilities"]) > 3]
     lines.append(f"T3 sample abilities>2: {len(bad)}")
     open("balance_report.txt", "w").write("\n".join(lines))
     print("\n".join(lines))

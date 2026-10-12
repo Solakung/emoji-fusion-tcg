@@ -48,7 +48,7 @@
       uid: G.nextUid++, card: card, name: card.name, emoji: card.emoji, element: card.element, tier: card.tier,
       atk: card.atk, tempAtk: 0, baseMax: card.hp, hp: card.hp, fieldBonus: 0, tempHp: 0,
       keywords: card.keywords.slice(), abil: card.abilities.map(function (a) { return a.id; }),
-      attacksLeft: 0, attacked: false, burn: 0, stun: 0, evaded: false
+      attacksLeft: 0, attacked: false, burn: 0, stun: 0, evaded: false, grown: 0
     };
   }
 
@@ -117,14 +117,37 @@
     else if (d1) G.over = { winner: 0 };
   }
 
+  function lowestHp(arr) {
+    return arr.slice().sort(function (a, b) { return a.hp - b.hp || a.uid - b.uid; })[0];
+  }
+  function highestAtk(arr) {
+    return arr.slice().sort(function (a, b) { return curAtk(b) - curAtk(a) || a.uid - b.uid; })[0];
+  }
+
+  // เอฟเฟกต์ตอนถูกกำจัด
+  function onDeath(G, side, u) {
+    var P = G.players[side], O = G.players[1 - side];
+    if (has(u, 'lastflame')) { O.hp -= 1; log(G, u.name + ': ผู้เล่นศัตรูโดน 1 ดาเมจ'); }
+    if (has(u, 'eruption')) { O.board.forEach(function (e) { dmgUnit(e, 1); }); log(G, u.name + ': ศัตรูทุกตัวโดน 1 ดาเมจ'); }
+    if (has(u, 'fall') && O.board.length) { var t = lowestHp(O.board); dmgUnit(t, 2); log(G, u.name + ': ' + t.name + ' โดน 2 ดาเมจ'); }
+    if (has(u, 'wisp')) { draw(G, side); log(G, u.name + ': จั่วการ์ด'); }
+  }
+
   function cleanup(G) {
-    G.players.forEach(function (P) {
-      var keep = [];
-      P.board.forEach(function (u) {
-        if (u.hp <= 0) { P.grave.push(u.card); log(G, u.name + ' ถูกกำจัด'); } else keep.push(u);
+    for (var guard = 0; guard < 20; guard++) {
+      var dead = [];
+      G.players.forEach(function (P, s) {
+        var keep = [];
+        P.board.forEach(function (u) { if (u.hp <= 0) dead.push({ u: u, side: s }); else keep.push(u); });
+        P.board = keep;
       });
-      P.board = keep;
-    });
+      if (!dead.length) break;
+      dead.forEach(function (d) {
+        G.players[d.side].grave.push(d.u.card);
+        log(G, d.u.name + ' ถูกกำจัด');
+        onDeath(G, d.side, d.u);
+      });
+    }
     checkOver(G);
   }
 
@@ -165,6 +188,25 @@
       t.atk = Math.max(0, t.atk - 1);
       log(G, u.name + ': ' + t.name + ' ATK -1 ถาวร');
     }
+    if (has(u, 'spark') && O.board.length) { var sp = lowestHp(O.board); dmgUnit(sp, 1); log(G, u.name + ': ' + sp.name + ' โดน 1 ดาเมจ'); }
+    if (has(u, 'dew')) { P.hp = Math.min(START_HP, P.hp + 2); log(G, u.name + ': ฟื้น HP ผู้เล่น 2'); }
+    if (has(u, 'tide')) {
+      var al = P.board.filter(function (x) { return x !== u; });
+      if (al.length) { var w = lowestHp(al); w.baseMax += 1; w.hp += 1; log(G, u.name + ': ' + w.name + ' HP +1'); }
+    }
+    if (has(u, 'freeze') && O.board.length) { var fz = highestAtk(O.board); fz.stun = 1; fz.attacksLeft = 0; log(G, u.name + ': ' + fz.name + ' ถูกแช่แข็ง'); }
+    if (has(u, 'bloom')) { P.board.forEach(function (x) { x.hp = Math.min(maxHp(x), x.hp + 2); }); log(G, u.name + ': พวกเดียวกันฟื้น HP 2'); }
+    if (has(u, 'charge')) { P.mana += 1; log(G, u.name + ': Mana +1'); }
+    if (has(u, 'jolt')) { O.hp -= 1; log(G, u.name + ': ผู้เล่นศัตรูโดน 1 ดาเมจ'); }
+    if (has(u, 'attract') && O.board.length) { var at = highestAtk(O.board); at.tempAtk -= 2; log(G, u.name + ': ' + at.name + ' ATK -2 เทิร์นนี้'); }
+    if (has(u, 'fortify')) { P.board.forEach(function (x) { x.baseMax += 1; x.hp += 1; }); log(G, u.name + ': พวกเดียวกันทุกตัว HP +1'); }
+    if (has(u, 'gust')) { draw(G, side); log(G, u.name + ': จั่วการ์ด'); }
+    if (has(u, 'gale') && O.board.length) {
+      var bt = O.board.slice().sort(function (a, b) { return b.card.cost - a.card.cost || a.uid - b.uid; })[0];
+      O.board = O.board.filter(function (x) { return x !== bt; });
+      if (O.hand.length < MAX_HAND) O.hand.push(bt.card); else O.grave.push(bt.card);
+      log(G, u.name + ': ตี ' + bt.name + ' กลับเข้ามือ');
+    }
     cleanup(G);
   }
 
@@ -179,7 +221,7 @@
 
   /* ---------- เป้าหมาย ---------- */
   function tauntUnits(G, side) {
-    return G.players[side].board.filter(function (u) { return has(u, 'taunt'); });
+    return G.players[side].board.filter(function (u) { return has(u, 'taunt') || has(u, 'guard'); });
   }
 
   function attackTargets(G, side, uid) {
@@ -350,6 +392,7 @@
         var d = curAtk(att) + (has(att, 'plasma') ? 1 : 0);
         O.hp -= d;
         log(G, att.name + ' โจมตีผู้เล่น ' + d);
+        if (has(att, 'lifesteal')) P.hp = Math.min(START_HP, P.hp + 1);
       } else {
         var tg = findUnit(G, a.target).u;
         if (isEvade(tg) && !tg.evaded) {
@@ -360,8 +403,16 @@
           var dt = curAtk(tg) + (beats(tg.element, att.element) ? 1 : 0);
           var gotT = dmgUnit(tg, da), gotA = dmgUnit(att, dt);
           log(G, att.name + ' ⇄ ' + tg.name + ' (' + gotT + '/' + gotA + ')');
+          if (has(tg, 'thorns')) dmgUnit(att, 1);
+          if (has(tg, 'trap')) att.atk = Math.max(0, att.atk - 1);
+          if (has(att, 'lifesteal')) P.hp = Math.min(START_HP, P.hp + 1);
+          if (has(att, 'chain')) {
+            var oth = O.board.filter(function (x) { return x !== tg && x.hp > 0; });
+            if (oth.length) { var ch = lowestHp(oth); dmgUnit(ch, 1); log(G, att.name + ': ฟ้าแลบต่อไป ' + ch.name); }
+          }
+          if (has(att, 'rampage') && tg.hp <= 0 && att.hp > 0) { att.attacksLeft++; log(G, att.name + ' คลั่ง! โจมตีได้อีกครั้ง'); }
           if (tg.hp > 0) {
-            if (has(att, 'burn')) tg.burn = 2;
+            if (has(att, 'burn') || has(att, 'poison')) tg.burn = 2;
             if (has(att, 'mud')) tg.atk = Math.max(0, tg.atk - 1);
             if (has(att, 'shock')) tg.stun = 1;
           }
@@ -378,6 +429,13 @@
     P.board.forEach(function (u) {
       if (kw(u, 'regen')) u.hp = Math.min(maxHp(u), u.hp + 1);
       if (has(u, 'rainforest')) P.hp = Math.min(START_HP, P.hp + 1);
+      if (has(u, 'sprout') && u.grown < 3) { u.grown++; u.atk += 1; }
+    });
+    P.board.forEach(function (u) {
+      if (has(u, 'radiance')) {
+        var Oe = G.players[1 - side];
+        if (Oe.board.length) dmgUnit(lowestHp(Oe.board), 1);
+      }
     });
     P.board.forEach(function (u) {
       if (u.burn > 0) { u.hp -= 1; u.burn--; }

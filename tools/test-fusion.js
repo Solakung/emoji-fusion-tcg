@@ -9,7 +9,7 @@ for (const t of d.tier2) {
   const [pa, pb] = t.parents;
   const r = F.fuse(base[pa], base[pb]);
   const same = r.atk === t.atk && r.hp === t.hp && r.cost === t.cost && r.element === t.element &&
-    r.abilities[0].id === t.abilities[0].id && JSON.stringify(r.keywords) === JSON.stringify(t.keywords) && r.tier === 2;
+    JSON.stringify(r.abilities.map(a => a.id)) === JSON.stringify(t.abilities.map(a => a.id)) && JSON.stringify(r.keywords) === JSON.stringify(t.keywords) && r.tier === 2;
   const rb = F.build(r.id, base), r2 = F.fuse(base[pb], base[pa]);
   if (!same || !rb || rb.id !== r.id || r2.id !== r.id || r2.atk !== r.atk) { bad++; console.log('MISMATCH', t.id); }
 }
