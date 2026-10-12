@@ -229,13 +229,19 @@
   }
 
   /* ---------- สถิติหัวเว็บ ---------- */
-  function foundByTier(t) {
-    return state.found.map(getCard).filter(function (c) { return c && c.tier === t; });
+  function isSetRecipe(c) { return /[A-Z]{2}\d{2}/.test(c.id); } // สูตรที่มีการ์ดจากชุดเป็นส่วนผสม
+  function foundByTier(t, core) {
+    return state.found.map(getCard).filter(function (c) { return c && c.tier === t && (!core || !isSetRecipe(c)); });
+  }
+  function ownedSetCards() {
+    var out = [];
+    SETS.forEach(function (st) { st.cards.forEach(function (c) { if ((state.owned[c.id] || 0) > 0) out.push(c); }); });
+    return out;
   }
   function renderStats() {
     $('#stat-coins').textContent = '🪙 ' + state.coins;
     $('#stat-points').textContent = '⭐ ' + state.points;
-    $('#stat-recipes').textContent = '📖 ' + foundByTier(2).length + '/' + T2_TOTAL;
+    $('#stat-recipes').textContent = '📖 ' + foundByTier(2, true).length + '/' + T2_TOTAL;
     $('#found-count').textContent = state.found.length;
   }
 
@@ -348,7 +354,7 @@
   function renderInventory() {
     var box = $('#inventory');
     box.innerHTML = '';
-    var list = pool === 'base' ? BASE.slice() : state.found.map(getCard).filter(Boolean);
+    var list = pool === 'base' ? BASE.concat(ownedSetCards()) : state.found.map(getCard).filter(Boolean);
     if (filter !== 'all') list = list.filter(function (c) { return c.element === filter; });
     if (!list.length) {
       box.appendChild(make('div', 'empty', pool === 'found'
@@ -394,7 +400,7 @@
   }
 
   function renderRecipes() {
-    var t2 = foundByTier(2), t3 = foundByTier(3);
+    var t2 = foundByTier(2, true), t2set = foundByTier(2).filter(isSetRecipe), t3 = foundByTier(3);
     var pct = Math.round(t2.length / T2_TOTAL * 100);
     $('#recipe-summary').innerHTML =
       '<div class="sum-box"><b>' + t2.length + '/' + T2_TOTAL + '</b><span>สูตรขั้น 2</span><div class="bar"><i style="width:' + pct + '%"></i></div></div>' +
@@ -435,6 +441,15 @@
       box.appendChild(wrap);
     });
 
+    if (SETS.length) {
+      var sw = make('div', 'group');
+      sw.appendChild(make('div', 'group-head', '<div class="row"><span class="ttl">🧩 สูตรจากการ์ดชุด</span><span class="cnt">' + t2set.length + '</span></div><div class="ab">ผสมการ์ดชุดกับการ์ดอื่นในห้องทดลอง (ต้องมีการ์ดชุดในคลังก่อน)</div>'));
+      var sg = make('div', 'grid');
+      if (!t2set.length) sg.appendChild(make('div', 'empty', 'ยังไม่ค้นพบสูตรจากการ์ดชุด'));
+      t2set.forEach(function (c) { var e = cardEl(c, 'mini'); e.onclick = function () { showDetail(c); }; sg.appendChild(e); });
+      sw.appendChild(sg); box.appendChild(sw);
+    }
+
     var t3box = $('#t3-list');
     t3box.innerHTML = '';
     if (!t3.length) t3box.appendChild(make('div', 'empty', 'ผสมการ์ดขั้น 2 กับการ์ดอื่น<br>เพื่อค้นพบตำนานขั้น 3'));
@@ -461,6 +476,19 @@
     fill('#col-spell', SPELLS);
     fill('#col-field', FIELDS);
     fill('#col-react', REACTS);
+    var cs = $('#col-sets'); if (cs) {
+      cs.innerHTML = '';
+      SETS.forEach(function (st) {
+        cs.appendChild(make('h2', 'sec', st.emoji + ' ชุด' + st.name));
+        var g = make('div', 'grid'); cs.appendChild(g);
+        st.cards.forEach(function (c) {
+          var n = state.owned[c.id] || 0, e = cardEl(c, 'mini', n ? '×' + n : null);
+          if (!n) e.classList.add('dim');
+          e.onclick = function () { showDetail(c); };
+          g.appendChild(e);
+        });
+      });
+    }
   }
 
   function renderBook() {
@@ -2376,8 +2404,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.17').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.17')
+    var setsP = fetch('sets.json?v=0.18').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.18')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
@@ -2389,7 +2417,7 @@
         FIELDS = data.extras.filter(function (c) { return c.type === 'field'; });
         REACTS = data.extras.filter(function (c) { return c.type === 'reaction'; });
         SPELLS.concat(FIELDS, REACTS).forEach(function (c) { ALL_MAP[c.id] = c; });
-        SETS = data.sets; SETS.forEach(function (st) { SET_MAP[st.id] = st; st.cards.forEach(function (c) { ALL_MAP[c.id] = c; }); });
+        SETS = data.sets; SETS.forEach(function (st) { SET_MAP[st.id] = st; st.cards.forEach(function (c) { ALL_MAP[c.id] = c; BASE_MAP[c.id] = c; }); });
         load();
         state.found = state.found.filter(function (id) { return !!getCard(id); });
         buildGroups();
