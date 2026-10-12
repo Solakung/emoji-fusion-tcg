@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14121f">
   <title>Emoji Fusion TCG</title>
-  <link rel="stylesheet" href="style.css?v=0.9">
+  <link rel="stylesheet" href="style.css?v=0.10">
 </head>
 <body>
   <header class="top">
@@ -92,6 +92,7 @@
         <li>โจมตีการ์ดศัตรูแล้วโดนสวนกลับ · ธาตุชนะทางได้ดาเมจ +1 (ดูในรายละเอียดการ์ด)</li>
         <li>แตะการ์ดบนสนามของเรา แล้วกด <b>ผสม</b> เพื่อหลอมการ์ด 2 ใบ (ต้องรู้สูตรจากห้องทดลองก่อน เทิร์นละ 1 ครั้ง)</li>
         <li>ตัวล่อ (ป่าทึบ) ต้องถูกโจมตีก่อนเสมอ</li>
+        <li><b>การ์ดปฏิกิริยา</b> วางคว่ำได้ 2 ช่อง เปิดตอบโต้ได้ตอนศัตรูทำอะไรก็ตาม (ต้องมี Mana เหลือ) · Instant ⚡ ตอบโต้ปกติ · Hyper 🛡️ ตอบโต้ได้ทุกอย่าง</li>
       </ul>
     </section>
 
@@ -114,7 +115,7 @@
       <div class="shop-box">
         <div class="pack">🎁</div>
         <h2>ซองการ์ด</h2>
-        <p>5 ใบ: การ์ดพื้นฐาน 3 · เวทย์ 1 · พื้นฐานหรือสนาม 1</p>
+        <p>5 ใบ: การ์ดพื้นฐาน 3 · เวทย์ 1 · ใบสุดท้ายอาจเป็นสนามหรือการ์ดปฏิกิริยา</p>
         <button id="btn-pack" class="btn primary">เปิดซอง · 30 🪙</button>
         <p class="muted">ได้เหรียญจากการชนะบอท และจากการค้นพบสูตรใหม่ในห้องทดลอง</p>
       </div>
@@ -134,7 +135,7 @@
         <h2 class="sec">การ์ดตำนานขั้น 3 ที่ค้นพบ</h2>
         <div id="t3-list" class="grid"></div>
         <button id="btn-tour" class="btn">🎓 ทัวร์สอนเล่น</button>
-        <button id="btn-whatsnew" class="btn">📣 มีอะไรใหม่ (v0.5)</button>
+        <button id="btn-whatsnew" class="btn">📣 มีอะไรใหม่</button>
         <button id="btn-reset" class="btn danger">ล้างข้อมูลที่บันทึกไว้</button>
       </div>
       <div id="book-cards" hidden>
@@ -144,6 +145,8 @@
         <div id="col-spell" class="grid"></div>
         <h2 class="sec">การ์ดสนาม</h2>
         <div id="col-field" class="grid"></div>
+        <h2 class="sec">การ์ดปฏิกิริยา</h2>
+        <div id="col-react" class="grid"></div>
       </div>
     </section>
   </main>
@@ -170,6 +173,7 @@
       <button class="btn primary b-end" id="btn-endturn">จบเทิร์น</button>
     </div>
     <div class="b-board me" id="board-me"></div>
+    <div class="b-sets" id="sets-me" hidden></div>
     <div class="b-hero me" id="hero-me">
       <span class="avatar">🧑‍🔬</span>
       <div class="h-main"><b>คุณ</b><div class="h-sub" id="me-sub"></div></div>
@@ -180,6 +184,7 @@
     <button class="b-quit" id="btn-quit" aria-label="ยอมแพ้">🏳️</button>
     <button class="b-emote" id="b-emote" aria-label="อีโมต" hidden>💬</button>
     <div class="emote-pal" id="emote-pal" hidden></div>
+    <div class="react-pop" id="react-pop" hidden></div>
   </div>
 
   <div id="modal" class="modal" hidden>
@@ -200,22 +205,22 @@
   </div>
   <div id="whatsnew" class="whatsnew" hidden>
     <div class="wn-box">
-      <div class="wn-tag">NEW · v0.6</div>
-      <h2>ต่อสู้ออนไลน์แล้ว!</h2>
+      <div class="wn-tag">NEW · v0.7</div>
+      <h2>ระบบตอบโต้ Reaction!</h2>
       <ul>
-        <li><b>จับคู่เร็ว / ห้องส่วนตัว:</b> สู้กับคนจริงแบบเรียลไทม์ ส่งรหัสห้อง 5 ตัวให้เพื่อนได้ · มีเวลา 90 วิ/เทิร์น และอีโมต 💬</li>
-        <li><b>จัดอันดับ:</b> ล็อกอินอีเมลแล้วไต่แรงก์ (ชนะ +25 / แพ้ −20) ดูตารางอันดับได้</li>
-        <li><b>ภารกิจรายวัน + โบนัสล็อกอิน</b> รับเหรียญทุกวัน ในแท็บต่อสู้</li>
-        <li><b>รีเพลย์</b> ดูเกมออนไลน์ย้อนหลัง · <b>รหัสเด็ค</b> แชร์/นำเข้าเด็คได้ที่แท็บเด็ค</li>
+        <li><b>การ์ดปฏิกิริยา 8 ใบ:</b> วางคว่ำไว้ได้ 2 ช่อง (ไม่เสีย Mana) แล้วเปิดตอบโต้ตอนศัตรูโจมตี ลงการ์ด ใช้เวทย์ หรือผสม</li>
+        <li><b>⚡ Instant</b> (ความเร็ว 2) ตอบโต้การกระทำปกติได้ · <b>🛡️ Hyper</b> (ความเร็ว 3) ตอบโต้ได้ทุกอย่าง จบ chain ได้</li>
+        <li>ตอบโต้ได้เฉพาะ <b>ความเร็วเท่ากันหรือสูงกว่า</b> แล้วแก้ผลจากใบบนสุดลงมา · ได้ฟรี 2 ใบ (โล่น้ำ, ฟ้าแลบ) ที่เหลือหาจากซอง</li>
+        <li>ออนไลน์ มีเวลาตอบโต้ 15 วินาที ไม่ตอบถือว่าผ่าน</li>
       </ul>
       <button id="whatsnew-ok" class="btn primary">เข้าใจแล้ว ลุยเลย</button>
     </div>
   </div>
   <div id="toast" class="toast" hidden></div>
 
-  <script src="fusion.js?v=0.9"></script>
-  <script src="battle.js?v=0.9"></script>
-  <script src="script.js?v=0.9"></script>
-  <script type="module" src="online.js?v=0.9"></script>
+  <script src="fusion.js?v=0.10"></script>
+  <script src="battle.js?v=0.10"></script>
+  <script src="script.js?v=0.10"></script>
+  <script type="module" src="online.js?v=0.10"></script>
 </body>
 </html>

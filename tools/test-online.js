@@ -111,6 +111,41 @@ window.Online = O; window.dispatchEvent(new Event('efl-online'));
   ok(ia.turn >= 5, 'เทิร์นเดินหน้า');
   const boards = await Promise.all(pages.map((p) => p.evaluate(() => JSON.stringify(window.EFL.battle().G.players.map((x) => x.board.map((u) => u.card.id + ':' + u.hp))))));
   ok(boards[0] === boards[1], 'สนามตรงกัน ' + boards[0]);
+  // Reaction ออนไลน์: A โจมตี → B ได้หน้าต่างตอบโต้ → เปิดโล่น้ำ ทั้งสองฝั่งต้องตรงกัน
+  const cardsJson = require('../cards.json');
+  const quiet = cardsJson.base.filter((c) => c.hp >= 4 && c.atk >= 1 && !c.abilities.some((x) => ['spark', 'firestorm', 'jolt', 'steam', 'sandstorm', 'attract', 'freeze', 'gale', 'taunt', 'guard', 'thorns', 'trap', 'metal'].includes(x.id)) && !(c.keywords || []).includes('evade'));
+  const R = {}; cardsJson.extras.filter((c) => c.type === 'reaction').forEach((c) => (R[c.id] = c));
+  for (const pg of pages) {
+    await pg.evaluate(([q0, q1, r1, r4]) => {
+      const bs = window.EFL.battle(), G = bs.G, B = window.Battle;
+      G.pending = null; G.active = 0; bs.online.lastActive = 0; bs.online.deadline = Date.now() + 60000;
+      G.players.forEach((P) => { P.board = []; P.hand = []; P.mana = 8; P.sets = []; });
+      G.players[0].hand = [q0]; B.apply(G, 0, { t: 'play', hand: 0 });
+      G.active = 1; G.players[1].hand = [q1]; B.apply(G, 1, { t: 'play', hand: 0 });
+      G.active = 0; G.players[0].mana = 8; G.players[1].mana = 8; G.players[1].sets = [r1, r4];
+      G.players[0].board[0].attacksLeft = 1; G.players[1].board[0].attacksLeft = 1;
+      window.EFL.render();
+    }, [quiet[0], quiet[1], R.R01, R.R04]);
+  }
+  const ids = await A.evaluate(() => { const G = window.EFL.battle().G; return [G.players[0].board[0].uid, G.players[1].board[0].uid]; });
+  await A.evaluate(([u, t]) => window.EFL.act({ t: 'attack', unit: u, target: t }), ids);
+  await Bp.waitForTimeout(700);
+  ok(await Bp.evaluate(() => !!window.EFL.battle().G.pending), 'B ได้หน้าต่างตอบโต้ (ออนไลน์)');
+  ok(await Bp.isVisible('#react-pop') && !(await A.isVisible('#react-pop')), 'ป๊อปอัปแสดงเฉพาะฝั่ง B');
+  await Bp.evaluate(() => [...document.querySelectorAll('#react-pop button')].find((x) => /โล่น้ำ/.test(x.textContent)).click());
+  await A.waitForTimeout(800);
+  const sync = (pg) => pg.evaluate(() => { const G = window.EFL.battle().G; return JSON.stringify([!!G.pending, G.players.map((P) => [P.hp, P.mana, P.sets.length, P.board.map((u) => u.hp)])]); });
+  const [sa, sb] = [await sync(A), await sync(Bp)];
+  ok(sa === sb && JSON.parse(sa)[0] === false, 'ตอบโต้แล้วสองฝั่งตรงกัน ' + sa);
+  ok(JSON.parse(sa)[1][1][1] === 6 && JSON.parse(sa)[1][1][2] === 1, 'B เสีย Mana 2 / เหลือการ์ดคว่ำ 1');
+  // หมดเวลาตอบโต้ → ผ่านอัตโนมัติ
+  for (const pg of pages) await pg.evaluate(() => { const G = window.EFL.battle().G; G.players[0].board[0].attacksLeft = 1; G.players[1].mana = 8; });
+  await A.evaluate(([u, t]) => window.EFL.act({ t: 'attack', unit: u, target: t }), ids);
+  await Bp.waitForTimeout(500);
+  ok(await Bp.evaluate(() => !!window.EFL.battle().G.pending), 'หน้าต่างตอบโต้เปิดอีกครั้ง');
+  await Bp.evaluate(() => { window.EFL.battle().online.pdl = Date.now() - 500; });
+  await Bp.waitForTimeout(2500);
+  ok(!(await Bp.evaluate(() => !!window.EFL.battle().G.pending)) && !(await A.evaluate(() => !!window.EFL.battle().G.pending)), 'หมดเวลาตอบโต้ → ผ่านอัตโนมัติทั้งสองฝั่ง');
   // อีโมต
   await A.click('#b-emote'); await A.click('#emote-pal button'); await Bp.waitForTimeout(600);
   ok(await Bp.isVisible('#hero-opp .emote-bubble'), 'B เห็นอีโมตของ A');
