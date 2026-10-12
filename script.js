@@ -138,6 +138,26 @@
     return c;
   }
 
+  /* ---------- กดค้างที่การ์ด = ดูรายละเอียด ---------- */
+  function attachLongPress(el, getCard) {
+    var timer = null, fired = false, sx = 0, sy = 0;
+    function stop() { clearTimeout(timer); timer = null; }
+    el.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      fired = false; sx = e.clientX; sy = e.clientY; stop();
+      timer = setTimeout(function () {
+        timer = null; var c = getCard(); if (!c) return;
+        fired = true;
+        try { if (navigator.vibrate) navigator.vibrate(15); } catch (x) { /* ไม่เป็นไร */ }
+        showDetail(c);
+      }, 450);
+    });
+    el.addEventListener('pointermove', function (e) { if (timer && (Math.abs(e.clientX - sx) > 10 || Math.abs(e.clientY - sy) > 10)) stop(); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (n) { el.addEventListener(n, stop); });
+    el.addEventListener('click', function (e) { if (fired) { fired = false; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+    el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+
   /* ---------- ตัวการ์ด ---------- */
   function cardEl(card, mode, badge) {
     var cls = 'card ' + mode + ' tier' + (card.tier || 1);
@@ -167,6 +187,7 @@
       d.appendChild(make('div', 'stats-row', '<span class="kw-dots">' + (card.type === 'spell' ? 'เวทย์' : card.type === 'reaction' ? (card.speed === 3 ? 'Hyper' : 'Instant') : 'สนาม') + '</span>'));
     }
     if (badge) d.appendChild(make('span', 'badge', badge));
+    if (mode !== 'full') attachLongPress(d, function () { return card; });
     return d;
   }
 
@@ -188,7 +209,7 @@
       ? ('ตัวละคร · ขั้น ' + card.tier + ' · ธาตุ' + F.ELEMENTS[card.element].name + ' ' + F.ELEMENTS[card.element].emoji)
       : card.type === 'spell' ? 'การ์ดเวทย์ · ใช้ครั้งเดียว'
       : card.type === 'reaction' ? (card.speed === 3 ? '🛡️ ปฏิกิริยา Hyper (ความเร็ว 3) · วางคว่ำ ใช้ตอนตอบโต้เท่านั้น · ใส่เด็คได้ 1 ใบ' : '⚡ ปฏิกิริยา Instant (ความเร็ว 2) · วางคว่ำ ตอบโต้ได้ หรือเปิดเองในเทิร์นตัวเอง')
-      : 'การ์ดสนาม · ธาตุ' + F.ELEMENTS[card.element].name;
+      : 'การ์ดสนาม · ' + (card.element ? 'ธาตุ' + F.ELEMENTS[card.element].name : 'ไม่ผูกธาตุ');
     det.appendChild(make('h3', null, card.emoji + ' ' + card.name));
     det.appendChild(make('div', 'subline', typeLabel + ' · Cost ' + card.cost + (!card.parts && RARITY_TH[card.rarity] ? ' · ความหายาก: ' + RARITY_TH[card.rarity] : '')));
     var ul = make('ul');
@@ -954,6 +975,7 @@
     else if (pv != null && u.hp > pv) d.classList.add('heal');
     bs.prev[key] = u.hp;
     d.onclick = function (ev) { ev.stopPropagation(); onUnitClick(side, u.uid); };
+    attachLongPress(d, function () { return u.card; });
     return d;
   }
 
@@ -2585,13 +2607,53 @@
   document.addEventListener('visibilitychange', function () { if (document.hidden && cloud.timer) pushNow(); });
   setTimeout(function () { if (!cloud.started) { cloud.status = 'offline'; renderAccount(); } }, 7000);
 
+  /* ---------- แจ้งเตือนเวอร์ชันใหม่ ---------- */
+  var RUN_VER = (function () {
+    var sc = document.querySelector('script[src*="script.js"]');
+    var m = sc && /[?&]v=([^&"']+)/.exec(sc.getAttribute('src') || '');
+    return m ? m[1] : '';
+  })();
+  var updDismissed = '', updLast = 0;
+  function checkUpdate(force) {
+    if (!RUN_VER || !window.fetch) return Promise.resolve(false);
+    if (!force && Date.now() - updLast < 30000) return Promise.resolve(false);
+    updLast = Date.now();
+    return fetch('index.html?_=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+      var m = /script\.js\?v=([^"'&\s]+)/.exec(t);
+      if (m && m[1] !== RUN_VER) { showUpdateBar(m[1]); return true; }
+      return false;
+    }).catch(function () { return false; });
+  }
+  function showUpdateBar(ver) {
+    if (updDismissed === ver) return;
+    var bar = $('#update-bar');
+    if (!bar) {
+      bar = make('div'); bar.id = 'update-bar';
+      bar.innerHTML = '<span>🔄 มีเวอร์ชันใหม่แล้ว</span><button class="btn small primary" id="upd-go">อัปเดตเลย</button><button class="btn small" id="upd-later">ทีหลัง</button>';
+      document.body.appendChild(bar);
+      $('#upd-go').onclick = doUpdate;
+      $('#upd-later').onclick = function () { updDismissed = bar.getAttribute('data-ver'); bar.hidden = true; };
+    }
+    bar.setAttribute('data-ver', ver); bar.hidden = false;
+  }
+  function doUpdate() {
+    if (bs) { toast('จบแมตช์ก่อน แล้วค่อยอัปเดต (ข้อมูลที่บันทึกไว้ไม่หาย)'); return; }
+    saveLocal();
+    var go = function () { location.replace(location.pathname + '?u=' + Date.now()); };
+    try { if (window.caches && caches.keys) { caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }).then(go, go); return; } } catch (e) { /* ไปต่อ */ }
+    go();
+  }
+  setTimeout(function () { checkUpdate(true); }, 6000);
+  setInterval(function () { checkUpdate(true); }, 5 * 60000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) checkUpdate(false); });
+
   function fail(msg) {
     $('#view-lab').innerHTML = '<div class="empty">' + msg + '</div>';
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.24').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.24')
+    var setsP = fetch('sets.json?v=0.25').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.25')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
@@ -2622,7 +2684,7 @@
         $('#wl-guest').onclick = closeWelcome;
         $('#wl-login').onclick = function () { openAuthModal('login'); };
         setTimeout(startup, 2500);
-        window.EFL = { noTear: false, roll: function (k, e) { return rollPack(k, e); }, state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
+        window.EFL = { checkUpdate: checkUpdate, noTear: false, roll: function (k, e) { return rollPack(k, e); }, state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
       })
       .catch(function (e) {
         if (window.console) console.error(e);
