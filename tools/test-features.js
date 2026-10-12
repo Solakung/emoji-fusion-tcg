@@ -7,7 +7,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   await new Promise((r) => srv.listen(0, r));
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
   p.on('pageerror', (e) => console.log('ERR', e.message)); await p.route('**/online.js*', (r) => r.abort());
-  await p.addInitScript(() => { localStorage.setItem('emoji-fusion-lab-seen', '0.7'); localStorage.setItem('emoji-fusion-lab-tour', '1'); localStorage.setItem('emoji-fusion-lab-welcome', '1'); });
+  await p.addInitScript(() => { localStorage.setItem('emoji-fusion-lab-seen', '0.8'); localStorage.setItem('emoji-fusion-lab-tour', '1'); localStorage.setItem('emoji-fusion-lab-welcome', '1'); });
   await p.goto('http://127.0.0.1:' + srv.address().port + '/'); await p.waitForTimeout(2500);
   await p.evaluate(() => document.querySelector('.tab[data-view=battle]').click());
   ok((await p.$$('#daily-card .d-row')).length === 3, 'มีภารกิจ 3 ข้อ');

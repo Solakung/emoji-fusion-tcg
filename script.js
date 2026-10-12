@@ -46,7 +46,7 @@
     STARTER_SPELLS.forEach(function (id) { owned[id] = 1; });
     owned.R01 = 1; owned.R04 = 1;
     return {
-      found: [], points: 0, coins: 120, owned: owned, deck: DEFAULT_DECK.slice(), uid: null, ts: 0,
+      found: [], points: 0, coins: 120, owned: owned, deck: DEFAULT_DECK.slice(), uid: null, ts: 0, shards: 0, pity: 0,
       stats: { easy: { w: 0, l: 0, d: 0 }, medium: { w: 0, l: 0, d: 0 }, hard: { w: 0, l: 0, d: 0 }, online: { w: 0, l: 0, d: 0 } },
       daily: { d: '', last: '', streak: 0, login: false, m: {} }
     };
@@ -64,6 +64,8 @@
         if (o && Array.isArray(o.deck)) s.deck = o.deck;
         if (o && typeof o.uid === 'string') s.uid = o.uid;
         if (o && typeof o.ts === 'number') s.ts = o.ts;
+        if (o && typeof o.shards === 'number') s.shards = o.shards;
+        if (o && typeof o.pity === 'number') s.pity = o.pity;
         if (o && o.daily && typeof o.daily === 'object') s.daily = cleanDaily(o.daily);
         if (o && o.stats) { ['easy', 'medium', 'hard', 'online'].forEach(function (k) { if (o.stats[k]) s.stats[k] = o.stats[k]; }); }
       }
@@ -142,6 +144,7 @@
     if (card.type === 'creature' || card.type === 'field') cls += ' el-' + card.element;
     if (card.type === 'spell') cls += ' spell';
     if (card.type === 'reaction') cls += ' reaction sp' + card.speed;
+    if (!card.parts && (card.rarity === 'rare' || card.rarity === 'uncommon')) cls += ' r-' + card.rarity;
     if (card.type === 'field') cls += ' field';
     var d = make('div', cls);
     d.appendChild(make('span', 'cost', String(card.cost)));
@@ -187,7 +190,7 @@
       : card.type === 'reaction' ? (card.speed === 3 ? '🛡️ ปฏิกิริยา Hyper (ความเร็ว 3) · วางคว่ำ ใช้ตอนตอบโต้เท่านั้น · ใส่เด็คได้ 1 ใบ' : '⚡ ปฏิกิริยา Instant (ความเร็ว 2) · วางคว่ำ ตอบโต้ได้ หรือเปิดเองในเทิร์นตัวเอง')
       : 'การ์ดสนาม · ธาตุ' + F.ELEMENTS[card.element].name;
     det.appendChild(make('h3', null, card.emoji + ' ' + card.name));
-    det.appendChild(make('div', 'subline', typeLabel + ' · Cost ' + card.cost));
+    det.appendChild(make('div', 'subline', typeLabel + ' · Cost ' + card.cost + (!card.parts && RARITY_TH[card.rarity] ? ' · ความหายาก: ' + RARITY_TH[card.rarity] : '')));
     var ul = make('ul');
     if (card.type === 'creature') {
       ul.appendChild(make('li', null, 'ATK <b>' + card.atk + '</b> · HP <b>' + card.hp + '</b>'));
@@ -575,23 +578,50 @@
   /* =====================================================
      ซอง
      ===================================================== */
-  function openPack() {
-    if (state.coins < PACK_PRICE) { toast('เหรียญไม่พอ (ต้องใช้ ' + PACK_PRICE + ')'); return; }
-    state.coins -= PACK_PRICE;
-    bump('openPack');
-    var cards = [];
-    for (var i = 0; i < 3; i++) cards.push(BASE[Math.floor(Math.random() * BASE.length)]);
-    cards.push(SPELLS[Math.floor(Math.random() * SPELLS.length)]);
-    var roll = Math.random();
-    cards.push(roll < 0.2 ? FIELDS[Math.floor(Math.random() * FIELDS.length)] : roll < 0.4 ? REACTS[Math.floor(Math.random() * REACTS.length)] : BASE[Math.floor(Math.random() * BASE.length)]);
+  var RARITY_W = { common: 70, uncommon: 24, rare: 6 };
+  var RARITY_TH = { common: 'ธรรมดา', uncommon: 'พิเศษ', rare: 'หายาก' };
+  var SHARD_VAL = { common: 2, uncommon: 5, rare: 12 };
+  var CARD_CAP = 2, PITY_AT = 10, SHARDS_ELEM = 20, SHARDS_RARE = 35;
+  function wpick(list) {
+    var tot = 0; list.forEach(function (c) { tot += RARITY_W[c.rarity] || 70; });
+    var r = Math.random() * tot;
+    for (var i = 0; i < list.length; i++) { r -= RARITY_W[list[i].rarity] || 70; if (r < 0) return list[i]; }
+    return list[list.length - 1];
+  }
+  function upick(list) { return list[Math.floor(Math.random() * list.length)]; }
+  function allCards() { return BASE.concat(SPELLS, FIELDS, REACTS); }
+  function lastSlot() { var r = Math.random(); return r < 0.2 ? upick(FIELDS) : r < 0.4 ? wpick(REACTS) : wpick(BASE); }
+
+  // รูปแบบซอง: normal | elem(ธาตุ) | rare(การันตี)
+  function rollPack(kind, elem) {
+    var cards = [], i;
+    if (kind === 'elem') {
+      var pool = BASE.filter(function (c) { return c.element === elem; });
+      for (i = 0; i < 4; i++) cards.push(wpick(pool));
+      cards.push(lastSlot());
+    } else if (kind === 'rare') {
+      var all = allCards();
+      for (i = 0; i < 3; i++) cards.push(wpick(all));
+      cards.push(upick(all.filter(function (c) { return c.rarity === 'rare'; })));
+      cards.push(wpick(all.filter(function (c) { return c.rarity !== 'common'; })));
+    } else {
+      for (i = 0; i < 3; i++) cards.push(wpick(BASE));
+      cards.push(wpick(SPELLS));
+      cards.push(lastSlot());
+    }
+    return cards;
+  }
+
+  function showPack(cards) {
     var box = $('#pack-result');
     box.innerHTML = '';
-    var seenNew = {};
+    var seenNew = {}, gain = 0, hasRare = false;
     cards.forEach(function (c, idx) {
-      var isNew = !(state.owned[c.id] > 0) && !seenNew[c.id];
-      seenNew[c.id] = 1;
-      state.owned[c.id] = (state.owned[c.id] || 0) + 1;
-      var e = cardEl(c, 'mini', isNew ? 'ใหม่!' : null);
+      var have = state.owned[c.id] || 0, badge = null;
+      if (c.rarity === 'rare') hasRare = true;
+      if (have >= CARD_CAP) { var v = SHARD_VAL[c.rarity] || 2; state.shards += v; gain += v; badge = 'ซ้ำ +' + v + '✨'; }
+      else { state.owned[c.id] = have + 1; if (!have && !seenNew[c.id]) badge = 'ใหม่!'; seenNew[c.id] = 1; }
+      var e = cardEl(c, 'mini', badge);
       e.classList.add('pop');
       e.style.animationDelay = (idx * 0.18) + 's';
       e.style.opacity = '0';
@@ -599,8 +629,77 @@
       e.onclick = function () { showDetail(c); };
       box.appendChild(e);
     });
+    return { gain: gain, hasRare: hasRare };
+  }
+
+  function openPack(kind, elem, cost) {
+    if (typeof kind !== 'string') kind = 'normal';
+    var useShards = kind !== 'normal';
+    if (useShards) {
+      var need = kind === 'elem' ? SHARDS_ELEM : SHARDS_RARE;
+      if (state.shards < need) { toast('เศษการ์ดไม่พอ (ต้องใช้ ' + need + ' ✨)'); return; }
+      state.shards -= need;
+    } else {
+      if (state.coins < PACK_PRICE) { toast('เหรียญไม่พอ (ต้องใช้ ' + PACK_PRICE + ')'); return; }
+      state.coins -= PACK_PRICE;
+    }
+    bump('openPack');
+    var cards = rollPack(kind, elem);
+    if (kind === 'normal') { // การันตีใบหายากทุก 10 ซอง
+      var any = cards.some(function (c) { return c.rarity === 'rare'; });
+      if (!any && state.pity >= PITY_AT - 1) {
+        var rares = allCards().filter(function (c) { return c.rarity === 'rare'; });
+        cards[2] = upick(rares); any = true;
+      }
+      state.pity = any ? 0 : state.pity + 1;
+    }
+    var res = showPack(cards);
+    if (res.gain) toast('ใบซ้ำแลกเป็น +' + res.gain + ' ✨');
     save();
-    renderStats();
+    renderStats(); renderShop();
+  }
+
+  function excessList() {
+    var out = [];
+    Object.keys(state.owned).forEach(function (id) {
+      var c = ALL_MAP[id], n = state.owned[id] || 0;
+      if (c && n > CARD_CAP) out.push({ c: c, n: n - CARD_CAP });
+    });
+    return out;
+  }
+  function exchangeExcess() {
+    var ex = excessList(), gain = 0;
+    ex.forEach(function (x) { state.owned[x.c.id] = CARD_CAP; gain += x.n * (SHARD_VAL[x.c.rarity] || 2); });
+    if (!gain) { toast('ไม่มีใบเกิน'); return; }
+    state.shards += gain; save(); renderShop(); renderStats();
+    toast('แลกใบเกินได้ +' + gain + ' ✨');
+  }
+
+  var shopElem = 'fire', shopOdds = null;
+  function renderShop() {
+    var box = $('#shop-extra'); if (!box) return;
+    var ex = excessList(), exGain = 0, exN = 0;
+    ex.forEach(function (x) { exN += x.n; exGain += x.n * (SHARD_VAL[x.c.rarity] || 2); });
+    box.innerHTML = '';
+    box.appendChild(make('div', 'shard-bar', '✨ เศษการ์ด <b>' + state.shards + '</b> · การันตีใบหายากในซองปกติ: <b>' + Math.min(state.pity, PITY_AT) + '/' + PITY_AT + '</b>'));
+    if (!shopOdds) { var n = 3000, withRare = 0, unc = 0, tot = 0; for (var k = 0; k < n; k++) { var r = rollPack('normal'); if (r.some(function (c) { return c.rarity === 'rare'; })) withRare++; r.forEach(function (c) { tot++; if (c.rarity === 'uncommon') unc++; }); } shopOdds = { rare: Math.round(100 * withRare / n), unc: Math.round(100 * unc / tot) }; }
+    box.appendChild(make('div', 'odds', 'ซองปกติ: มีใบหายากประมาณ ' + shopOdds.rare + '% ต่อซอง · ใบพิเศษประมาณ ' + shopOdds.unc + '% ต่อใบ · ใบซ้ำเกิน ' + CARD_CAP + ' ใบแลกเป็นเศษ (ธรรมดา ' + SHARD_VAL.common + ' · พิเศษ ' + SHARD_VAL.uncommon + ' · หายาก ' + SHARD_VAL.rare + ' ✨)'));
+    var ex1 = make('button', 'btn small', 'แลกใบเกิน ' + exN + ' ใบ → +' + exGain + ' ✨'); ex1.disabled = !exN; ex1.onclick = exchangeExcess;
+    box.appendChild(ex1);
+    box.appendChild(make('h3', null, '🎁 ซองพิเศษ (ใช้เศษการ์ด)'));
+    var chips = make('div', 'elem-chips');
+    ELEM_ORDER.forEach(function (e) {
+      var b = make('button', 'f-chip' + (shopElem === e ? ' active' : ''), F.ELEMENTS[e].emoji + ' ' + F.ELEMENTS[e].name);
+      b.onclick = function () { shopElem = e; renderShop(); };
+      chips.appendChild(b);
+    });
+    box.appendChild(chips);
+    var b1 = make('button', 'btn', '🌈 ซองธาตุ ' + F.ELEMENTS[shopElem].emoji + ' · ' + SHARDS_ELEM + ' ✨'); b1.disabled = state.shards < SHARDS_ELEM;
+    b1.onclick = function () { openPack('elem', shopElem); };
+    var b2 = make('button', 'btn', '💎 ซองหายาก · ' + SHARDS_RARE + ' ✨'); b2.disabled = state.shards < SHARDS_RARE;
+    b2.onclick = function () { openPack('rare'); };
+    box.appendChild(b1); box.appendChild(b2);
+    box.appendChild(make('p', 'muted', 'ซองธาตุ: การ์ดตัวละครธาตุที่เลือก 4 ใบ + 1 ใบสุ่ม · ซองหายาก: การันตีใบหายาก 1 ใบ และใบพิเศษขึ้นไปอีก 1 ใบ'));
   }
 
   /* =====================================================
@@ -1729,6 +1828,7 @@
     if (name === 'book') renderBook();
     if (name === 'lab') renderLab();
     if (name === 'deck') renderDeck();
+    if (name === 'shop') renderShop();
     if (name === 'battle') renderBattleMenu();
     window.scrollTo(0, 0);
   }
@@ -1774,7 +1874,7 @@
     $('#btn-autodeck').onclick = autoDeck;
     $('#btn-deckshare').onclick = openDeckShare;
     $('#btn-cleardeck').onclick = function () { state.deck = []; save(); renderDeck(); };
-    $('#btn-pack').onclick = openPack;
+    $('#btn-pack').onclick = function () { openPack('normal'); };
     $('#btn-endturn').onclick = endMyTurn;
     $('#b-log').onclick = showBattleLog;
     $('#btn-quit').onclick = quitBattle;
@@ -1783,7 +1883,7 @@
   }
 
   /* ---------- มีอะไรใหม่ ---------- */
-  var VERSION = '0.7', SEEN_KEY = 'emoji-fusion-lab-seen';
+  var VERSION = '0.8', SEEN_KEY = 'emoji-fusion-lab-seen';
   function showWhatsNew() { $('#whatsnew').hidden = false; }
   function closeWhatsNew() {
     $('#whatsnew').hidden = true;
@@ -1924,8 +2024,8 @@
   var cloud = { status: 'connecting', user: null, name: null, last: 0, timer: null, started: false, pending: null };
 
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function payload() { return { found: state.found, points: state.points, coins: state.coins, owned: state.owned, deck: state.deck, stats: state.stats, daily: state.daily }; }
-  function sig(x) { return JSON.stringify({ f: x.found, p: x.points, c: x.coins, o: x.owned, d: x.deck, s: x.stats, y: x.daily }); }
+  function payload() { return { found: state.found, points: state.points, coins: state.coins, owned: state.owned, deck: state.deck, stats: state.stats, daily: state.daily, shards: state.shards, pity: state.pity }; }
+  function sig(x) { return JSON.stringify({ f: x.found, p: x.points, c: x.coins, o: x.owned, d: x.deck, s: x.stats, y: x.daily, h: x.shards, t: x.pity }); }
   function pristine(s) { return sig(s) === sig(defaultState()); }
 
   function normalize(c) {
@@ -1933,7 +2033,7 @@
     var s = { found: Array.isArray(c.found) ? c.found.filter(function (x) { return typeof x === 'string'; }) : [],
       points: +c.points || 0, coins: typeof c.coins === 'number' ? c.coins : d.coins,
       owned: (c.owned && typeof c.owned === 'object') ? c.owned : d.owned,
-      deck: Array.isArray(c.deck) ? c.deck : d.deck, stats: d.stats, daily: c.daily ? cleanDaily(c.daily) : d.daily };
+      deck: Array.isArray(c.deck) ? c.deck : d.deck, stats: d.stats, daily: c.daily ? cleanDaily(c.daily) : d.daily, shards: +c.shards || 0, pity: +c.pity || 0 };
     ['easy', 'medium', 'hard', 'online'].forEach(function (k) {
       var o = c.stats && c.stats[k];
       if (o) s.stats[k] = { w: +o.w || 0, l: +o.l || 0, d: +o.d || 0 };
@@ -1957,6 +2057,7 @@
       m.stats[k] = { w: Math.max(sa.w || 0, sb.w || 0), l: Math.max(sa.l || 0, sb.l || 0), d: Math.max(sa.d || 0, sb.d || 0) };
     });
     m.daily = mergeDaily(a.daily, b.daily);
+    m.shards = Math.max(a.shards || 0, b.shards || 0); m.pity = Math.max(a.pity || 0, b.pity || 0);
     return m;
   }
 
@@ -2193,7 +2294,7 @@
         $('#wl-guest').onclick = closeWelcome;
         $('#wl-login').onclick = function () { openAuthModal('login'); };
         setTimeout(startup, 2500);
-        window.EFL = { state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
+        window.EFL = { roll: function (k, e) { return rollPack(k, e); }, state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
       })
       .catch(function (e) {
         if (window.console) console.error(e);
