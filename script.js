@@ -1270,11 +1270,31 @@
 
   function afterSync() { if (cloud.user && !cloud.name) openNameModal(); }
 
+  var WELCOME_KEY = 'emoji-fusion-lab-welcome', startupDone = false;
+  function welcomeSeen() { try { return localStorage.getItem(WELCOME_KEY) === '1'; } catch (e) { return false; } }
+  function welcomeMark(on) { try { if (on) localStorage.setItem(WELCOME_KEY, '1'); else localStorage.removeItem(WELCOME_KEY); } catch (e) { /* ไม่เป็นไร */ } }
+  function proceedStartup() { if (!checkWhatsNew()) maybeStartTour(); }
+  function startup() { // เรียกครั้งเดียวหลังรู้สถานะล็อกอิน (หรือหมดเวลารอ)
+    if (startupDone) return;
+    startupDone = true;
+    if (!cloud.user && window.Online && !welcomeSeen()) showWelcome(); else proceedStartup();
+  }
+  function showWelcome() { $('#welcome').hidden = false; }
+  function closeWelcome() { $('#welcome').hidden = true; welcomeMark(true); proceedStartup(); }
+
   function handleAuth(u) {
+    var first = !startupDone;
+    if (!u || u.isAnonymous) {
+      cloud.user = null; cloud.name = null; cloud.status = 'guest'; renderAccount();
+      if (first) startup();
+      return;
+    }
+    if (!$('#welcome').hidden) closeWelcome();
     if (!u || u.isAnonymous) {
       cloud.user = null; cloud.name = null; cloud.status = 'guest'; renderAccount(); return;
     }
     cloud.user = u; cloud.status = 'syncing'; renderAccount();
+    if (first) startup();
     window.Online.getProfile(u.uid).then(function (p) { cloud.name = p ? p.name : null; }).catch(function () { })
       .then(function () { return syncDown(u); })
       .then(function () { if (!cloud.pending) afterSync(); })
@@ -1369,6 +1389,7 @@
     pushNow().then(function () {
       if (cloud.status === 'error' && !confirm('ซิงก์ครั้งล่าสุดไม่สำเร็จ ออกต่อจะเสียความคืบหน้าล่าสุด ออกเลยไหม?')) return null;
       return window.Online.logout().then(function () {
+        welcomeMark(false);
         state = defaultState(); state.uid = null; state.ts = 0; saveLocal();
         slots = [null, null]; result = null; refreshAll(); toast('ออกจากระบบแล้ว');
       });
@@ -1406,7 +1427,9 @@
           if (cloud.user) showView('battle'); else if (window.Online) openAuthModal('login'); else toast('ออนไลน์ใช้ไม่ได้ตอนนี้ (กำลังเชื่อมต่อ หรือไม่มีอินเทอร์เน็ต)');
         };
         $('#btn-tour').onclick = function () { startTour(); };
-        if (!checkWhatsNew()) maybeStartTour();
+        $('#wl-guest').onclick = closeWelcome;
+        $('#wl-login').onclick = function () { openAuthModal('login'); };
+        setTimeout(startup, 2500);
         window.EFL = { state: function () { return state; }, battle: function () { return bs; } };
       })
       .catch(function (e) {

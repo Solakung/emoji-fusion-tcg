@@ -362,3 +362,14 @@ h1 { white-space: nowrap; font-size: 16px; }
 
 .chip.acct { cursor: pointer; font-family: inherit; color: inherit; }
 .chip.acct.on { border-color: #3c8f55; }
+
+/* หน้าต้อนรับ */
+.welcome { position: fixed; inset: 0; z-index: 18; display: flex; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(120% 80% at 50% 0%, #2a2350, var(--bg, #14121f) 70%); }
+.welcome[hidden] { display: none; }
+.wl-box { width: 100%; max-width: 360px; text-align: center; }
+.wl-logo { font-size: 64px; line-height: 1; margin-bottom: 8px; }
+.wl-box h1 { margin: 0 0 6px; font-size: 26px; }
+.wl-box p { margin: 0 0 24px; color: var(--muted, #a8a3c7); }
+.wl-box .btn { display: block; width: 100%; margin: 0 0 10px; padding: 14px; font-size: 17px; }
+.wl-box small { display: block; margin-top: 14px; font-size: 12px; line-height: 1.5; color: var(--muted, #a8a3c7); }
+.wl-box .btn.primary { max-width: none; flex: none; }
