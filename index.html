@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14121f">
   <title>Emoji Fusion TCG</title>
-  <link rel="stylesheet" href="style.css?v=0.31">
+  <link rel="stylesheet" href="style.css?v=0.32">
 </head>
 <body>
   <header class="top">
@@ -119,10 +119,10 @@
         <div class="pack">🎁</div>
         <h2>ซองการ์ด</h2>
         <p>5 ใบ: การ์ดพื้นฐาน 3 · เวทย์ 1 · ใบสุดท้ายอาจเป็นสนามหรือการ์ดปฏิกิริยา</p>
-        <button id="btn-pack" class="btn primary">เปิดซอง · 30 🪙</button>
+        <div class="pack-btns"><button id="btn-pack" class="btn primary">เปิด 1 ซอง · 30 🪙</button><button id="btn-pack10" class="btn primary">เปิด 10 ซอง · 300 🪙</button></div>
         <p class="muted">ได้เหรียญจากการชนะบอท และจากการค้นพบสูตรใหม่ในห้องทดลอง</p>
       </div>
-      <div class="pack-tools"><button id="pack-flipall" class="btn small" hidden>พลิกทั้งหมด</button></div>
+      <div class="pack-tools"><button id="pack-flipall" class="btn small" hidden>พลิกทั้งหมด</button><div id="pack-nav" class="pack-nav" hidden></div></div>
       <div id="pack-result" class="grid pack-grid"></div>
       <div id="pack-summary" class="pack-summary"></div>
       <div id="shop-extra" class="shop-extra"></div>
@@ -226,9 +226,9 @@
   </div>
   <div id="toast" class="toast" hidden></div>
 
-  <script src="fusion.js?v=0.31"></script>
-  <script src="battle.js?v=0.31"></script>
-  <script src="script.js?v=0.31"></script>
-  <script type="module" src="online.js?v=0.31"></script>
+  <script src="fusion.js?v=0.32"></script>
+  <script src="battle.js?v=0.32"></script>
+  <script src="script.js?v=0.32"></script>
+  <script type="module" src="online.js?v=0.32"></script>
 </body>
 </html>

@@ -534,3 +534,47 @@ body.in-battle #update-bar { display: none; }
 .deck-pick { margin: 8px 0; }
 .deck-pick label { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
 .deck-pick select { flex: 1; min-width: 0; background: var(--panel); color: inherit; border: 2px solid var(--line); border-radius: 10px; padding: 8px; font: inherit; }
+
+/* ปุ่มเปิดซอง 1/10 */
+.pack-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 6px 0; }
+.pack-btns .btn { flex: 1 1 150px; }
+.btn.poor { opacity: .6; }
+.set-row { display: flex; gap: 8px; margin-top: 8px; }
+.set-row .set-btn { flex: 1; min-width: 0; }
+.set-row .set-btn10 { flex: 0 0 auto; }
+.pack-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.pack-nav[hidden] { display: none; }
+.pack-stage.multi .foil { box-shadow: 14px 10px 0 -2px rgba(255,255,255,.12), 28px 20px 0 -4px rgba(255,255,255,.07); }
+.card.glow-gold { animation: flipin .28s ease-out, goldpulse 1.6s ease-in-out .3s 2; }
+@keyframes goldpulse { 50% { box-shadow: 0 0 22px 5px rgba(255,210,74,.95); } }
+
+/* "ลุ้น" ก่อนเปิดการ์ด: แสงไล่ระดับ ฟ้า(ธรรมดา) → ม่วง(พิเศษ) → ทอง(หายาก) */
+.susp-stage { --c: #8fb0ff; --g: 143,176,255; position: fixed; inset: 0; z-index: 75; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; background: radial-gradient(circle at 50% 44%, rgba(var(--g), .18), rgba(5,4,16,.96) 62%); animation: stagein .25s ease-out; transition: background .5s; }
+.susp-stage.t1 { --c: #c27bff; --g: 194,123,255; }
+.susp-stage.t2 { --c: #ffd24a; --g: 255,210,74; }
+.susp-stage.out { animation: stageout .28s ease-in forwards; }
+.susp-rays { position: absolute; left: 50%; top: 44%; width: 160vmax; height: 160vmax; margin: -80vmax 0 0 -80vmax; background: repeating-conic-gradient(from 0deg, rgba(var(--g), .0) 0 8deg, rgba(var(--g), .55) 10deg, rgba(var(--g), 0) 12deg); -webkit-mask: radial-gradient(circle, #000 0, transparent 55%); mask: radial-gradient(circle, #000 0, transparent 55%); opacity: .18; animation: raysspin 9s linear infinite; transition: opacity .5s; }
+.susp-stage.t1 .susp-rays { opacity: .4; animation-duration: 5s; }
+.susp-stage.t2 .susp-rays { opacity: .8; animation-duration: 2.4s; }
+@keyframes raysspin { to { transform: rotate(360deg); } }
+.susp-ring { position: absolute; left: 50%; top: 44%; width: 190px; height: 190px; margin: -95px 0 0 -95px; border-radius: 50%; background: conic-gradient(from 0deg, rgba(var(--g), 0), rgba(var(--g), .95), rgba(var(--g), 0) 70%); -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%, #000 70%, transparent 72%); mask: radial-gradient(circle, transparent 62%, #000 64%, #000 70%, transparent 72%); animation: raysspin 1.8s linear infinite; }
+.susp-stage.t2 .susp-ring { animation-duration: .7s; }
+.susp-orb { position: relative; width: 110px; height: 110px; border-radius: 50%; margin-bottom: 40px; background: radial-gradient(circle at 35% 30%, #fff, var(--c) 42%, rgba(var(--g), 0) 74%); box-shadow: 0 0 36px 10px rgba(var(--g), .65), 0 0 110px 40px rgba(var(--g), .35); animation: orbpulse 1.2s ease-in-out infinite; transition: box-shadow .5s; }
+.susp-stage.t1 .susp-orb { animation-duration: .7s; }
+.susp-stage.t2 .susp-orb { animation: orbpulse .3s ease-in-out infinite, orbshake .12s linear infinite; }
+@keyframes orbpulse { 50% { transform: scale(1.18); } }
+@keyframes orbshake { 25% { margin-left: -5px; } 75% { margin-left: 5px; } }
+.susp-stage.burst .susp-orb { animation: orbburst .6s ease-out forwards; }
+.susp-stage.burst .susp-ring { animation: ringburst .6s ease-out forwards; }
+@keyframes orbburst { 0% { transform: scale(1); } 100% { transform: scale(18); opacity: .0; } }
+@keyframes ringburst { 100% { transform: scale(3); opacity: 0; } }
+.susp-txt { position: relative; z-index: 2; font-size: 17px; font-weight: 800; letter-spacing: 1px; color: #fff; text-shadow: 0 0 12px rgba(var(--g), .95); min-height: 26px; text-align: center; }
+.susp-stage.burst .susp-txt { font-size: 26px; animation: txtpop .5s ease-out; }
+@keyframes txtpop { from { transform: scale(.4); opacity: 0; } }
+.susp-count { position: absolute; top: 9%; font-size: 14px; color: #d7d2ef; }
+.susp-pips { position: absolute; top: calc(9% + 24px); display: flex; gap: 6px; }
+.susp-pips i { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); }
+.susp-pips i.p0 { background: #8fb0ff; } .susp-pips i.p1 { background: #c27bff; } .susp-pips i.p2 { background: #ffd24a; box-shadow: 0 0 8px #ffd24a; }
+.susp-pips i.cur { background: #fff; animation: orbpulse .6s ease-in-out infinite; }
+.susp-skip { position: absolute; bottom: 7%; font-size: 12px; color: rgba(255,255,255,.45); }
+@media (prefers-reduced-motion: reduce) { .susp-rays, .susp-ring, .susp-orb { animation: none !important; } }
