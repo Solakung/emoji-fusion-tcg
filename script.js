@@ -922,6 +922,7 @@
     if (B.isHaste(u)) s += '⏩';
     if (u.abil.indexOf('metal') >= 0) s += '⚙️';
     if (u.burn > 0) s += '🔥';
+    if (u.unstable) s += '🧪';
     if (u.stun > 0) s += '💫';
     return s;
   }
@@ -989,8 +990,22 @@
     $('#b-turn').textContent = t;
   }
 
+  // ผสมมั่วสำเร็จ → บันทึกสูตรเข้าสมุด (เฉพาะของเรา ไม่นับแมตช์ฝึก/รีเพลย์)
+  function processDiscoveries() {
+    if (!bs || !bs.G.disc || bs.level === 'replay' || bs.tutorial) return;
+    var from = bs.discSeen || 0; bs.discSeen = bs.G.disc.length;
+    for (var i = from; i < bs.G.disc.length; i++) {
+      var d = bs.G.disc[i]; if (d.side !== ME()) continue;
+      var c = getCard(d.id); if (!c || state.found.indexOf(d.id) >= 0) continue;
+      var pts = c.tier === 3 ? 3 : 1, co = c.tier === 3 ? 15 : 5;
+      state.found.unshift(d.id); state.points += pts; state.coins += co; save(); renderStats();
+      toast('🎉 ค้นพบสูตรใหม่กลางศึก! ' + c.emoji + ' ' + c.name + ' (+' + pts + ' แต้ม +' + co + ' 🪙)');
+    }
+  }
+
   function renderBattle() {
     if (!bs) return;
+    processDiscoveries();
     var G = bs.G, me = G.players[ME()], op = G.players[OP()];
     var myTurn = G.active === ME() && !G.over && !bs.busy && !G.pending;
     var targets = currentTargets();
@@ -1120,6 +1135,10 @@
             (pv.card.abilities.length ? ' · ' + pv.card.abilities.map(function (a) { return a.name; }).join(', ') : ''));
           btn('⚗️ ยืนยันผสม', function () { act({ t: 'fuse', a: sel.uid, b: sel.other }); }, 'primary', pv.cost > me.mana);
           btn('รายละเอียด', function () { showDetail(pv.card); });
+        } else if (pv.unknown) {
+          var ev = B.fusePreview(G, ME(), sel.uid, sel.other, true);
+          info('❓ ยังไม่รู้สูตรนี้ — <b>ผสมมั่ว</b> ลุ้นผลลัพธ์ · Cost ' + ev.cost + ' (รวม +' + B.EXP_EXTRA + ') · ⚠️ ไม่เสถียร: เสีย 1 HP ทุกจบเทิร์นของเรา · ถ้าสำเร็จ ได้บันทึกสูตรเข้าสมุด');
+          btn('🧪 ผสมมั่ว!', function () { act({ t: 'fuse', a: sel.uid, b: sel.other, x: 1 }); }, 'primary', ev.cost > me.mana);
         } else info(pv.error);
         btn('ยกเลิก', function () { bs.sel = null; renderBattle(); });
         return;
@@ -2455,8 +2474,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.20').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.20')
+    var setsP = fetch('sets.json?v=0.21').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.21')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });

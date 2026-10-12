@@ -48,7 +48,7 @@
       uid: G.nextUid++, card: card, name: card.name, emoji: card.emoji, element: card.element, tier: card.tier,
       atk: card.atk, tempAtk: 0, baseMax: card.hp, hp: card.hp, fieldBonus: 0, tempHp: 0,
       keywords: card.keywords.slice(), abil: card.abilities.map(function (a) { return a.id; }),
-      attacksLeft: 0, attacked: false, burn: 0, stun: 0, evaded: false, grown: 0
+      attacksLeft: 0, attacked: false, burn: 0, stun: 0, evaded: false, grown: 0, unstable: false
     };
   }
 
@@ -263,7 +263,9 @@
     return c;
   }
 
-  function fusePreview(G, side, uidA, uidB) {
+  // exp = ผสมมั่ว: ลองสูตรที่ยังไม่รู้ได้ โดยจ่าย Mana เพิ่ม และการ์ดที่ได้จะ "ไม่เสถียร" (เสีย 1 HP ทุกจบเทิร์นของเจ้าของ)
+  var EXP_EXTRA = 1;
+  function fusePreview(G, side, uidA, uidB, exp) {
     var P = G.players[side];
     var fa = findUnit(G, uidA), fb = findUnit(G, uidB);
     if (!fa || !fb || fa.side !== side || fb.side !== side) return { ok: false, error: 'ต้องเลือกการ์ดฝั่งเรา 2 ใบ' };
@@ -272,8 +274,8 @@
     if (fa.u.attacked || fb.u.attacked) return { ok: false, error: 'การ์ดที่โจมตีแล้วผสมไม่ได้' };
     if (!F.canFuse(fa.u.card, fb.u.card)) return { ok: false, error: 'ผสมคู่นี้ไม่ได้ (ขั้น 3 / ใบเดียวกัน)' };
     var r = F.fuse(fa.u.card, fb.u.card);
-    if (!knows(P, r.id)) return { ok: false, error: 'ยังไม่รู้สูตรนี้ (ไปค้นพบในห้องทดลอง)', unknown: true, card: null };
-    return { ok: true, card: r, cost: fuseCost(P, fa.u, fb.u, r), idxA: fa.idx, idxB: fb.idx };
+    if (!exp && !knows(P, r.id)) return { ok: false, error: 'ยังไม่รู้สูตรนี้ — ลอง "ผสมมั่ว" ได้ (เสีย Mana เพิ่ม และการ์ดจะไม่เสถียร)', unknown: true, card: null };
+    return { ok: true, card: r, cost: fuseCost(P, fa.u, fb.u, r) + (exp ? EXP_EXTRA : 0), exp: !!exp, idxA: fa.idx, idxB: fb.idx };
   }
 
   /* ---------- ลงการ์ด / เวทย์ ---------- */
@@ -431,6 +433,7 @@
     var nu = place(G, side, res, idx);
     if (RULES.fuseInherit && fa.u.attacksLeft > 0 && fb.u.attacksLeft > 0) nu.attacksLeft = maxAttacks(nu);
     if (P.fusionBoost) { nu.atk += 1; nu.baseMax += 1; nu.hp += 1; }
+    if (l.x) { nu.unstable = true; (G.disc = G.disc || []).push({ side: side, id: res.id }); log(G, '🧪 ' + P.name + ' ผสมมั่ว! ได้ ' + res.name + ' (ไม่เสถียร)'); }
     log(G, P.name + ' ผสม ' + fa.u.name + ' + ' + fb.u.name + ' → ' + res.name);
     enter(G, side, nu);
   }
@@ -501,11 +504,11 @@
       return { ok: false, error: 'การ์ดนี้ใช้คำสั่งวางคว่ำ' };
     }
     if (a.t === 'fuse') {
-      var pv = fusePreview(G, side, a.a, a.b);
+      var pv = fusePreview(G, side, a.a, a.b, a.x);
       if (!pv.ok) return pv;
       if (pv.cost > P.mana) return { ok: false, error: 'Mana ไม่พอ (ต้องใช้ ' + pv.cost + ')' };
       P.mana -= pv.cost; P.fusionsLeft--;
-      return { ok: true, card: pv.card, link: { kind: 'fuse', side: side, speed: 1, a: a.a, b: a.b } };
+      return { ok: true, card: pv.card, link: { kind: 'fuse', side: side, speed: 1, a: a.a, b: a.b, x: !!a.x } };
     }
     if (a.t === 'attack') {
       var targets = attackTargets(G, side, a.unit);
@@ -600,6 +603,7 @@
     });
     P.board.forEach(function (u) {
       if (u.burn > 0) { u.hp -= 1; u.burn--; }
+      if (u.unstable) { u.hp -= 1; log(G, '🧪 ' + u.name + ' ไม่เสถียร เสีย 1 HP'); }
     });
     G.players.forEach(function (Q) {
       Q.board.forEach(function (u) {
@@ -722,7 +726,7 @@
   var api = {
     RULES: RULES, MAX_BOARD: MAX_BOARD, MAX_HAND: MAX_HAND, MAX_MANA: MAX_MANA, START_HP: START_HP,
     create: create, apply: apply, targetsFor: targetsFor, attackTargets: attackTargets,
-    fusePreview: fusePreview, needsTarget: needsTarget, botAction: botAction, botRespond: botRespond, clone: clone,
+    fusePreview: fusePreview, EXP_EXTRA: EXP_EXTRA, needsTarget: needsTarget, botAction: botAction, botRespond: botRespond, clone: clone,
     MAX_SETS: MAX_SETS, reactOptions: reactOptions, canRespond: canRespond, reactLegal: reactLegal,
     curAtk: curAtk, maxHp: maxHp, isHaste: isHaste, isEvade: isEvade, beats: beats, evaluate: evaluate
   };
