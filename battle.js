@@ -56,13 +56,13 @@
   function create(opts) {
     var G = {
       seed: (opts.seed | 0) || ((Math.random() * 4294967296) | 0),
-      turn: 0, active: 0, nextUid: 1, over: null, log: [], players: []
+      turn: 0, active: 0, nextUid: 1, over: null, pending: null, log: [], players: []
     };
     for (var i = 0; i < 2; i++) {
       G.players.push({
         name: (opts.names && opts.names[i]) || ('ผู้เล่น ' + (i + 1)),
         hp: START_HP, deck: opts.decks[i].slice(), hand: [], board: [], mana: 0, maxMana: 0,
-        field: null, fusionsLeft: 0, fusionBoost: false, fatigue: 0, grave: [],
+        field: null, sets: [], fusionsLeft: 0, fusionBoost: false, fatigue: 0, grave: [],
         knows: (opts.knows && opts.knows[i]) || { all: false, set: {} }
       });
       shuffle(G, G.players[i].deck);
@@ -320,14 +320,163 @@
     }
   }
 
-  /* ---------- actions ---------- */
-  function apply(G, side, a) {
-    if (G.over) return { ok: false, error: 'เกมจบแล้ว' };
-    if (G.active !== side) return { ok: false, error: 'ยังไม่ใช่เทิร์นของคุณ' };
-    var P = G.players[side], O = G.players[1 - side];
+  /* ---------- Reaction: ตอบโต้ 3 ความเร็ว ----------
+     ปกติ(1) = ลงการ์ด/เวทย์/ผสม/โจมตี · Instant(2) · Hyper(3)
+     ตอบโต้ได้เฉพาะความเร็วเท่ากันหรือสูงกว่าใบบนสุดของ stack แล้วแก้ผลจากบนลงล่าง */
+  var MAX_SETS = 2;
+  function topSpeed(stack) { return stack.length ? stack[stack.length - 1].speed : 0; }
+  function topLink(stack) { return stack.length ? stack[stack.length - 1] : null; }
+  function strongest(side, G) { return highestAtk(G.players[side].board); }
 
-    if (a.t === 'end') { endTurn(G); return { ok: true }; }
+  // เงื่อนไขการเปิดการ์ด reaction
+  function reactLegal(G, side, card, stack) {
+    var P = G.players[side], O = G.players[1 - side], top = topLink(stack);
+    var opp = top && top.side !== side;
+    switch (card.id) {
+      case 'R01': case 'R02': return !!(opp && top.kind === 'attack');
+      case 'R03': return P.board.length > 0;
+      case 'R04': case 'R05': case 'R07': return O.board.length > 0;
+      case 'R06': return !!(opp && top.speed < 3);
+      case 'R08': return P.board.length < MAX_BOARD && P.grave.some(function (c) { return c.type === 'creature'; });
+    }
+    return false;
+  }
+  function reactOptions(G, side, stack) {
+    var P = G.players[side], need = topSpeed(stack), out = [];
+    P.sets.forEach(function (c, i) {
+      if (c.speed >= Math.max(2, need) && c.cost <= P.mana && reactLegal(G, side, c, stack)) out.push(i);
+    });
+    return out;
+  }
+  function canRespond(G, side, stack) { return reactOptions(G, side, stack).length > 0; }
 
+  function startChain(G, link) {
+    var stack = [link];
+    if (!canRespond(G, 1 - link.side, stack)) { resolveStack(G, stack); return; }
+    G.pending = { stack: stack, resp: 1 - link.side };
+    log(G, '⏳ ' + G.players[1 - link.side].name + ' ตอบโต้ได้');
+  }
+
+  function resolveStack(G, stack) {
+    G.pending = null;
+    for (var i = stack.length - 1; i >= 0 && !G.over; i--) {
+      var l = stack[i];
+      if (l.negated) {
+        log(G, '🚫 ' + linkName(l) + ' ถูกยกเลิก');
+        if (l.kind === 'summon' || l.kind === 'field') G.players[l.side].grave.push(l.card);
+        continue;
+      }
+      resolveLink(G, l, stack, i);
+      syncField(G.players[0]); syncField(G.players[1]);
+      cleanup(G);
+    }
+  }
+  function linkName(l) {
+    if (l.kind === 'attack') return 'การโจมตี';
+    if (l.kind === 'fuse') return 'การผสม';
+    return (l.card && l.card.name) || 'การกระทำ';
+  }
+
+  function resolveLink(G, l, stack, idx) {
+    var side = l.side, P = G.players[side], O = G.players[1 - side];
+    switch (l.kind) {
+      case 'summon':
+        if (P.board.length >= MAX_BOARD) { P.grave.push(l.card); log(G, 'สนามเต็ม ' + l.card.name + ' ลงไม่ได้'); break; }
+        var u = place(G, side, l.card);
+        log(G, P.name + ' ลง ' + l.card.emoji + ' ' + l.card.name);
+        enter(G, side, u);
+        break;
+      case 'field':
+        if (P.field) P.grave.push(P.field);
+        P.field = l.card; syncField(P);
+        log(G, P.name + ' วางสนาม ' + l.card.emoji + ' ' + l.card.name);
+        break;
+      case 'spell':
+        log(G, P.name + ' ใช้ ' + l.card.emoji + ' ' + l.card.name);
+        resolveSpell(G, side, l.card, l.target);
+        break;
+      case 'fuse': resolveFuse(G, l); break;
+      case 'attack': resolveAttack(G, l); break;
+      case 'react': resolveReact(G, l, stack, idx); break;
+    }
+  }
+
+  function resolveReact(G, l, stack, idx) {
+    var side = l.side, P = G.players[side], O = G.players[1 - side], below = idx > 0 ? stack[idx - 1] : null;
+    log(G, '⚡ ' + P.name + ' เปิด ' + l.card.emoji + ' ' + l.card.name);
+    switch (l.card.id) {
+      case 'R01': case 'R06': if (below) below.negated = true; break;
+      case 'R02':
+        if (below && below.kind === 'attack') { var at = findUnit(G, below.unit); if (at) dmgUnit(at.u, 2); }
+        break;
+      case 'R03': P.board.forEach(function (x) { x.hp = Math.min(maxHp(x), x.hp + 3); }); break;
+      case 'R04': { var t4 = strongest(1 - side, G); if (t4) dmgUnit(t4, 2); break; }
+      case 'R05': { var t5 = strongest(1 - side, G); if (t5) { t5.stun = 1; t5.attacksLeft = 0; } break; }
+      case 'R07': O.board.forEach(function (x) { dmgUnit(x, 3); }); break;
+      case 'R08':
+        for (var k = P.grave.length - 1; k >= 0; k--) {
+          if (P.grave[k].type === 'creature' && P.board.length < MAX_BOARD) { var c = P.grave.splice(k, 1)[0]; var nu = place(G, side, c); enter(G, side, nu); break; }
+        }
+        break;
+    }
+  }
+
+  function resolveFuse(G, l) {
+    var side = l.side, P = G.players[side];
+    var fa = findUnit(G, l.a), fb = findUnit(G, l.b);
+    if (!fa || !fb || fa.side !== side || fb.side !== side) { log(G, 'การผสมล้มเหลว (การ์ดหายไป)'); return; }
+    var res = F.fuse(fa.u.card, fb.u.card);
+    var idx = Math.min(fa.idx, fb.idx);
+    P.board = P.board.filter(function (x) { return x.uid !== l.a && x.uid !== l.b; });
+    var nu = place(G, side, res, idx);
+    if (RULES.fuseInherit && fa.u.attacksLeft > 0 && fb.u.attacksLeft > 0) nu.attacksLeft = maxAttacks(nu);
+    if (P.fusionBoost) { nu.atk += 1; nu.baseMax += 1; nu.hp += 1; }
+    log(G, P.name + ' ผสม ' + fa.u.name + ' + ' + fb.u.name + ' → ' + res.name);
+    enter(G, side, nu);
+  }
+
+  function resolveAttack(G, l) {
+    var side = l.side, P = G.players[side], O = G.players[1 - side];
+    var fa = findUnit(G, l.unit);
+    if (!fa || fa.side !== side) { log(G, 'การโจมตีล้มเหลว (ผู้โจมตีหายไป)'); return; }
+    var att = fa.u;
+    if (l.target === 'opp') {
+      var d = curAtk(att) + (has(att, 'plasma') ? 1 : 0);
+      O.hp -= d;
+      log(G, att.name + ' โจมตีผู้เล่น ' + d);
+      if (has(att, 'lifesteal')) P.hp = Math.min(START_HP, P.hp + 1);
+      return;
+    }
+    var ft = findUnit(G, l.target);
+    if (!ft || ft.side === side) { log(G, 'การโจมตีล้มเหลว (เป้าหมายหายไป)'); return; }
+    var tg = ft.u;
+    if (isEvade(tg) && !tg.evaded) {
+      tg.evaded = true;
+      log(G, tg.name + ' หลบการโจมตีของ ' + att.name);
+      return;
+    }
+    var da = curAtk(att) + (beats(att.element, tg.element) ? 1 : 0);
+    var dt = curAtk(tg) + (beats(tg.element, att.element) ? 1 : 0);
+    var gotT = dmgUnit(tg, da), gotA = dmgUnit(att, dt);
+    log(G, att.name + ' ⇄ ' + tg.name + ' (' + gotT + '/' + gotA + ')');
+    if (has(tg, 'thorns')) dmgUnit(att, 1);
+    if (has(tg, 'trap')) att.atk = Math.max(0, att.atk - 1);
+    if (has(att, 'lifesteal')) P.hp = Math.min(START_HP, P.hp + 1);
+    if (has(att, 'chain')) {
+      var oth = O.board.filter(function (x) { return x !== tg && x.hp > 0; });
+      if (oth.length) { var ch = lowestHp(oth); dmgUnit(ch, 1); log(G, att.name + ': ฟ้าแลบต่อไป ' + ch.name); }
+    }
+    if (has(att, 'rampage') && tg.hp <= 0 && att.hp > 0) { att.attacksLeft++; log(G, att.name + ' คลั่ง! โจมตีได้อีกครั้ง'); }
+    if (tg.hp > 0) {
+      if (has(att, 'burn') || has(att, 'poison')) tg.burn = 2;
+      if (has(att, 'mud')) tg.atk = Math.max(0, tg.atk - 1);
+      if (has(att, 'shock')) tg.stun = 1;
+    }
+  }
+
+  // ตรวจเงื่อนไข + จ่ายค่าใช้จ่าย แล้วคืน link ที่จะเข้า stack (ยังไม่แก้ผล)
+  function declare(G, side, a) {
+    var P = G.players[side];
     if (a.t === 'play') {
       var card = P.hand[a.hand];
       if (!card) return { ok: false, error: 'ไม่มีการ์ดนี้ในมือ' };
@@ -335,49 +484,29 @@
       if (card.type === 'creature') {
         if (P.board.length >= MAX_BOARD) return { ok: false, error: 'สนามเต็ม' };
         P.hand.splice(a.hand, 1); P.mana -= card.cost;
-        var u = place(G, side, card);
-        log(G, P.name + ' ลง ' + card.emoji + ' ' + card.name);
-        enter(G, side, u);
-      } else if (card.type === 'field') {
+        return { ok: true, link: { kind: 'summon', side: side, speed: 1, card: card } };
+      }
+      if (card.type === 'field') {
         P.hand.splice(a.hand, 1); P.mana -= card.cost;
-        if (P.field) P.grave.push(P.field);
-        P.field = card;
-        syncField(P);
-        log(G, P.name + ' วางสนาม ' + card.emoji + ' ' + card.name);
-      } else if (card.type === 'spell') {
+        return { ok: true, link: { kind: 'field', side: side, speed: 1, card: card } };
+      }
+      if (card.type === 'spell') {
         var legal = spellTargets(G, side, card);
-        if (needsTarget(card)) {
-          if (legal.indexOf(a.target) < 0) return { ok: false, error: 'เป้าหมายไม่ถูกต้อง' };
-        }
+        if (needsTarget(card) && legal.indexOf(a.target) < 0) return { ok: false, error: 'เป้าหมายไม่ถูกต้อง' };
         if (card.id === 'S11' && P.board.length >= MAX_BOARD) return { ok: false, error: 'สนามเต็ม แยกตัวไม่ได้' };
         P.hand.splice(a.hand, 1); P.mana -= card.cost;
         P.grave.push(card);
-        log(G, P.name + ' ใช้ ' + card.emoji + ' ' + card.name);
-        resolveSpell(G, side, card, a.target);
-        syncField(P); syncField(O);
+        return { ok: true, link: { kind: 'spell', side: side, speed: 1, card: card, target: a.target } };
       }
-      cleanup(G);
-      return { ok: true };
+      return { ok: false, error: 'การ์ดนี้ใช้คำสั่งวางคว่ำ' };
     }
-
     if (a.t === 'fuse') {
       var pv = fusePreview(G, side, a.a, a.b);
       if (!pv.ok) return pv;
       if (pv.cost > P.mana) return { ok: false, error: 'Mana ไม่พอ (ต้องใช้ ' + pv.cost + ')' };
-      var fa = findUnit(G, a.a), fb = findUnit(G, a.b);
-      var idx = Math.min(fa.idx, fb.idx);
-      P.board = P.board.filter(function (x) { return x.uid !== a.a && x.uid !== a.b; });
-      P.mana -= pv.cost;
-      P.fusionsLeft--;
-      var res = pv.card;
-      var nu = place(G, side, res, idx);
-      if (RULES.fuseInherit && fa.u.attacksLeft > 0 && fb.u.attacksLeft > 0) nu.attacksLeft = maxAttacks(nu);
-      if (P.fusionBoost) { nu.atk += 1; nu.baseMax += 1; nu.hp += 1; }
-      log(G, P.name + ' ผสม ' + fa.u.name + ' + ' + fb.u.name + ' → ' + res.name);
-      enter(G, side, nu);
-      return { ok: true, card: res };
+      P.mana -= pv.cost; P.fusionsLeft--;
+      return { ok: true, card: pv.card, link: { kind: 'fuse', side: side, speed: 1, a: a.a, b: a.b } };
     }
-
     if (a.t === 'attack') {
       var targets = attackTargets(G, side, a.unit);
       var att = P.board.filter(function (x) { return x.uid === a.unit; })[0];
@@ -388,40 +517,72 @@
         return { ok: false, error: tauntUnits(G, 1 - side).length ? 'ต้องโจมตีตัวล่อก่อน' : 'เป้าหมายไม่ถูกต้อง' };
       }
       att.attacksLeft--; att.attacked = true;
-      if (a.target === 'opp') {
-        var d = curAtk(att) + (has(att, 'plasma') ? 1 : 0);
-        O.hp -= d;
-        log(G, att.name + ' โจมตีผู้เล่น ' + d);
-        if (has(att, 'lifesteal')) P.hp = Math.min(START_HP, P.hp + 1);
-      } else {
-        var tg = findUnit(G, a.target).u;
-        if (isEvade(tg) && !tg.evaded) {
-          tg.evaded = true;
-          log(G, tg.name + ' หลบการโจมตีของ ' + att.name);
-        } else {
-          var da = curAtk(att) + (beats(att.element, tg.element) ? 1 : 0);
-          var dt = curAtk(tg) + (beats(tg.element, att.element) ? 1 : 0);
-          var gotT = dmgUnit(tg, da), gotA = dmgUnit(att, dt);
-          log(G, att.name + ' ⇄ ' + tg.name + ' (' + gotT + '/' + gotA + ')');
-          if (has(tg, 'thorns')) dmgUnit(att, 1);
-          if (has(tg, 'trap')) att.atk = Math.max(0, att.atk - 1);
-          if (has(att, 'lifesteal')) P.hp = Math.min(START_HP, P.hp + 1);
-          if (has(att, 'chain')) {
-            var oth = O.board.filter(function (x) { return x !== tg && x.hp > 0; });
-            if (oth.length) { var ch = lowestHp(oth); dmgUnit(ch, 1); log(G, att.name + ': ฟ้าแลบต่อไป ' + ch.name); }
-          }
-          if (has(att, 'rampage') && tg.hp <= 0 && att.hp > 0) { att.attacksLeft++; log(G, att.name + ' คลั่ง! โจมตีได้อีกครั้ง'); }
-          if (tg.hp > 0) {
-            if (has(att, 'burn') || has(att, 'poison')) tg.burn = 2;
-            if (has(att, 'mud')) tg.atk = Math.max(0, tg.atk - 1);
-            if (has(att, 'shock')) tg.stun = 1;
-          }
-        }
-      }
-      cleanup(G);
-      return { ok: true };
+      return { ok: true, link: { kind: 'attack', side: side, speed: 1, unit: a.unit, target: a.target } };
     }
     return { ok: false, error: 'คำสั่งไม่รู้จัก' };
+  }
+
+  // เปิดการ์ด reaction (ในหน้าต่างตอบโต้ หรือเทิร์นตัวเองสำหรับ Instant)
+  function doReact(G, side, a, stack) {
+    var P = G.players[side], card = P.sets[a.slot];
+    if (!card) return { ok: false, error: 'ไม่มีการ์ดคว่ำช่องนี้' };
+    if (card.speed < Math.max(2, topSpeed(stack))) return { ok: false, error: 'ความเร็วไม่พอที่จะตอบโต้' };
+    if (card.cost > P.mana) return { ok: false, error: 'Mana ไม่พอ (ต้องใช้ ' + card.cost + ')' };
+    if (!reactLegal(G, side, card, stack)) return { ok: false, error: 'ใช้ตอนนี้ไม่ได้' };
+    P.sets.splice(a.slot, 1); P.mana -= card.cost; P.grave.push(card);
+    stack.push({ kind: 'react', side: side, speed: card.speed, card: card });
+    return { ok: true };
+  }
+
+  /* ---------- actions ---------- */
+  function apply(G, side, a) {
+    if (G.over) return { ok: false, error: 'เกมจบแล้ว' };
+    var P = G.players[side], O = G.players[1 - side];
+
+    // กำลังรอแก้ chain
+    if (G.pending) {
+      var pd = G.pending;
+      if (side !== pd.resp) return { ok: false, error: 'รอฝ่ายตรงข้ามตอบโต้อยู่' };
+      if (a.t === 'pass') { resolveStack(G, pd.stack); return { ok: true }; }
+      if (a.t === 'react') {
+        var r0 = doReact(G, side, a, pd.stack);
+        if (!r0.ok) return r0;
+        var nx = 1 - side;
+        if (canRespond(G, nx, pd.stack)) { pd.resp = nx; log(G, '⏳ ' + G.players[nx].name + ' ตอบโต้ได้'); }
+        else resolveStack(G, pd.stack);
+        return { ok: true };
+      }
+      return { ok: false, error: 'ตอนนี้ทำได้แค่ตอบโต้หรือผ่าน' };
+    }
+
+    if (G.active !== side) return { ok: false, error: 'ยังไม่ใช่เทิร์นของคุณ' };
+
+    if (a.t === 'end') { endTurn(G); return { ok: true }; }
+
+    if (a.t === 'set') {
+      var rc = P.hand[a.hand];
+      if (!rc || rc.type !== 'reaction') return { ok: false, error: 'วางคว่ำได้เฉพาะการ์ดปฏิกิริยา' };
+      if (P.sets.length >= MAX_SETS) return { ok: false, error: 'ช่องวางคว่ำเต็ม (' + MAX_SETS + ')' };
+      P.hand.splice(a.hand, 1); P.sets.push(rc);
+      log(G, P.name + ' วางการ์ดคว่ำ 1 ใบ');
+      return { ok: true };
+    }
+
+    if (a.t === 'react') { // Instant ในเทิร์นตัวเอง
+      var stack = [];
+      var cd = P.sets[a.slot];
+      if (cd && cd.speed !== 2) return { ok: false, error: 'Hyper ใช้ได้เฉพาะตอนตอบโต้' };
+      var r1 = doReact(G, side, a, stack);
+      if (!r1.ok) return r1;
+      if (canRespond(G, 1 - side, stack)) { G.pending = { stack: stack, resp: 1 - side }; log(G, '⏳ ' + O.name + ' ตอบโต้ได้'); }
+      else resolveStack(G, stack);
+      return { ok: true };
+    }
+
+    var d = declare(G, side, a);
+    if (!d.ok) return d;
+    startChain(G, d.link);
+    return d.card ? { ok: true, card: d.card } : { ok: true };
   }
 
   function endTurn(G) {
@@ -469,6 +630,7 @@
     s += (P.hand.length - O.hand.length) * 1.1;
     if (P.field) s += 1.5;
     if (O.field) s -= 1.5;
+    s += P.sets.length * 0.9 - O.sets.length * 0.9;
     if (hard) {
       var threat = sum(O.board, curAtk), danger = threat - (P.hp - 6);
       if (danger > 0) s -= danger * 0.6;
@@ -481,6 +643,7 @@
   function enumerate(G, side, level) {
     var P = G.players[side], list = [];
     P.hand.forEach(function (c, i) {
+      if (c.type === 'reaction') { if (P.sets.length < MAX_SETS) list.push({ t: 'set', hand: i }); return; }
       if (c.cost > P.mana) return;
       if (c.type === 'creature') { if (P.board.length < MAX_BOARD) list.push({ t: 'play', hand: i }); }
       else if (c.type === 'field') list.push({ t: 'play', hand: i });
@@ -523,6 +686,7 @@
     var base = evaluate(G, side, hard), best = null, bestScore = base + 0.05;
     enumerate(G, side, level).forEach(function (a) {
       var C = clone(G);
+      C.players[1 - side].sets = []; // บอทไม่รู้ว่าอีกฝั่งวางอะไรคว่ำไว้
       var r = apply(C, side, a);
       if (!r.ok) return;
       var sc = evaluate(C, side, hard) + 0.5 * (P.mana - C.players[side].mana) + (noise ? (Math.random() * 2 - 1) * noise : 0);
@@ -531,10 +695,35 @@
     return best || { t: 'end' };
   }
 
+  // ตัดสินใจตอนถูกเปิดหน้าต่างตอบโต้: คืน {t:'react',slot} หรือ {t:'pass'}
+  function botRespond(G, side, level) {
+    var pd = G.pending;
+    if (!pd || pd.resp !== side || level === 'easy') return { t: 'pass' };
+    var hard = level === 'hard', noise = hard ? 0 : 1.2;
+    var opts = reactOptions(G, side, pd.stack);
+    if (!opts.length) return { t: 'pass' };
+    function score(a) {
+      var C = clone(G);
+      C.players[1 - side].sets = [];
+      var r = apply(C, side, a);
+      if (!r.ok) return -1e9;
+      for (var g = 0; C.pending && g < 6; g++) apply(C, C.pending.resp, { t: 'pass' });
+      return evaluate(C, side, hard);
+    }
+    var base = score({ t: 'pass' }), best = { t: 'pass' }, bestScore = base + 0.3;
+    opts.forEach(function (slot) {
+      var a = { t: 'react', slot: slot };
+      var sc = score(a) - 0.25 * G.players[side].sets[slot].cost + (noise ? (Math.random() * 2 - 1) * noise : 0);
+      if (sc > bestScore) { bestScore = sc; best = a; }
+    });
+    return best;
+  }
+
   var api = {
     RULES: RULES, MAX_BOARD: MAX_BOARD, MAX_HAND: MAX_HAND, MAX_MANA: MAX_MANA, START_HP: START_HP,
     create: create, apply: apply, targetsFor: targetsFor, attackTargets: attackTargets,
-    fusePreview: fusePreview, needsTarget: needsTarget, botAction: botAction, clone: clone,
+    fusePreview: fusePreview, needsTarget: needsTarget, botAction: botAction, botRespond: botRespond, clone: clone,
+    MAX_SETS: MAX_SETS, reactOptions: reactOptions, canRespond: canRespond, reactLegal: reactLegal,
     curAtk: curAtk, maxHp: maxHp, isHaste: isHaste, isEvade: isEvade, beats: beats, evaluate: evaluate
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

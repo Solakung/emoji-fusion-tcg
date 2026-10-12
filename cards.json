@@ -673,6 +673,86 @@
    "cost": 2,
    "rarity": "uncommon",
    "text": "การ์ดธาตุ💨 ฝั่งเรา HP +1 และผสมการ์ดที่มีธาตุนี้ลด Cost 1 (ต่ำสุด 1) ลงสนามได้ทีละใบ ใบใหม่แทนที่ใบเก่า"
+  },
+  {
+   "id": "R01",
+   "type": "reaction",
+   "speed": 2,
+   "emoji": "🌊",
+   "name": "โล่น้ำ",
+   "cost": 2,
+   "rarity": "uncommon",
+   "text": "ตอบโต้การโจมตีของศัตรู: ยกเลิกการโจมตีนั้น"
+  },
+  {
+   "id": "R02",
+   "type": "reaction",
+   "speed": 2,
+   "emoji": "🪞",
+   "name": "กระจกเงา",
+   "cost": 2,
+   "rarity": "uncommon",
+   "text": "ตอบโต้การโจมตีของศัตรู: ผู้โจมตีโดน 2 ดาเมจ"
+  },
+  {
+   "id": "R03",
+   "type": "reaction",
+   "speed": 2,
+   "emoji": "💚",
+   "name": "ฟื้นพลัง",
+   "cost": 3,
+   "rarity": "uncommon",
+   "text": "การ์ดฝั่งเราทุกใบฟื้น HP 3"
+  },
+  {
+   "id": "R04",
+   "type": "reaction",
+   "speed": 2,
+   "emoji": "🌩️",
+   "name": "ฟ้าแลบ",
+   "cost": 2,
+   "rarity": "uncommon",
+   "text": "การ์ดศัตรูที่ ATK สูงสุดโดน 2 ดาเมจ"
+  },
+  {
+   "id": "R05",
+   "type": "reaction",
+   "speed": 2,
+   "emoji": "🕸️",
+   "name": "รากพันธนาการ",
+   "cost": 2,
+   "rarity": "uncommon",
+   "text": "การ์ดศัตรูที่ ATK สูงสุดถูกแช่แข็ง (โจมตีไม่ได้ 1 เทิร์น)"
+  },
+  {
+   "id": "R06",
+   "type": "reaction",
+   "speed": 3,
+   "emoji": "🔒",
+   "name": "ผนึกกาล",
+   "cost": 4,
+   "rarity": "rare",
+   "text": "ยกเลิกการกระทำล่าสุดของศัตรูที่กำลังรอแก้ผล"
+  },
+  {
+   "id": "R07",
+   "type": "reaction",
+   "speed": 3,
+   "emoji": "⛈️",
+   "name": "พายุพิพากษา",
+   "cost": 5,
+   "rarity": "rare",
+   "text": "การ์ดศัตรูทุกใบโดน 3 ดาเมจ"
+  },
+  {
+   "id": "R08",
+   "type": "reaction",
+   "speed": 3,
+   "emoji": "🌱",
+   "name": "คืนชีพ",
+   "cost": 4,
+   "rarity": "rare",
+   "text": "เรียกการ์ดสัตว์ใบล่าสุดในสุสานของเราคืนสนาม"
   }
  ],
  "tier2": [
