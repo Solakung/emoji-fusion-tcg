@@ -2143,7 +2143,7 @@
 
   function startTour() {
     if (bs) return;
-    tour = { i: 0, detailSeen: false };
+    tour = { i: 0, detailSeen: false, steps: STEPS };
     slots = [null, null]; result = null; pool = 'base'; filter = 'all';
     $all('.seg-btn[data-pool]').forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-pool') === 'base'); });
     $('#modal').hidden = true;
@@ -2178,13 +2178,13 @@
   function tourSync() {
     if (!tour) return;
     for (var k = 0; k < 20; k++) {
-      var st = STEPS[tour.i];
+      var st = tour.steps[tour.i];
       if (!st) { endTour(); return; }
       if (st.battle && !bs) { endTour(); return; }
       if (!st.done) break;
       if (st.battle) {
         var hi = -1;
-        for (var j = tour.i; j < STEPS.length; j++) if (STEPS[j].battle && STEPS[j].done && STEPS[j].done()) hi = j;
+        for (var j = tour.i; j < tour.steps.length; j++) if (tour.steps[j].battle && tour.steps[j].done && tour.steps[j].done()) hi = j;
         if (hi >= tour.i) { tour.i = hi + 1; continue; }
         break;
       }
@@ -2195,14 +2195,14 @@
   }
 
   function tourPanel() {
-    var st = STEPS[tour.i];
+    var st = tour.steps[tour.i];
     if (!st) return;
     var p = $('#tour');
     if (!p) { p = make('div'); p.id = 'tour'; document.body.appendChild(p); }
     p.hidden = false;
     p.className = 'tour pos-' + st.pos;
     p.innerHTML = '';
-    p.appendChild(make('div', 'tour-step', '🎓 ทัวร์สอนเล่น · ' + (tour.i + 1) + '/' + STEPS.length));
+    p.appendChild(make('div', 'tour-step', '🎓 ' + (tour.title || 'ทัวร์สอนเล่น') + (tour.lesson ? '' : ' · ' + (tour.i + 1) + '/' + tour.steps.length)));
     p.appendChild(make('div', 'tour-text', st.text));
     var row = make('div', 'tour-row');
     [st.button, st.button2].forEach(function (b) {
@@ -2211,7 +2211,7 @@
       e.onclick = b.fn;
       row.appendChild(e);
     });
-    var skip = make('button', 'btn small', st.id === 'fin' ? 'ปิด' : 'ข้ามทัวร์');
+    var skip = make('button', 'btn small', st.id === 'fin' ? 'ปิด' : tour.lesson ? 'ข้ามบทเรียน' : 'ข้ามทัวร์');
     skip.onclick = endTour;
     row.appendChild(skip);
     p.appendChild(row);
@@ -2223,6 +2223,122 @@
     });
     if (st.hero && bs && bs.sel && bs.sel.k === 'unit') $('#hero-opp').classList.add('tour-hl');
   }
+
+  /* =====================================================
+     บทเรียน (เลือกเรียนได้ · ทำตามทีละขั้น หรืออ่านสรุป)
+     ===================================================== */
+  var LESSON_KEY = 'efl_lessons';
+  function lessonsDone() { try { return JSON.parse(localStorage.getItem(LESSON_KEY) || '{}') || {}; } catch (e) { return {}; } }
+  function markLesson(id) { var d = lessonsDone(); d[id] = 1; try { localStorage.setItem(LESSON_KEY, JSON.stringify(d)); } catch (e) { /* ไม่เป็นไร */ } }
+
+  var LESSONS = [
+    { id: 'react', emoji: '🛡️', title: 'Reaction: วางคว่ำและตอบโต้', sub: 'ลองวางโล่น้ำแล้วกันการโจมตีของบอท', kind: 'steps' },
+    { id: 'exp', emoji: '🧪', title: 'ผสมมั่ว: ลองสูตรที่ยังไม่รู้', sub: 'ผสมกลางศึกโดยไม่รู้สูตร แลกกับความเสี่ยง', kind: 'steps' },
+    { id: 'battle', emoji: '⚔️', title: 'กฎสนามรบ', sub: 'ธาตุชนะทาง · มานา · สเปลล์ · การ์ดสนาม', kind: 'text',
+      body: '<ul><li><b>ชีวิต 20</b> สนามมีได้ 5 ใบ มือถือได้ 8 ใบ มานาเริ่ม 1 เพิ่มทุกเทิร์น สูงสุด 8</li>' +
+        '<li><b>ธาตุชนะทาง</b> 🔥→🌿→🪨→💨→⚡→💧→🔥 ธาตุที่ชนะธาตุถัดไปได้ ATK +1 ตอนสู้กัน</li>' +
+        '<li><b>การ์ดที่ลงใหม่โจมตีไม่ได้</b> ในเทิร์นนั้น ยกเว้นการ์ดที่มี ⏩ เร็ว</li>' +
+        '<li><b>ปราการ 🛡️ (ล่อ)</b> ศัตรูต้องโจมตีตัวนี้ก่อน</li>' +
+        '<li><b>เวทย์</b> ใช้แล้วหมดไป มีผลทันที บางใบต้องเลือกเป้าหมาย</li>' +
+        '<li><b>การ์ดสนาม</b> วางได้ทีละใบ ธาตุตรงกันได้โบนัส และลด Cost การผสม 1</li>' +
+        '<li>ผสมได้ <b>1 ครั้งต่อเทิร์น</b> และการ์ดที่โจมตีแล้วผสมไม่ได้</li></ul>' },
+    { id: 'cards', emoji: '🎁', title: 'ซอง เศษการ์ด และของสะสม', sub: 'เปิดซองยังไง ใบซ้ำไปไหน การันตีหายาก', kind: 'text',
+      body: '<ul><li><b>ซองการ์ด 30 🪙</b> 5 ใบ ไม่ซ้ำกันในซอง ได้เหรียญจากชนะบอท ค้นพบสูตร และภารกิจ</li>' +
+        '<li><b>ซองตามชุด 40 🪙</b> การ์ดชุดพิเศษเฉพาะซองนี้ ใบสุดท้ายการันตีพิเศษขึ้นไป การ์ดชุดนำไปผสมได้ในห้องทดลอง</li>' +
+        '<li><b>ความหายาก</b> ธรรมดา · พิเศษ · หายาก ซองปกติการันตีใบหายากทุก 10 ซอง (ดูตัวนับในร้าน)</li>' +
+        '<li><b>ถือได้ 2 ใบต่อชนิด</b> ใบที่เกินเปลี่ยนเป็น ✨ เศษการ์ดอัตโนมัติ (ธรรมดา 2 · พิเศษ 5 · หายาก 12) และกดแลกใบเกินที่ค้างได้</li>' +
+        '<li><b>ซองพิเศษใช้เศษ</b> ซองธาตุ 20 ✨ (เลือกธาตุ) · ซองหายาก 35 ✨ (การันตีหายาก)</li></ul>' },
+    { id: 'deck', emoji: '🃏', title: 'จัดเด็คและแชร์เด็ค', sub: 'กฎ 20 ใบ และรหัสแชร์', kind: 'text',
+      body: '<ul><li>เด็คต้องมี <b>20 ใบพอดี</b> ใส่ใบเดียวกันได้ไม่เกิน 2 ใบ (ปฏิกิริยา Hyper ได้ 1 ใบ) และต้องมีในคลังพอ</li>' +
+        '<li>ปุ่ม <b>จัดเด็คอัตโนมัติ</b> เติมให้ครบ จากการ์ดที่มี แนะนำสัดส่วนตัวละคร 13 · เวทย์ 4 · สนาม 1 · ปฏิกิริยา 2</li>' +
+        '<li>การ์ดผสมไม่ต้องใส่ในเด็ค เราผสมกลางสนามจากการ์ดที่ลงแล้ว ตัวละครในเด็คจึงควรมีธาตุที่ผสมกันให้ดี</li>' +
+        '<li><b>แชร์เด็ค</b> กดปุ่มรหัสเด็ค คัดลอกไปให้เพื่อน เพื่อนนำเข้าได้ ถ้าขาดการ์ดจะบอกว่าขาดใบไหน</li></ul>' },
+    { id: 'online', emoji: '🌐', title: 'ออนไลน์ แรงก์ และภารกิจ', sub: 'จับคู่เร็ว ห้องส่วนตัว อันดับ รางวัลรายวัน', kind: 'text',
+      body: '<ul><li><b>จับคู่เร็ว</b> ไม่ต้องกรอกรหัส ถ้ารอเกิน 60 วินาทีเลือกสู้บอทได้ · <b>ห้องส่วนตัว</b> สร้างรหัส 5 ตัวส่งให้เพื่อน</li>' +
+        '<li><b>จัดอันดับ (ต้องล็อกอินอีเมล)</b> ชนะ +25 แพ้ −20 มีตารางอันดับ และดูรีเพลย์ย้อนหลังได้</li>' +
+        '<li>ออนไลน์: เทิร์นละ 90 วินาที หน้าต่างตอบโต้ 15 วินาที มีอีโมตให้ส่ง หลุดแล้วกลับเข้าห้องเดิมได้</li>' +
+        '<li><b>ภารกิจรายวัน</b> ทำสำเร็จกดรับเหรียญ และ <b>โบนัสล็อกอิน</b> ต่อเนื่องหลายวันได้เพิ่ม (วันที่ 7 ได้ 60 🪙)</li></ul>' }
+  ];
+
+  function lessonProg() {
+    var d = lessonsDone(), n = LESSONS.filter(function (l) { return d[l.id]; }).length;
+    var e = $('#lesson-prog'); if (e) e.textContent = '(' + n + '/' + LESSONS.length + ')';
+  }
+
+  function openLessons() {
+    if (bs) { toast('จบแมตช์ก่อนแล้วค่อยเปิดบทเรียน'); return; }
+    var d = lessonsDone();
+    var h = '<div class="detail"><h3>📚 บทเรียน</h3><div class="lesson-list">';
+    LESSONS.forEach(function (l) {
+      h += '<button class="lesson-item' + (d[l.id] ? ' done' : '') + '" data-lesson="' + l.id + '"><span class="l-ico">' + l.emoji + '</span><span class="l-txt"><b>' + l.title + '</b><small>' + l.sub + '</small></span><span class="l-st">' + (d[l.id] ? '✅' : l.kind === 'steps' ? '▶' : '📖') + '</span></button>';
+    });
+    h += '</div><div class="actions"><button class="btn" id="ls-close">ปิด</button></div></div>';
+    $('#modal-body').innerHTML = h; modalKind = 'lessons'; $('#modal').hidden = false;
+    $all('.lesson-item').forEach(function (b) { b.onclick = function () { startLesson(b.getAttribute('data-lesson')); }; });
+    $('#ls-close').onclick = closeModal;
+  }
+
+  function startLesson(id) {
+    var l = LESSONS.filter(function (x) { return x.id === id; })[0]; if (!l) return;
+    if (l.kind === 'text') {
+      $('#modal-body').innerHTML = '<div class="detail lesson-text"><h3>' + l.emoji + ' ' + l.title + '</h3>' + l.body +
+        '<div class="actions"><button class="btn primary" id="ls-ok">เข้าใจแล้ว ✓</button><button class="btn" id="ls-back">กลับ</button></div></div>';
+      $('#ls-ok').onclick = function () { markLesson(id); lessonProg(); openLessons(); };
+      $('#ls-back').onclick = openLessons;
+      return;
+    }
+    $('#modal').hidden = true; modalKind = '';
+    var steps = id === 'react' ? REACT_STEPS : EXP_STEPS;
+    tour = { i: 0, detailSeen: false, steps: steps, title: l.title, lesson: id };
+    startLessonBattle(id);
+  }
+
+  function startLessonBattle(id) {
+    var deck = DEFAULT_DECK.map(function (x) { return ALL_MAP[x]; }).filter(Boolean);
+    var knowsMe = id === 'exp' ? { all: false, set: {} } : { all: true };
+    var G = B.create({ decks: [deck, makeBotDeck('easy')], names: ['คุณ', LEVEL_NAME.easy], first: 0, knows: [knowsMe, { all: false, set: {} }] });
+    var me = G.players[0], bot = G.players[1];
+    if (id === 'react') {
+      me.hand = [ALL_MAP.R01, BASE_MAP.B13, BASE_MAP.B05].concat(me.hand.slice(0, 2));
+      // บอทมีตัวละครพร้อมโจมตีตั้งแต่เทิร์นของมัน
+      bot.hand = [BASE_MAP.B02]; bot.maxMana = 5; bot.mana = 5; G.active = 1;
+      B.apply(G, 1, { t: 'play', hand: 0 });
+      for (var k = 0; k < 6 && G.pending; k++) B.apply(G, G.pending.resp, { t: 'pass' });
+      G.active = 0;
+    } else {
+      me.hand = [BASE_MAP.B05, BASE_MAP.B02].concat(me.hand.slice(0, 3));
+    }
+    me.maxMana = 7; me.mana = 7;
+    bs = { G: G, level: 'easy', tutorial: true, sel: null, busy: false, over: false, prev: {}, prevHp: [G.players[0].hp, G.players[1].hp] };
+    document.body.classList.add('in-battle');
+    $('#battle').hidden = false;
+    renderBattle();
+  }
+
+  function lessonFin(id) { markLesson(id); lessonProg(); endTour(); }
+  var lessonButtons = function (id) {
+    return { button: { label: 'เล่นต่อ', fn: function () { lessonFin(id); } },
+      button2: { label: 'ออกจากแมตช์', fn: function () { lessonFin(id); closeBattle(); showView('book'); } } };
+  };
+
+  var REACT_STEPS = [
+    { id: 'set', battle: true, pos: 'top', text: '<b>ขั้น 1/3 · วางคว่ำ</b><br>แตะ 🌊 <b>โล่น้ำ</b> ในมือ แล้วกด <b>วางคว่ำ</b> (วางฟรี จ่ายมานาตอนใช้จริง)',
+      hl: ['#b-hand [data-id=R01]'], btns: ['วางคว่ำ'], done: function () { return bs.G.players[0].sets.length >= 1 || bs.G.players[0].grave.some(function (c) { return c.id === 'R01'; }); } },
+    { id: 'info', battle: true, pos: 'top', text: '<b>ขั้น 2/3 · ให้บอทโจมตี</b><br>การ์ดคว่ำคือกับดัก: คู่ต่อสู้ไม่รู้ว่าคืออะไร บอทมี 🔥 เปลวไฟ รออยู่ ลง ⚡ หลอดไฟ เป็นเหยื่อ (ไม่ลงก็ได้) แล้วกด <b>จบเทิร์น</b>',
+      hl: ['#b-hand [data-id=B13]', '#btn-endturn'], btns: ['ลงสนาม'], done: function () { return bs.G.turn >= 2; } },
+    { id: 'wait', battle: true, pos: 'top', text: '⏳ ตาบอท… ถ้าบอทโจมตี จะมีหน้าต่าง <b>ตอบโต้</b> เด้งขึ้น กด <b>ใช้ 🌊 โล่น้ำ</b> เพื่อยกเลิกการโจมตี (ถ้าไม่ถามก็กดผ่านได้)',
+      hl: [], done: function () { var P = bs.G.players[0]; return P.grave.some(function (c) { return c.id === 'R01'; }) || (bs.G.active === 0 && bs.G.turn >= 3 && !bs.busy && !bs.G.pending); } },
+    Object.assign({ id: 'fin', battle: true, pos: 'top', text: '🎓 <b>จบบทเรียน Reaction!</b><br>• <b>Instant (ความเร็ว 2)</b> ใช้ตอบโต้ได้ทั้งตาเราและตาเขา<br>• <b>Hyper (ความเร็ว 3+)</b> ใช้ตอบโต้เท่านั้น และสั่งทับ Instant ได้<br>• ตอบโต้ซ้อนกันเป็น <b>เชน</b> ใบหลังสุดทำงานก่อน<br>• วางคว่ำได้สูงสุด 2 ใบ', hl: [] }, lessonButtons('react'))
+  ];
+  var EXP_STEPS = [
+    { id: 'p', battle: true, pos: 'top', text: '<b>ขั้น 1/3 · ลงการ์ด</b><br>ลง 💧 หยดน้ำ และ 🔥 เปลวไฟ ในสนาม (บทนี้เรายัง <b>ไม่รู้สูตร</b> น้ำ+ไฟ)',
+      hl: ['#b-hand [data-id=B05]', '#b-hand [data-id=B02]'], btns: ['ลงสนาม'], done: function () { return mePlayed('B05') && mePlayed('B02'); } },
+    { id: 'x', battle: true, pos: 'top', text: '<b>ขั้น 2/3 · ผสมมั่ว</b><br>แตะ 💧 บนสนาม → ⚗️ ผสม → แตะ 🔥 → กดปุ่ม <b>🧪 ผสมมั่ว!</b> (Cost +1 ได้การ์ดจริง แต่ไม่เสถียร)',
+      hl: ['#board-me [data-id=B05]', '#board-me [data-id=B02]'], btns: ['ผสม', 'ผสมมั่ว'], done: function () { return bs.G.players[0].board.some(function (u) { return u.unstable; }); } },
+    { id: 'end', battle: true, pos: 'top', text: 'ได้การ์ดที่มี <b>🧪 ไม่เสถียร</b> แล้ว! มันจะเสีย <b>1 HP ทุกจบเทิร์นของคุณ</b> กด <b>จบเทิร์น</b> เพื่อดูผล',
+      hl: ['#btn-endturn'], done: function () { return bs.G.turn >= 2; } },
+    Object.assign({ id: 'fin', battle: true, pos: 'top', text: '🎓 <b>จบบทเรียนผสมมั่ว!</b><br>• ใช้ได้กับสูตรที่ <b>ยังไม่รู้</b> เท่านั้น ราคา Cost +1<br>• ได้การ์ดจริง และ <b>บันทึกสูตรเข้าสมุดอัตโนมัติ</b> (ในแมตช์จริง)<br>• การ์ดไม่เสถียรเสีย 1 HP ทุกจบเทิร์นของเจ้าของ รักษา HP หรือใช้ให้คุ้มก่อนตาย', hl: [] }, lessonButtons('exp'))
+  ];
 
   /* =====================================================
      บัญชีผู้เล่น + เซฟบนคลาวด์ (ใช้ window.Online จาก online.js)
@@ -2474,8 +2590,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.21').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.21')
+    var setsP = fetch('sets.json?v=0.23').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.23')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
@@ -2502,6 +2618,7 @@
           if (cloud.user) showView('battle'); else if (window.Online) openAuthModal('login'); else toast('ออนไลน์ใช้ไม่ได้ตอนนี้ (กำลังเชื่อมต่อ หรือไม่มีอินเทอร์เน็ต)');
         };
         $('#btn-tour').onclick = function () { startTour(); };
+        $('#btn-lessons').onclick = openLessons; lessonProg();
         $('#wl-guest').onclick = closeWelcome;
         $('#wl-login').onclick = function () { openAuthModal('login'); };
         setTimeout(startup, 2500);

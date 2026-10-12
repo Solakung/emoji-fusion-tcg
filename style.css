@@ -504,3 +504,12 @@ body.shake-s { animation: bodyshake .45s; }
 .wait-clock { font-weight: 700; letter-spacing: .5px; }
 .bot-offer { margin: 10px 0; padding: 10px 12px; border-radius: 12px; background: #2a2458; border: 1px solid #5a4fb0; }
 .bot-offer p { margin: 0 0 8px; }
+
+.lesson-list { display: grid; gap: 8px; margin: 10px 0; }
+.lesson-item { display: flex; align-items: center; gap: 10px; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid #3a3370; background: #1f1a48; color: inherit; font: inherit; }
+.lesson-item.done { border-color: #3f8f5f; }
+.lesson-item .l-ico { font-size: 26px; }
+.lesson-item .l-txt { flex: 1; display: flex; flex-direction: column; }
+.lesson-item small { opacity: .7; margin-top: 2px; }
+.lesson-text ul { padding-left: 18px; margin: 8px 0; text-align: left; }
+.lesson-text li { margin: 6px 0; line-height: 1.45; }
