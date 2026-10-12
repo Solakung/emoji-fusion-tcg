@@ -675,7 +675,6 @@
     });
     function up() { if (!down || torn) return; down = null; foil.classList.remove('dragging'); if (!moved) tear(); else show(0); }
     st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
-    setTimeout(tear, 6000);
   }
 
   function revealPack(res) {
