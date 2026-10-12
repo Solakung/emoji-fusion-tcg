@@ -1,0 +1,264 @@
+{
+ "sets": [
+  {
+   "id": "dragon",
+   "name": "ตำนานมังกร",
+   "emoji": "🐉",
+   "color": [
+    "#7a2cff",
+    "#ff5ab0"
+   ],
+   "desc": "สัตว์ในตำนานแห่งดินแดนมังกร 12 ใบ",
+   "cards": [
+    {
+     "id": "DR01",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🥚",
+     "name": "ไข่มังกร",
+     "element": "fire",
+     "cost": 1,
+     "atk": 1,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "sprout",
+       "name": "งอกงาม",
+       "text": "จบเทิร์น ATK +1 ถาวร (สูงสุด +3)"
+      }
+     ],
+     "rarity": "common",
+     "set": "dragon"
+    },
+    {
+     "id": "DR02",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦎",
+     "name": "กิ้งก่าไฟ",
+     "element": "fire",
+     "cost": 1,
+     "atk": 2,
+     "hp": 1,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "lastflame",
+       "name": "ไฟสุดท้าย",
+       "text": "ตอนถูกกำจัด ผู้เล่นศัตรูโดน 1 ดาเมจ"
+      }
+     ],
+     "rarity": "common",
+     "set": "dragon"
+    },
+    {
+     "id": "DR03",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐍",
+     "name": "งูพิษ",
+     "element": "plant",
+     "cost": 2,
+     "atk": 2,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "poison",
+       "name": "พิษ",
+       "text": "โจมตีแล้วเป้าหมายโดนพิษ 1 ดาเมจ/เทิร์น (2 เทิร์น)"
+      }
+     ],
+     "rarity": "common",
+     "set": "dragon"
+    },
+    {
+     "id": "DR04",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐢",
+     "name": "เต่าศิลา",
+     "element": "earth",
+     "cost": 2,
+     "atk": 1,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      }
+     ],
+     "rarity": "common",
+     "set": "dragon"
+    },
+    {
+     "id": "DR05",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦅",
+     "name": "เหยี่ยวพายุ",
+     "element": "wind",
+     "cost": 2,
+     "atk": 2,
+     "hp": 2,
+     "keywords": [
+      "haste"
+     ],
+     "abilities": [],
+     "rarity": "common",
+     "set": "dragon"
+    },
+    {
+     "id": "DR06",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐙",
+     "name": "หมึกยักษ์",
+     "element": "water",
+     "cost": 3,
+     "atk": 3,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "dew",
+       "name": "น้ำค้าง",
+       "text": "ตอนลงสนาม ฟื้น HP ผู้เล่น 2"
+      }
+     ],
+     "rarity": "common",
+     "set": "dragon"
+    },
+    {
+     "id": "DR07",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🐲",
+     "name": "มังกรน้อย",
+     "element": "fire",
+     "cost": 3,
+     "atk": 4,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "spark",
+       "name": "ประกายไฟ",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ HP ต่ำสุดโดน 1 ดาเมจ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "dragon"
+    },
+    {
+     "id": "DR08",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦂",
+     "name": "แมงป่องทราย",
+     "element": "earth",
+     "cost": 3,
+     "atk": 3,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "trap",
+       "name": "กับดัก",
+       "text": "ตอนถูกโจมตี ผู้โจมตีเสีย ATK 1 ถาวร"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "dragon"
+    },
+    {
+     "id": "DR09",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦈",
+     "name": "ฉลามสายฟ้า",
+     "element": "electric",
+     "cost": 3,
+     "atk": 4,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "chain",
+       "name": "ฟ้าแลบต่อ",
+       "text": "โจมตีการ์ดศัตรู แล้วศัตรูอีก 1 ตัว (HP ต่ำสุด) โดน 1 ดาเมจ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "dragon"
+    },
+    {
+     "id": "DR10",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🦉",
+     "name": "นักปราชญ์ฮูก",
+     "element": "wind",
+     "cost": 3,
+     "atk": 2,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "gust",
+       "name": "ลมหมุน",
+       "text": "ตอนลงสนาม จั่วการ์ด 1 ใบ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "dragon"
+    },
+    {
+     "id": "DR11",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🔥",
+     "name": "มังกรอัคคี",
+     "element": "fire",
+     "cost": 4,
+     "atk": 5,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "rampage",
+       "name": "คลั่ง",
+       "text": "ถ้าโจมตีแล้วกำจัดการ์ดศัตรูได้ โจมตีได้อีก 1 ครั้ง"
+      }
+     ],
+     "rarity": "rare",
+     "set": "dragon"
+    },
+    {
+     "id": "DR12",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "👑",
+     "name": "ราชามังกรฟ้า",
+     "element": "electric",
+     "cost": 4,
+     "atk": 4,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "fortify",
+       "name": "เสริมเกราะ",
+       "text": "ตอนลงสนาม พวกเดียวกันทุกตัว HP +1 ถาวร"
+      }
+     ],
+     "rarity": "rare",
+     "set": "dragon"
+    }
+   ]
+  }
+ ]
+}

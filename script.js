@@ -14,7 +14,7 @@
   var DEFAULT_DECK = ['B01', 'B02', 'B03', 'B05', 'B06', 'B07', 'B09', 'B10', 'B11', 'B13', 'B14', 'B15', 'B17', 'B18', 'B21',
     'S01', 'S03', 'S07', 'S08', 'S10'];
 
-  var BASE = [], BASE_MAP = {}, SPELLS = [], FIELDS = [], REACTS = [], ALL_MAP = {};
+  var BASE = [], BASE_MAP = {}, SPELLS = [], FIELDS = [], REACTS = [], ALL_MAP = {}, SETS = [], SET_MAP = {};
   function maxCopies(id) { var c = ALL_MAP[id]; return c && c.type === 'reaction' && c.speed === 3 ? 1 : MAX_COPIES; }
   var state = {};
   var slots = [null, null], result = null, pool = 'base', filter = 'all';
@@ -581,7 +581,7 @@
   var RARITY_W = { common: 70, uncommon: 24, rare: 6 };
   var RARITY_TH = { common: 'ธรรมดา', uncommon: 'พิเศษ', rare: 'หายาก' };
   var SHARD_VAL = { common: 2, uncommon: 5, rare: 12 };
-  var CARD_CAP = 2, PITY_AT = 10, SHARDS_ELEM = 20, SHARDS_RARE = 35;
+  var CARD_CAP = 2, PITY_AT = 10, SHARDS_ELEM = 20, SHARDS_RARE = 35, SET_PRICE = 40;
   function wpick(list) {
     var tot = 0; list.forEach(function (c) { tot += RARITY_W[c.rarity] || 70; });
     var r = Math.random() * tot;
@@ -589,25 +589,37 @@
     return list[list.length - 1];
   }
   function upick(list) { return list[Math.floor(Math.random() * list.length)]; }
-  function allCards() { return BASE.concat(SPELLS, FIELDS, REACTS); }
+  function allCards() { return BASE.concat(SPELLS, FIELDS, REACTS); } // ไม่รวมการ์ดในชุด (ออกเฉพาะซองชุด)
   function lastSlot() { var r = Math.random(); return r < 0.2 ? upick(FIELDS) : r < 0.4 ? wpick(REACTS) : wpick(BASE); }
 
-  // รูปแบบซอง: normal | elem(ธาตุ) | rare(การันตี)
-  function rollPack(kind, elem) {
-    var cards = [], i;
+  // รูปแบบซอง: normal | elem(ธาตุ) | rare(การันตี) | set(รหัสชุด) — ซองละ 5 ใบ ไม่ซ้ำกันในซองเดียว
+  function rollPack(kind, arg) {
+    var cards = [], ids = {};
+    function add(fn, n, pool, pick) { // pool: ถ้ามี จะคัดใบที่ซ้ำออกก่อนสุ่ม (ไม่มีทางวนไม่จบ)
+      for (var i = 0; i < (n || 1); i++) {
+        var c;
+        if (pool) { var left = pool.filter(function (x) { return !ids[x.id]; }); c = (pick || wpick)(left.length ? left : pool); }
+        else { c = fn(); var t = 0; while (ids[c.id] && t++ < 200) c = fn(); }
+        ids[c.id] = 1; cards.push(c);
+      }
+    }
     if (kind === 'elem') {
-      var pool = BASE.filter(function (c) { return c.element === elem; });
-      for (i = 0; i < 4; i++) cards.push(wpick(pool));
-      cards.push(lastSlot());
+      var pool = BASE.filter(function (c) { return c.element === arg; });
+      add(null, 4, pool);
+      add(lastSlot);
     } else if (kind === 'rare') {
       var all = allCards();
-      for (i = 0; i < 3; i++) cards.push(wpick(all));
-      cards.push(upick(all.filter(function (c) { return c.rarity === 'rare'; })));
-      cards.push(wpick(all.filter(function (c) { return c.rarity !== 'common'; })));
+      add(null, 3, all);
+      add(null, 1, all.filter(function (c) { return c.rarity === 'rare'; }), upick);
+      add(null, 1, all.filter(function (c) { return c.rarity !== 'common'; }));
+    } else if (kind === 'set') {
+      var sp = (SET_MAP[arg] || SETS[0]).cards, up = sp.filter(function (c) { return c.rarity !== 'common'; });
+      add(null, 4, sp);
+      add(null, 1, up); // ช่องสุดท้ายการันตีพิเศษขึ้นไป
     } else {
-      for (i = 0; i < 3; i++) cards.push(wpick(BASE));
-      cards.push(wpick(SPELLS));
-      cards.push(lastSlot());
+      add(null, 3, BASE);
+      add(null, 1, SPELLS);
+      add(lastSlot);
     }
     return cards;
   }
@@ -646,7 +658,9 @@
     if (reduce || (window.EFL && window.EFL.noTear)) { done(); return; }
     var st = make('div', 'pack-stage');
     var foil = make('div', 'foil ' + kind + (kind === 'elem' ? ' e-' + elem : ''));
-    foil.innerHTML = '<div class="foil-top"></div><div class="foil-body"><span class="foil-ico">🧪</span><b>EMOJI FUSION</b><small>' + (kind === 'rare' ? 'ซองหายาก' : kind === 'elem' ? 'ซองธาตุ ' + F.ELEMENTS[elem].emoji : 'ซองการ์ด') + '</small></div><div class="foil-glow"></div><div class="tear-line"><i></i></div><span class="scissor">✂️</span>';
+    var setInfo = kind === 'set' ? (SET_MAP[elem] || SETS[0]) : null;
+    if (setInfo && setInfo.color) { foil.style.setProperty('--g', 'linear-gradient(160deg,' + setInfo.color[0] + ',' + setInfo.color[1] + ')'); }
+    foil.innerHTML = '<div class="foil-top"></div><div class="foil-body"><span class="foil-ico">' + (setInfo ? setInfo.emoji : '🧪') + '</span><b>EMOJI FUSION</b><small>' + (setInfo ? 'ชุด' + setInfo.name : kind === 'rare' ? 'ซองหายาก' : kind === 'elem' ? 'ซองธาตุ ' + F.ELEMENTS[elem].emoji : 'ซองการ์ด') + '</small></div><div class="foil-glow"></div><div class="tear-line"><i></i></div><span class="scissor">✂️</span>';
     st.appendChild(foil);
     var hint = make('div', 'tear-hint', 'ลากนิ้วตัดตามรอยประ (หรือแตะ)');
     st.appendChild(hint);
@@ -716,14 +730,15 @@
 
   function openPack(kind, elem, cost) {
     if (typeof kind !== 'string') kind = 'normal';
-    var useShards = kind !== 'normal';
+    var useShards = kind !== 'normal' && kind !== 'set';
     if (useShards) {
       var need = kind === 'elem' ? SHARDS_ELEM : SHARDS_RARE;
       if (state.shards < need) { toast('เศษการ์ดไม่พอ (ต้องใช้ ' + need + ' ✨)'); return; }
       state.shards -= need;
     } else {
-      if (state.coins < PACK_PRICE) { toast('เหรียญไม่พอ (ต้องใช้ ' + PACK_PRICE + ')'); return; }
-      state.coins -= PACK_PRICE;
+      var price = kind === 'set' ? SET_PRICE : PACK_PRICE;
+      if (state.coins < price) { toast('เหรียญไม่พอ (ต้องใช้ ' + price + ')'); return; }
+      state.coins -= price;
     }
     bump('openPack');
     var cards = rollPack(kind, elem);
@@ -768,6 +783,17 @@
     box.appendChild(make('div', 'odds', 'ซองปกติ: มีใบหายากประมาณ ' + shopOdds.rare + '% ต่อซอง · ใบพิเศษประมาณ ' + shopOdds.unc + '% ต่อใบ · ใบซ้ำเกิน ' + CARD_CAP + ' ใบแลกเป็นเศษ (ธรรมดา ' + SHARD_VAL.common + ' · พิเศษ ' + SHARD_VAL.uncommon + ' · หายาก ' + SHARD_VAL.rare + ' ✨)'));
     var ex1 = make('button', 'btn small', 'แลกใบเกิน ' + exN + ' ใบ → +' + exGain + ' ✨'); ex1.disabled = !exN; ex1.onclick = exchangeExcess;
     box.appendChild(ex1);
+    if (SETS.length) {
+      box.appendChild(make('h3', null, '📦 ซองตามชุด (' + SET_PRICE + ' 🪙)'));
+      SETS.forEach(function (st) {
+        var have = st.cards.filter(function (c) { return (state.owned[c.id] || 0) > 0; }).length;
+        var sb = make('button', 'btn set-btn', st.emoji + ' ' + st.name + ' · สะสมแล้ว ' + have + '/' + st.cards.length);
+        sb.disabled = state.coins < SET_PRICE;
+        sb.onclick = function () { openPack('set', st.id); };
+        box.appendChild(sb);
+        box.appendChild(make('p', 'muted', st.desc + ' · 5 ใบ ไม่ซ้ำกันในซอง · ใบสุดท้ายการันตีพิเศษขึ้นไป'));
+      });
+    }
     box.appendChild(make('h3', null, '🎁 ซองพิเศษ (ใช้เศษการ์ด)'));
     var chips = make('div', 'elem-chips');
     ELEM_ORDER.forEach(function (e) {
@@ -2350,8 +2376,12 @@
   }
 
   function init() {
-    fetch('cards.json')
+    var setsP = fetch('sets.json?v=0.17').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.17')
       .then(function (r) { return r.json(); })
+      .then(function (data) {
+        return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
+      })
       .then(function (data) {
         BASE = data.base;
         BASE.forEach(function (c) { BASE_MAP[c.id] = c; ALL_MAP[c.id] = c; });
@@ -2359,6 +2389,7 @@
         FIELDS = data.extras.filter(function (c) { return c.type === 'field'; });
         REACTS = data.extras.filter(function (c) { return c.type === 'reaction'; });
         SPELLS.concat(FIELDS, REACTS).forEach(function (c) { ALL_MAP[c.id] = c; });
+        SETS = data.sets; SETS.forEach(function (st) { SET_MAP[st.id] = st; st.cards.forEach(function (c) { ALL_MAP[c.id] = c; }); });
         load();
         state.found = state.found.filter(function (id) { return !!getCard(id); });
         buildGroups();
