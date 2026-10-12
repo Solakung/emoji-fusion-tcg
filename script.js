@@ -644,6 +644,8 @@
     art.appendChild(spriteEl(u.card, 52));
     d.appendChild(art);
     d.appendChild(make('div', 'u-name', u.name));
+    var abn = (u.card.abilities || []).map(function (a) { return a.name; }).filter(Boolean);
+    if (abn.length) d.appendChild(make('div', 'u-ab', '✧ ' + abn.join('·')));
     var atk = B.curAtk(u), mh = B.maxHp(u);
     var ac = atk > u.card.atk ? ' up' : atk < u.card.atk ? ' down' : '';
     var hc = u.hp < mh ? ' down' : u.hp > u.card.hp ? ' up' : '';
@@ -1003,6 +1005,19 @@
     $('#hero-me').onclick = function () { onHeroClick('me'); };
   }
 
+  /* ---------- มีอะไรใหม่ ---------- */
+  var VERSION = '0.4', SEEN_KEY = 'emoji-fusion-lab-seen';
+  function showWhatsNew() { $('#whatsnew').hidden = false; }
+  function closeWhatsNew() {
+    $('#whatsnew').hidden = true;
+    try { localStorage.setItem(SEEN_KEY, VERSION); } catch (e) { /* ไม่เป็นไร */ }
+  }
+  function checkWhatsNew() {
+    var seen = null;
+    try { seen = localStorage.getItem(SEEN_KEY); } catch (e) { /* ไม่เป็นไร */ }
+    if (seen !== VERSION) showWhatsNew();
+  }
+
   function fail(msg) {
     $('#view-lab').innerHTML = '<div class="empty">' + msg + '</div>';
   }
@@ -1023,6 +1038,9 @@
         renderFilters();
         renderStats();
         renderLab();
+        $('#whatsnew-ok').onclick = closeWhatsNew;
+        $('#btn-whatsnew').onclick = showWhatsNew;
+        checkWhatsNew();
         window.EFL = { state: function () { return state; }, battle: function () { return bs; } };
       })
       .catch(function (e) {
