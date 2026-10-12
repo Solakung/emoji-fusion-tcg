@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14121f">
   <title>Emoji Fusion TCG</title>
-  <link rel="stylesheet" href="style.css?v=0.8">
+  <link rel="stylesheet" href="style.css?v=0.9">
 </head>
 <body>
   <header class="top">
@@ -56,12 +56,16 @@
     <!-- ต่อสู้ (เมนู) -->
     <section id="view-battle" class="view">
             <div id="account-card" class="notice acc"></div>
+      <div id="daily-card" class="daily"></div>
       <div id="battle-deck-status" class="notice"></div>
       <h2 class="sec">🌐 ต่อสู้ออนไลน์</h2>
       <div class="online-box">
         <button id="on-quick" class="btn primary">⚡ จับคู่เร็ว</button>
+        <div id="rank-card" class="rank-card"></div>
+        <button id="on-ranked" class="btn primary">🏆 จัดอันดับ (แรงก์)</button>
         <button id="on-create" class="btn">🔑 สร้างห้องส่วนตัว</button>
         <div class="join-row"><input id="on-code" maxlength="5" placeholder="รหัสห้อง 5 ตัว" autocomplete="off" autocapitalize="characters"><button id="on-join" class="btn">เข้าห้อง</button></div>
+        <div class="join-row"><button id="on-board" class="btn" style="flex:1">📊 ตารางอันดับ</button><button id="on-replay" class="btn" style="flex:1">🎞️ รีเพลย์</button></div>
         <small>เล่นกับคนจริงแบบเรียลไทม์ · ใช้เด็คของคุณ · มีเวลา 90 วินาทีต่อเทิร์น</small>
       </div>
       <h2 class="sec">🤖 ต่อสู้กับบอท</h2>
@@ -97,6 +101,7 @@
       <div class="actions wrap">
         <button id="btn-autodeck" class="btn">✨ จัดเด็คให้อัตโนมัติ</button>
         <button id="btn-cleardeck" class="btn">ล้างเด็ค</button>
+        <button id="btn-deckshare" class="btn">🔗 รหัสเด็ค</button>
       </div>
       <h2 class="sec">เด็คของฉัน <small id="deck-count-small"></small></h2>
       <div id="deck-list" class="grid"></div>
@@ -195,22 +200,22 @@
   </div>
   <div id="whatsnew" class="whatsnew" hidden>
     <div class="wn-box">
-      <div class="wn-tag">NEW · v0.5</div>
-      <h2>สมัครบัญชี เซฟการ์ดไว้บนคลาวด์!</h2>
+      <div class="wn-tag">NEW · v0.6</div>
+      <h2>ต่อสู้ออนไลน์แล้ว!</h2>
       <ul>
-        <li><b>บัญชีผู้เล่น:</b> สมัครด้วยอีเมล เซฟการ์ด เหรียญ เด็ค และสูตรที่ค้นพบไว้บนคลาวด์ เล่นต่อได้ทุกเครื่อง กดปุ่ม <b>👤</b> มุมขวาบน</li>
-        <li><b>เล่นแบบแขก</b> ก็ยังได้เหมือนเดิม สมัครทีหลังแล้วข้อมูลที่เล่นไว้จะย้ายขึ้นคลาวด์ให้</li>
-        <li><b>ความสามารถเฉพาะตัว:</b> การ์ดพื้นฐานทั้ง 24 ใบมีความสามารถของตัวเอง การ์ดผสมสืบทอดต่อจากแม่ (ขั้น 3 มีได้สูงสุด 3 อย่าง)</li>
-        <li><b>ทัวร์สอนเล่น</b> เปิดดูซ้ำได้ที่แท็บสมุด</li>
+        <li><b>จับคู่เร็ว / ห้องส่วนตัว:</b> สู้กับคนจริงแบบเรียลไทม์ ส่งรหัสห้อง 5 ตัวให้เพื่อนได้ · มีเวลา 90 วิ/เทิร์น และอีโมต 💬</li>
+        <li><b>จัดอันดับ:</b> ล็อกอินอีเมลแล้วไต่แรงก์ (ชนะ +25 / แพ้ −20) ดูตารางอันดับได้</li>
+        <li><b>ภารกิจรายวัน + โบนัสล็อกอิน</b> รับเหรียญทุกวัน ในแท็บต่อสู้</li>
+        <li><b>รีเพลย์</b> ดูเกมออนไลน์ย้อนหลัง · <b>รหัสเด็ค</b> แชร์/นำเข้าเด็คได้ที่แท็บเด็ค</li>
       </ul>
       <button id="whatsnew-ok" class="btn primary">เข้าใจแล้ว ลุยเลย</button>
     </div>
   </div>
   <div id="toast" class="toast" hidden></div>
 
-  <script src="fusion.js?v=0.8"></script>
-  <script src="battle.js?v=0.8"></script>
-  <script src="script.js?v=0.8"></script>
-  <script type="module" src="online.js?v=0.8"></script>
+  <script src="fusion.js?v=0.9"></script>
+  <script src="battle.js?v=0.9"></script>
+  <script src="script.js?v=0.9"></script>
+  <script type="module" src="online.js?v=0.9"></script>
 </body>
 </html>

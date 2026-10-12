@@ -37,7 +37,7 @@ const O = {
   async startGame(code) { await call('start', { code }); },
   async cancelRoom(code) { await call('cancel', { code }); },
   async quick(deck) { const l = await call('lobby', { take: true }); if (l) { await O.joinRoom(l.code, deck); return { role: 'guest', code: l.code }; } const m = await O.createRoom(deck); await call('lobby', { set: { code: m.code } }); return { role: 'host', code: m.code }; },
-  release() {},
+  release() {}, async vote() { return true; }, async getRank() { return null; }, async leaderboard() { return [{ uid: 'A', name: 'Top', rating: 1100 }]; }, async applyRanked() { return null; },
   listen(code, h) {
     const seen = new Set(); let emN = 0; let last = '';
     const iv = setInterval(async () => {
@@ -127,6 +127,23 @@ window.Online = O; window.dispatchEvent(new Event('efl-online'));
   ok(/ชนะ/.test(await Bp.textContent('#modal-body')) && /ยอมแพ้/.test(await Bp.textContent('#modal-body')), 'B เห็นชนะ (คู่ต่อสู้ยอมแพ้)');
   await A.click('#end-back'); await Bp.click('#end-back');
   ok(!(await A.evaluate(() => !!window.EFL.battle())), 'ออกจากเกมแล้ว');
+  // รีเพลย์: เล่นซ้ำจนจบแล้วสถานะต้องตรงกับเกมจริง
+  const liveSig = (await Bp.evaluate(() => 0), boards[0]);
+  const rep = await A.evaluate(() => JSON.parse(localStorage.getItem('efl_replays') || '[]'));
+  ok(rep.length === 1 && rep[0].acts.length > 5, 'บันทึกรีเพลย์ ' + (rep[0] && rep[0].acts.length) + ' คำสั่ง');
+  await A.evaluate(() => document.querySelector('#on-replay').click()); await A.waitForTimeout(200);
+  await A.click('.rp-list button'); await A.waitForTimeout(300);
+  ok(await A.evaluate(() => !!window.EFL.battle() && !!window.EFL.battle().replay), 'เปิดตัวดูรีเพลย์');
+  await A.evaluate(() => { const b = window.EFL.battle(); document.querySelectorAll('#b-action button')[3].click(); });
+  await A.evaluate(() => { for (let k = 0; k < 400; k++) { const R = window.EFL.battle().replay; if (R.i >= R.rec.acts.length) break; document.querySelectorAll('#b-action button')[3].click(); } });
+  const rg = await A.evaluate(() => { const b = window.EFL.battle(); return { i: b.replay.i, n: b.replay.rec.acts.length, turn: b.G.turn, hp: b.G.players.map((x) => x.hp) }; });
+  ok(rg.i === rg.n, 'เดินถึงคำสั่งสุดท้าย');
+  const live = await info(Bp).catch(() => null);
+  ok(rg.turn >= 5, 'รีเพลย์เดินเทิร์นได้ turn=' + rg.turn + ' hp=' + rg.hp);
+  await A.evaluate(() => document.querySelectorAll('#b-action button')[0].click());
+  ok((await A.evaluate(() => window.EFL.battle().G.turn)) === 1, 'ย้อนกลับต้นเกม');
+  await A.click('#btn-quit');
+  ok(!(await A.evaluate(() => !!window.EFL.battle())), 'ออกจากรีเพลย์');
   await br.close(); srv.close();
   console.log(fails ? 'FAILED ' + fails : 'ALL PASS'); process.exit(fails ? 1 : 0);
 })();

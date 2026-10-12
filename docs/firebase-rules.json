@@ -62,15 +62,31 @@
             }
           },
           "final": {
-            ".write": "auth != null && !data.exists() && (root.child('efl/rooms/'+$code).child('host/uid').val() === auth.uid || root.child('efl/rooms/'+$code).child('guest/uid').val() === auth.uid)",
-            ".validate": "newData.hasChildren(['winner','reason','by']) && newData.child('winner').isNumber() && newData.child('winner').val() >= -1 && newData.child('winner').val() <= 1 && newData.child('reason').isString()"
+            ".write": "auth != null && !data.exists() && (root.child('efl/rooms/'+$code).child('host/uid').val() === auth.uid || root.child('efl/rooms/'+$code).child('guest/uid').val() === auth.uid) && ((newData.child('by').val() === 0 && root.child('efl/rooms/'+$code).child('host/uid').val() === auth.uid) || (newData.child('by').val() === 1 && root.child('efl/rooms/'+$code).child('guest/uid').val() === auth.uid)) && (newData.child('reason').val() !== 'resign' || newData.child('winner').val() !== newData.child('by').val()) && (newData.child('reason').val() !== 'dc' || (newData.child('winner').val() === newData.child('by').val() && root.child('efl/rooms/'+$code).child('presence/'+(newData.child('by').val() === 0 ? root.child('efl/rooms/'+$code).child('guest/uid').val() : root.child('efl/rooms/'+$code).child('host/uid').val())).val() === false))",
+            ".validate": "newData.hasChildren(['winner','reason','by']) && newData.child('winner').isNumber() && newData.child('winner').val() >= -1 && newData.child('winner').val() <= 1 && (newData.child('reason').val() === 'game' || newData.child('reason').val() === 'resign' || newData.child('reason').val() === 'dc' || newData.child('reason').val() === 'idle' || newData.child('reason').val() === 'baddeck')"
           },
           "presence": {
             "$uid": {
               ".write": "auth != null && auth.uid === $uid && (root.child('efl/rooms/'+$code).child('host/uid').val() === auth.uid || root.child('efl/rooms/'+$code).child('guest/uid').val() === auth.uid)",
               ".validate": "newData.isBoolean()"
             }
+          },
+          "votes": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && (root.child('efl/rooms/'+$code).child('host/uid').val() === auth.uid || root.child('efl/rooms/'+$code).child('guest/uid').val() === auth.uid)",
+              ".validate": "newData.isNumber() && newData.val() >= -1 && newData.val() <= 1"
+            }
           }
+        }
+      },
+      "ranks": {
+        ".read": "auth != null",
+        ".indexOn": [
+          "rating"
+        ],
+        "$uid": {
+          ".write": "auth != null && root.child('efl/rooms/'+newData.child('last').val()).child('ranked').val() === true && root.child('efl/rooms/'+newData.child('last').val()).child('final').exists() && root.child('efl/rooms/'+newData.child('last').val()).child('final/reason').val() !== 'baddeck' && data.child('last').val() !== newData.child('last').val() && (auth.uid === root.child('efl/rooms/'+newData.child('last').val()).child('host/uid').val() || auth.uid === root.child('efl/rooms/'+newData.child('last').val()).child('guest/uid').val()) && ($uid === root.child('efl/rooms/'+newData.child('last').val()).child('host/uid').val() || $uid === root.child('efl/rooms/'+newData.child('last').val()).child('guest/uid').val()) && (root.child('efl/rooms/'+newData.child('last').val()).child('final/reason').val() === 'resign' || (root.child('efl/rooms/'+newData.child('last').val()).child('final/reason').val() === 'dc') || (root.child('efl/rooms/'+newData.child('last').val()).child('votes/'+root.child('efl/rooms/'+newData.child('last').val()).child('host/uid').val()).val() === root.child('efl/rooms/'+newData.child('last').val()).child('final/winner').val() && root.child('efl/rooms/'+newData.child('last').val()).child('votes/'+root.child('efl/rooms/'+newData.child('last').val()).child('guest/uid').val()).val() === root.child('efl/rooms/'+newData.child('last').val()).child('final/winner').val())) && ((((root.child('efl/rooms/'+newData.child('last').val()).child('final/winner').val() === 0 && root.child('efl/rooms/'+newData.child('last').val()).child('host/uid').val() === $uid) || (root.child('efl/rooms/'+newData.child('last').val()).child('final/winner').val() === 1 && root.child('efl/rooms/'+newData.child('last').val()).child('guest/uid').val() === $uid)) && newData.child('rating').val() === (data.child('rating').exists() ? data.child('rating').val() : 1000) + 25) || (((root.child('efl/rooms/'+newData.child('last').val()).child('final/winner').val() === 0 && root.child('efl/rooms/'+newData.child('last').val()).child('guest/uid').val() === $uid) || (root.child('efl/rooms/'+newData.child('last').val()).child('final/winner').val() === 1 && root.child('efl/rooms/'+newData.child('last').val()).child('host/uid').val() === $uid)) && newData.child('rating').val() === ((data.child('rating').exists() ? data.child('rating').val() : 1000) >= 20 ? (data.child('rating').exists() ? data.child('rating').val() : 1000) - 20 : 0)) || (root.child('efl/rooms/'+newData.child('last').val()).child('final/winner').val() === -1 && newData.child('rating').val() === (data.child('rating').exists() ? data.child('rating').val() : 1000)))",
+          ".validate": "newData.hasChildren(['name','rating','last']) && newData.child('name').isString() && newData.child('name').val() === root.child('efl/users/'+$uid+'/profile/name').val() && newData.child('rating').isNumber()"
         }
       }
     }

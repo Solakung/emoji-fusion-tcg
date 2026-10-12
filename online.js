@@ -6,7 +6,7 @@ import {
   signOut, sendPasswordResetEmail, signInAnonymously, EmailAuthProvider, linkWithCredential
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import {
-  getDatabase, ref, get, set, remove, update, onValue, onChildAdded, runTransaction, onDisconnect, serverTimestamp
+  getDatabase, ref, get, set, remove, update, onValue, onChildAdded, runTransaction, query, orderByChild, limitToLast, onDisconnect, serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
 // ค่าฝั่งเว็บของ Firebase เปิดเผยได้ ความปลอดภัยอยู่ที่กฎฐานข้อมูล (docs/firebase-rules.json)
@@ -257,6 +257,50 @@ Object.assign(Online, {
     return onValue(ref(db, '.info/connected'), (s) => {
       if (s.val() === true) { try { onDisconnect(p).set(false); } catch (e) { /* ไม่เป็นไร */ } set(p, true).catch(() => {}); }
     });
+  }
+});
+
+Object.assign(Online, {
+  // โหวตผู้ชนะของแต่ละฝั่ง (แรงก์จะนับก็ต่อเมื่อทั้งสองฝั่งโหวตตรงกัน)
+  async vote(code, uid, winner) {
+    try { await set(roomRef(code, 'votes/' + uid), winner); return true; } catch (e) { return false; }
+  },
+  async getRank(uid) {
+    try { const s = await get(ref(db, ROOT + '/ranks/' + uid)); return s.exists() ? s.val() : null; } catch (e) { return null; }
+  },
+  async leaderboard(n) {
+    try {
+      const s = await get(query(ref(db, ROOT + '/ranks'), orderByChild('rating'), limitToLast(n || 30)));
+      const out = [];
+      s.forEach((c) => { out.push(Object.assign({ uid: c.key }, c.val())); });
+      return out.reverse();
+    } catch (e) { throw fail(e); }
+  },
+  // อัปเดตแรงก์ของทั้งสองฝั่งจากผลในห้อง (กฎฐานข้อมูลตรวจเงื่อนไขและคะแนนที่เปลี่ยนให้) คืนค่าแรงก์ของเรา
+  async applyRanked(code, tries) {
+    const me = auth.currentUser; if (!me) return null;
+    for (let i = 0; i < (tries || 8); i++) {
+      const room = await Online.getRoom(code);
+      if (!room || !room.ranked || !room.final || !room.guest) return null;
+      const w = room.final.winner;
+      let mineNew = null, done = 0;
+      for (const side of [0, 1]) {
+        const uid = side === 0 ? room.host.uid : room.guest.uid;
+        const old = await Online.getRank(uid);
+        if (old && old.last === code) { if (uid === me.uid) mineNew = old; done++; continue; }
+        const cur = old ? old.rating : 1000;
+        const won = w === side, lost = w === 1 - side;
+        const rating = won ? cur + 25 : lost ? Math.max(0, cur - 20) : cur;
+        let name = null;
+        try { const p = await Online.getProfile(uid); name = p && p.name; } catch (e) { /* ไม่เป็นไร */ }
+        if (!name) continue;
+        const v = { name: name, rating: rating, w: ((old && old.w) || 0) + (won ? 1 : 0), l: ((old && old.l) || 0) + (lost ? 1 : 0), last: code };
+        try { await set(ref(db, ROOT + '/ranks/' + uid), v); done++; if (uid === me.uid) mineNew = v; } catch (e) { /* รอโหวตครบแล้วลองใหม่ */ }
+      }
+      if (mineNew) return mineNew;
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+    return null;
   }
 });
 

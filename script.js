@@ -45,7 +45,8 @@
     STARTER_SPELLS.forEach(function (id) { owned[id] = 1; });
     return {
       found: [], points: 0, coins: 120, owned: owned, deck: DEFAULT_DECK.slice(), uid: null, ts: 0,
-      stats: { easy: { w: 0, l: 0, d: 0 }, medium: { w: 0, l: 0, d: 0 }, hard: { w: 0, l: 0, d: 0 } }
+      stats: { easy: { w: 0, l: 0, d: 0 }, medium: { w: 0, l: 0, d: 0 }, hard: { w: 0, l: 0, d: 0 }, online: { w: 0, l: 0, d: 0 } },
+      daily: { d: '', last: '', streak: 0, login: false, m: {} }
     };
   }
   function load() {
@@ -61,7 +62,8 @@
         if (o && Array.isArray(o.deck)) s.deck = o.deck;
         if (o && typeof o.uid === 'string') s.uid = o.uid;
         if (o && typeof o.ts === 'number') s.ts = o.ts;
-        if (o && o.stats) { ['easy', 'medium', 'hard'].forEach(function (k) { if (o.stats[k]) s.stats[k] = o.stats[k]; }); }
+        if (o && o.daily && typeof o.daily === 'object') s.daily = cleanDaily(o.daily);
+        if (o && o.stats) { ['easy', 'medium', 'hard', 'online'].forEach(function (k) { if (o.stats[k]) s.stats[k] = o.stats[k]; }); }
       }
     } catch (e) { /* ใช้ค่าเริ่มต้น */ }
     state = s;
@@ -311,6 +313,8 @@
       state.coins += coins;
       save();
     }
+    bump('fuseLab');
+    if (isNew) bump('newRecipe');
     result = r;
     renderLab();
     renderStats();
@@ -535,7 +539,7 @@
       });
   }
 
-  function autoDeck() {
+  function autoDeck(quiet) {
     var deck = state.deck.filter(function (id) { return !!ALL_MAP[id]; });
     var counts = {};
     deck.forEach(function (id) { counts[id] = (counts[id] || 0) + 1; });
@@ -556,6 +560,7 @@
     addFrom('spell', DECK_SIZE);
     state.deck = deck.slice(0, DECK_SIZE);
     save(); renderDeck();
+    if (quiet === true) return;
     toast(validDeck() ? 'จัดเด็คแล้ว' : 'การ์ดในคลังยังไม่พอสำหรับ ' + DECK_SIZE + ' ใบ');
   }
 
@@ -565,6 +570,7 @@
   function openPack() {
     if (state.coins < PACK_PRICE) { toast('เหรียญไม่พอ (ต้องใช้ ' + PACK_PRICE + ')'); return; }
     state.coins -= PACK_PRICE;
+    bump('openPack');
     var cards = [];
     for (var i = 0; i < 3; i++) cards.push(BASE[Math.floor(Math.random() * BASE.length)]);
     cards.push(SPELLS[Math.floor(Math.random() * SPELLS.length)]);
@@ -592,6 +598,7 @@
      ต่อสู้ — เมนู
      ===================================================== */
   function renderBattleMenu() {
+    state.daily = state.daily || cleanDaily({});
     renderAccount();
     var ok = validDeck();
     var n = $('#battle-deck-status');
@@ -600,6 +607,7 @@
       : '⚠️ เด็คยังไม่ครบ ' + DECK_SIZE + ' ใบ <button class="btn small" id="goto-deck">ไปจัดเด็ค</button>';
     var g = $('#goto-deck');
     if (g) g.onclick = function () { showView('deck'); };
+    renderRankCard(); renderDaily();
     var st = state.stats;
     var on = st.online || { w: 0, l: 0 };
     $('#battle-stats').innerHTML = ['easy', 'medium', 'hard'].map(function (k) {
@@ -702,7 +710,8 @@
     var G = bs.G, t;
     if (G.over) t = 'จบเกม';
     else if (G.active === ME()) t = bs.busy ? '…' : '🟢 ตาคุณ';
-    else t = '🔴 ตา' + (bs.online ? 'คู่ต่อสู้' : 'บอท');
+    else t = '🔴 ตา' + (bs.online || bs.replay ? 'คู่ต่อสู้' : 'บอท');
+    if (bs.replay) t = '🎞️ ' + bs.replay.i + '/' + bs.replay.rec.acts.length + ' · ' + t;
     if (bs.online && !G.over) {
       var left = Math.max(0, Math.ceil((bs.online.deadline - Date.now()) / 1000));
       t += ' ⏱' + left;
@@ -767,6 +776,7 @@
   }
 
   function renderAction() {
+    if (bs && bs.replay) { renderReplayBar(); return; }
     var G = bs.G, me = G.players[ME()], sel = bs.sel, bar = $('#b-action');
     bar.innerHTML = '';
     var myTurn = G.active === ME() && !G.over && !bs.busy;
@@ -849,6 +859,7 @@
     var r = B.apply(bs.G, ME(), a);
     if (!r.ok) { toast(r.error); return; }
     bs.sel = null;
+    if (!bs.tutorial) { if (a.t === 'play') bump('playCard'); else if (a.t === 'fuse') bump('fuseBattle'); }
     renderBattle();
     checkEnd();
   }
@@ -943,7 +954,7 @@
     var w = bs.G.over.winner, lvl = bs.level, st = state.stats[lvl];
     var title, reward;
     var tut = !!bs.tutorial;
-    if (w === ME()) { if (!tut) st.w++; reward = REWARD[lvl]; title = '🏆 คุณชนะ!'; }
+    if (w === ME()) { if (!tut) { st.w++; bump('winBot'); } reward = REWARD[lvl]; title = '🏆 คุณชนะ!'; }
     else if (w === OP()) { if (!tut) st.l++; reward = REWARD.lose; title = '💥 คุณแพ้'; }
     else { if (!tut) st.d = (st.d || 0) + 1; reward = REWARD.draw; title = '🤝 เสมอ'; }
     if (tut) reward = 0;
@@ -964,6 +975,7 @@
 
   function closeBattle() {
     if (bs && bs.online) leaveOnline();
+    if (bs && bs.replay) clearInterval(bs.replay.timer);
     bs = null;
     $('#battle').hidden = true;
     document.body.classList.remove('in-battle');
@@ -979,6 +991,7 @@
 
   function quitBattle() {
     if (!bs) return;
+    if (bs.replay) { closeBattle(); showView('battle'); return; }
     if (bs.online && !bs.over && !bs.G.over) {
       if (confirm('ยอมแพ้และออกจากการต่อสู้?')) {
         Online.setFinal(bs.online.code, { winner: OP(), reason: 'resign', by: ME() });
@@ -1033,6 +1046,51 @@
       window.Online.joinRoom(code, myPayload()).then(function (r) { openNet(r.code, 'guest'); }).catch(netFail);
     };
     $('#b-emote').onclick = toggleEmotePalette;
+    $('#on-ranked').onclick = function () {
+      if (!onlineReady()) return;
+      if (!window.Online.isMember()) { toast('โหมดจัดอันดับต้องล็อกอินด้วยอีเมลก่อน'); openAuthModal('login'); return; }
+      if (!cloud.name) { toast('ตั้งชื่อผู้เล่นก่อน (ปุ่มตั้งชื่อด้านบน)'); return; }
+      window.Online.quick(myPayload(), true).then(function (r) { openNet(r.code, r.role); }).catch(netFail);
+    };
+    $('#on-board').onclick = showBoard;
+    $('#on-replay').onclick = openReplays;
+  }
+
+  var TIERS = [[1450, '👑 มาสเตอร์'], [1250, '💎 ไดมอนด์'], [1100, '🥇 โกลด์'], [1000, '🥈 ซิลเวอร์'], [0, '🥉 บรอนซ์']];
+  function tierOf(r) { for (var i = 0; i < TIERS.length; i++) if (r >= TIERS[i][0]) return TIERS[i][1]; return TIERS[4][1]; }
+  function renderRankCard() {
+    var box = $('#rank-card'); if (!box) return;
+    if (!window.Online || !cloud.user) { box.innerHTML = '<small>ล็อกอินด้วยอีเมลเพื่อเล่นโหมดจัดอันดับ</small>'; return; }
+    box.innerHTML = '<small>กำลังโหลดแรงก์…</small>';
+    var uid = cloud.user.uid;
+    window.Online.getRank(uid).then(function (r) {
+      if (!cloud.user || cloud.user.uid !== uid) return;
+      var rt = r ? r.rating : 1000;
+      box.innerHTML = '<b>' + tierOf(rt) + '</b> · ' + rt + ' แต้ม<br><small>ชนะ ' + (r ? r.w : 0) + ' · แพ้ ' + (r ? r.l : 0) + ' · ชนะ +25 / แพ้ −20</small>';
+    });
+  }
+  function showBoard() {
+    if (!window.Online) { toast('ออนไลน์ใช้ไม่ได้ตอนนี้'); return; }
+    $('#modal-body').innerHTML = '<div class="detail"><h3>📊 ตารางอันดับ</h3><div class="subline">กำลังโหลด…</div></div>';
+    modalKind = ''; $('#modal').hidden = false;
+    window.Online.leaderboard(30).then(function (list) {
+      var mine = cloud.user && cloud.user.uid;
+      var rows = list.map(function (r, i) {
+        return '<li class="' + (r.uid === mine ? 'me' : '') + '"><span class="pos">' + (i + 1) + '</span><span class="nm">' + esc(r.name) + '</span><span class="rt">' + tierOf(r.rating) + ' ' + r.rating + '</span></li>';
+      }).join('');
+      $('#modal-body').innerHTML = '<div class="detail"><h3>📊 ตารางอันดับ</h3>' + (rows ? '<ol class="board">' + rows + '</ol>' : '<div class="subline">ยังไม่มีใครมีอันดับ</div>') + '</div>';
+    }).catch(function (e) { $('#modal-body').innerHTML = '<div class="detail"><h3>📊 ตารางอันดับ</h3><div class="subline">' + esc(e.message) + '</div></div>'; });
+  }
+  function tryRank() {
+    if (!bs || !bs.online || !bs.ranked || bs.rankDone || !net || !net.st.final || !bs.G.over) return;
+    bs.rankDone = true;
+    var session = bs;
+    window.Online.applyRanked(bs.online.code).then(function (r) {
+      var el = $('#rank-line');
+      if (r && el && bs === session) el.innerHTML = '🏆 แรงก์: <b>' + tierOf(r.rating) + ' ' + r.rating + '</b>';
+      else if (!r && el) el.textContent = 'บันทึกแรงก์ไม่สำเร็จ (อีกฝั่งอาจยังไม่ยืนยันผล)';
+      renderRankCard();
+    });
   }
 
   function openNet(code, role, rejoin) {
@@ -1097,12 +1155,15 @@
       return;
     }
     if (bs && bs.online) {
-      if (st.final && !bs.G.over) {
-        bs.finalReason = st.final.reason;
-        bs.G.over = { winner: st.final.winner };
+      var fz = st.final, trust = fz && (fz.reason === 'resign' || fz.reason === 'dc' || fz.reason === 'baddeck' ||
+        (fz.reason === 'idle' && bs.online.timeouts[1 - fz.winner] >= 3));
+      if (trust && !bs.G.over) {
+        bs.finalReason = fz.reason;
+        bs.G.over = { winner: fz.winner };
         renderBattle(); checkEnd();
       }
       evalPresence();
+      tryRank();
     }
   }
 
@@ -1133,9 +1194,10 @@
     }
     var G = B.create({ decks: decks, names: [cleanName(st.host.name), cleanName(st.guest.name)], knows: knows, seed: st.seed, first: st.first });
     bs = {
-      G: G, level: 'online', sel: null, busy: false, over: false, prev: {}, prevHp: [G.players[0].hp, G.players[1].hp], me: me,
+      G: G, level: 'online', ranked: !!st.ranked, sel: null, busy: false, over: false, prev: {}, prevHp: [G.players[0].hp, G.players[1].hp], me: me,
       online: { code: n.code, next: 0, pending: false, forcing: false, timeouts: [0, 0], deadline: Date.now() + TURN_SECS * 1000,
-        startedAt: Date.now(), uids: [st.host.uid, st.guest.uid], dc: false, lastActive: G.active }
+        startedAt: Date.now(), uids: [st.host.uid, st.guest.uid], dc: false, lastActive: G.active, log: [],
+        rec: { v: 1, seed: st.seed, first: st.first, names: [cleanName(st.host.name), cleanName(st.guest.name)], decks: [parsed[0].d, parsed[1].d], ranked: !!st.ranked, code: n.code } }
     };
     bs.online.timer = setInterval(onlineTick, 1000);
     n.pres = window.Online.presence(n.code);
@@ -1161,7 +1223,9 @@
       var a; try { a = JSON.parse(v.a); } catch (e) { continue; }
       var r = B.apply(G, v.by, a);
       if (!r.ok) continue;
+      if (v.by === ME() && !quiet && !v.forced) { if (a.t === 'play') bump('playCard'); else if (a.t === 'fuse') bump('fuseBattle'); }
       applied = true;
+      o.log.push([v.by, v.a]);
       if (v.forced) {
         o.timeouts[v.by]++;
         if (o.timeouts[v.by] >= 3 && !G.over) window.Online.setFinal(o.code, { winner: 1 - v.by, reason: 'idle', by: ME() });
@@ -1240,14 +1304,18 @@
   function endOnline() {
     var G = bs.G, o = bs.online, w = G.over.winner, turn = G.turn;
     if (!bs.finalReason) window.Online.setFinal(o.code, { winner: w, reason: 'game', by: ME() });
+    window.Online.vote(o.code, window.Online.user().uid, w);
     clearInterval(o.timer);
     roomMark(null);
+    saveReplay(w);
     var st = state.stats.online = state.stats.online || { w: 0, l: 0, d: 0 };
     var title, reward;
     if (w === ME()) { st.w++; reward = 30; title = '🏆 คุณชนะ!'; }
     else if (w === OP()) { st.l++; reward = 10; title = '💥 คุณแพ้'; }
     else { st.d = (st.d || 0) + 1; reward = 15; title = '🤝 เสมอ'; }
     if (turn < 4) reward = 0;
+    if (turn >= 3) bump('playOnline');
+    if (w === ME() && turn >= 3) bump('winOnline');
     state.coins += reward;
     save(); renderStats();
     var why = REASON[bs.finalReason];
@@ -1255,11 +1323,13 @@
     var whyTxt = why ? (w === ME() ? (bs.finalReason === 'resign' ? 'คู่ต่อสู้ยอมแพ้' : 'คู่ต่อสู้ ' + why) : (bs.finalReason === 'resign' ? 'คุณยอมแพ้' : why)) : '';
     $('#modal-body').innerHTML = '<div class="detail endgame"><h3>' + title + '</h3>' +
       '<div class="subline">เทิร์นที่ ' + turn + ' · พบ ' + esc(oppName) + (whyTxt ? ' · ' + whyTxt : '') + '</div>' +
+      (bs.ranked ? '<div class="subline" id="rank-line">🏆 กำลังบันทึกแรงก์…</div>' : '') +
       (reward ? '<div class="reward">+' + reward + ' 🪙</div>' : '<div class="subline">เกมสั้นเกินไป ไม่มีรางวัล</div>') +
       '<div class="actions"><button class="btn primary" id="end-back">กลับเมนู</button></div></div>';
     $('#modal').hidden = false;
     modalKind = 'end';
     $('#end-back').onclick = function () { closeModal(); };
+    tryRank();
   }
 
   /* ---------- อีโมต ---------- */
@@ -1296,6 +1366,86 @@
     setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 2600);
   }
 
+
+  /* =====================================================
+     รีเพลย์ (เอนจินกำหนดผลล่วงหน้าได้ จึงเก็บแค่ seed + เด็ค + คำสั่ง)
+     ===================================================== */
+  var RP_KEY = 'efl_replays';
+  function loadReplays() { try { var a = JSON.parse(localStorage.getItem(RP_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function saveReplay(winner) {
+    var o = bs.online, rec = JSON.parse(JSON.stringify(o.rec));
+    rec.acts = o.log.slice(); rec.me = ME(); rec.winner = winner; rec.reason = bs.finalReason || 'game'; rec.t = Date.now(); rec.turns = bs.G.turn;
+    var list = loadReplays().filter(function (r) { return r.code !== rec.code; });
+    list.unshift(rec);
+    try { localStorage.setItem(RP_KEY, JSON.stringify(list.slice(0, 8))); } catch (e) { /* ไม่เป็นไร */ }
+  }
+  function recFromRoom(room, uid) {
+    var acts = Object.keys(room.actions || {}).sort().map(function (k) { return [room.actions[k].by, room.actions[k].a]; });
+    var dk = [JSON.parse(room.decks[room.host.uid]).d, JSON.parse(room.decks[room.guest.uid]).d];
+    return { v: 1, seed: room.seed, first: room.first, names: [cleanName(room.host.name), cleanName(room.guest.name)], decks: dk, acts: acts,
+      me: room.host.uid === uid ? 0 : 1, winner: room.final ? room.final.winner : -2, reason: room.final ? room.final.reason : '', t: room.startedAt || Date.now(), ranked: !!room.ranked };
+  }
+  function replayG(rec, upto) {
+    var decks = rec.decks.map(function (d) { return d.map(getCard); });
+    var G = B.create({ decks: decks, names: rec.names, knows: [{ all: true }, { all: true }], seed: rec.seed, first: rec.first });
+    for (var i = 0; i < upto; i++) { var x = rec.acts[i]; try { B.apply(G, x[0], JSON.parse(x[1])); } catch (e) { } }
+    return G;
+  }
+  function openReplays() {
+    var list = loadReplays();
+    var html = '<div class="detail"><h3>🎞️ รีเพลย์</h3>';
+    html += list.length ? '<ul class="rp-list">' + list.map(function (r, i) {
+      var res = r.winner === r.me ? '🏆 ชนะ' : r.winner === -1 ? '🤝 เสมอ' : '💥 แพ้';
+      var d = new Date(r.t);
+      return '<li><span>' + res + ' vs ' + esc(r.names[1 - r.me]) + '<br><small>' + d.toLocaleDateString('th-TH') + ' · ' + (r.turns || '?') + ' เทิร์น' + (r.ranked ? ' · แรงก์' : '') + '</small></span><button class="btn small" data-i="' + i + '">ดู</button></li>';
+    }).join('') + '</ul>' : '<div class="subline">ยังไม่มีรีเพลย์ (เล่นออนไลน์จบหนึ่งเกมก่อน)</div>';
+    html += '<div class="subline">หรือดูจากรหัสห้อง (ห้องที่ยังไม่ถูกลบ)</div><div class="join-row"><input id="rp-code" maxlength="5" placeholder="รหัสห้อง"><button class="btn" id="rp-go">ดู</button></div></div>';
+    $('#modal-body').innerHTML = html; modalKind = ''; $('#modal').hidden = false;
+    $all('.rp-list button').forEach(function (b) { b.onclick = function () { startReplay(list[+b.getAttribute('data-i')]); }; });
+    $('#rp-go').onclick = function () {
+      if (!window.Online) { toast('ออนไลน์ใช้ไม่ได้ตอนนี้'); return; }
+      window.Online.getRoom($('#rp-code').value).then(function (room) {
+        if (!room || !room.guest || !room.final) { toast('ไม่พบเกมที่จบแล้วในห้องนี้'); return; }
+        startReplay(recFromRoom(room, window.Online.user() ? window.Online.user().uid : ''));
+      }).catch(netFail);
+    };
+  }
+  function startReplay(rec) {
+    if (bs) return;
+    var G;
+    try { G = replayG(rec, 0); } catch (e) { toast('เปิดรีเพลย์ไม่ได้'); return; }
+    closeModal();
+    bs = { G: G, level: 'replay', sel: null, busy: true, over: false, prev: {}, me: rec.me, prevHp: [G.players[0].hp, G.players[1].hp],
+      replay: { rec: rec, i: 0, play: false, speed: 1, timer: null } };
+    document.body.classList.add('in-battle');
+    $('#battle').hidden = false; $('#b-emote').hidden = true;
+    renderBattle();
+  }
+  function replayGoto(i) {
+    var R = bs.replay; i = Math.max(0, Math.min(R.rec.acts.length, i));
+    if (i === R.i + 1) { var x = R.rec.acts[R.i]; B.apply(bs.G, x[0], JSON.parse(x[1])); }
+    else { bs.G = replayG(R.rec, i); bs.prevHp = [bs.G.players[0].hp, bs.G.players[1].hp]; bs.prev = {}; }
+    R.i = i;
+    if (i >= R.rec.acts.length) replayPlay(false);
+    renderBattle();
+  }
+  function replayPlay(on) {
+    var R = bs.replay; clearInterval(R.timer); R.play = on;
+    if (on) {
+      if (R.i >= R.rec.acts.length) replayGoto(0);
+      R.timer = setInterval(function () { if (!bs || !bs.replay) return; replayGoto(R.i + 1); }, 1000 / R.speed);
+    }
+  }
+  function renderReplayBar() {
+    var bar = $('#b-action'), R = bs.replay; bar.innerHTML = '';
+    function btn(t, f) { var b = make('button', 'btn small', t); b.onclick = f; bar.appendChild(b); return b; }
+    btn('⏮', function () { replayPlay(false); replayGoto(0); });
+    btn('◀', function () { replayPlay(false); replayGoto(R.i - 1); });
+    btn(R.play ? '⏸' : '▶', function () { replayPlay(!R.play); renderReplayBar(); });
+    btn('▶|', function () { replayPlay(false); replayGoto(R.i + 1); });
+    btn('×' + R.speed, function () { R.speed = R.speed >= 4 ? 1 : R.speed * 2; if (R.play) replayPlay(true); renderReplayBar(); });
+  }
+
   /* ---------- กลับเข้าเกมที่ค้าง ---------- */
   function checkRejoin() {
     var code; try { code = localStorage.getItem(ROOM_KEY); } catch (e) { }
@@ -1308,6 +1458,139 @@
       if (confirm('มีเกมออนไลน์ที่ยังค้างอยู่ กลับเข้าไปเล่นต่อไหม?')) openNet(code, room.host.uid === u.uid ? 'host' : 'guest', true);
       else roomMark(null);
     }).catch(function () { roomMark(null); });
+  }
+
+
+  /* =====================================================
+     ภารกิจรายวัน + โบนัสล็อกอิน
+     ===================================================== */
+  var MISSIONS = [
+    { id: 'winBot', t: 'ชนะบอท 1 ครั้ง', goal: 1, reward: 25 },
+    { id: 'playOnline', t: 'เล่นออนไลน์ 1 แมตช์', goal: 1, reward: 30 },
+    { id: 'winOnline', t: 'ชนะออนไลน์ 1 ครั้ง', goal: 1, reward: 40 },
+    { id: 'fuseLab', t: 'ผสมในห้องทดลอง 5 ครั้ง', goal: 5, reward: 15 },
+    { id: 'fuseBattle', t: 'ผสมการ์ดในสนามต่อสู้ 2 ครั้ง', goal: 2, reward: 25 },
+    { id: 'playCard', t: 'ลงการ์ด 10 ใบในการต่อสู้', goal: 10, reward: 20 },
+    { id: 'newRecipe', t: 'ค้นพบสูตรใหม่ 1 สูตร', goal: 1, reward: 20 },
+    { id: 'openPack', t: 'เปิดซองการ์ด 1 ซอง', goal: 1, reward: 15 }
+  ];
+  var LOGIN_BONUS = [10, 15, 20, 25, 30, 40, 60];
+  function dayKey(off) { var d = new Date(Date.now() + (off || 0) * 86400000); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function cleanDaily(x) {
+    var m = {};
+    if (x.m && typeof x.m === 'object') Object.keys(x.m).forEach(function (k) { var v = x.m[k]; if (v) m[k] = { p: +v.p || 0, c: !!v.c }; });
+    return { d: typeof x.d === 'string' ? x.d : '', last: typeof x.last === 'string' ? x.last : '', streak: +x.streak || 0, login: !!x.login, m: m };
+  }
+  function mergeDaily(a, b) {
+    a = cleanDaily(a || {}); b = cleanDaily(b || {});
+    var hi = a.d >= b.d ? a : b, lo = hi === a ? b : a, out = { d: hi.d, last: a.last > b.last ? a.last : b.last, streak: Math.max(a.streak, b.streak), login: hi.login, m: {} };
+    if (a.d === b.d) out.login = a.login || b.login;
+    Object.keys(hi.m).forEach(function (k) {
+      var o = hi.m[k], q = a.d === b.d ? lo.m[k] : null;
+      out.m[k] = { p: Math.max(o.p, q ? q.p : 0), c: o.c || !!(q && q.c) };
+    });
+    if (a.d === b.d) Object.keys(lo.m).forEach(function (k) { if (!out.m[k]) out.m[k] = lo.m[k]; });
+    return out;
+  }
+  function todayMissions() {
+    var key = dayKey(), h = 0, i;
+    for (i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+    var pool = MISSIONS.slice(), out = [];
+    while (out.length < 3) { h = (h * 1103515245 + 12345) >>> 0; out.push(pool.splice(h % pool.length, 1)[0]); }
+    return out;
+  }
+  function ensureDaily() {
+    var key = dayKey(), D = state.daily;
+    if (D.d !== key) { D.d = key; D.login = false; D.m = {}; }
+    return D;
+  }
+  function bump(ev, n) {
+    var D = ensureDaily(), changed = false;
+    todayMissions().forEach(function (m) {
+      if (m.id !== ev) return;
+      var o = D.m[m.id] = D.m[m.id] || { p: 0, c: false };
+      if (o.p < m.goal) { o.p = Math.min(m.goal, o.p + (n || 1)); changed = true; if (o.p >= m.goal) toast('✅ ภารกิจสำเร็จ: ' + m.t); }
+    });
+    if (changed) save();
+  }
+  function claimLogin() {
+    var D = ensureDaily();
+    if (D.login) return;
+    D.streak = D.last === dayKey(-1) ? D.streak + 1 : 1;
+    D.last = dayKey(); D.login = true;
+    var c = LOGIN_BONUS[(D.streak - 1) % 7];
+    state.coins += c; save(); renderStats(); renderDaily();
+    toast('🎁 โบนัสล็อกอินวันที่ ' + D.streak + ': +' + c + ' 🪙');
+  }
+  function claimMission(id) {
+    var D = ensureDaily(), m = todayMissions().filter(function (x) { return x.id === id; })[0], o = D.m[id];
+    if (!m || !o || o.c || o.p < m.goal) return;
+    o.c = true; state.coins += m.reward; save(); renderStats(); renderDaily();
+    toast('+' + m.reward + ' 🪙');
+  }
+  function renderDaily() {
+    var box = $('#daily-card'); if (!box) return;
+    var D = ensureDaily();
+    var next = D.login ? D.streak : (D.last === dayKey(-1) ? D.streak + 1 : 1);
+    var html = '<h3>📅 ภารกิจวันนี้</h3><div class="d-login"><span>ล็อกอินต่อเนื่อง <b>' + D.streak + '</b> วัน · วันนี้ +' + LOGIN_BONUS[(next - 1) % 7] + ' 🪙</span></div>';
+    box.innerHTML = html;
+    var lg = make('button', 'btn small ' + (D.login ? '' : 'primary'), D.login ? 'รับแล้ว ✓' : 'รับโบนัสล็อกอิน');
+    lg.disabled = D.login; lg.onclick = claimLogin;
+    box.querySelector('.d-login').appendChild(lg);
+    todayMissions().forEach(function (m) {
+      var o = D.m[m.id] || { p: 0, c: false }, done = o.p >= m.goal;
+      var row = make('div', 'd-row' + (o.c ? ' got' : ''));
+      row.appendChild(make('div', 'd-txt', esc(m.t) + '<div class="d-bar"><i style="width:' + Math.round(100 * o.p / m.goal) + '%"></i></div><small>' + o.p + '/' + m.goal + '</small>'));
+      var b = make('button', 'btn small ' + (done && !o.c ? 'primary' : ''), o.c ? '✓' : '+' + m.reward + ' 🪙');
+      b.disabled = !done || o.c; b.onclick = function () { claimMission(m.id); };
+      row.appendChild(b); box.appendChild(row);
+    });
+  }
+
+  /* =====================================================
+     รหัสแชร์เด็ค
+     ===================================================== */
+  function deckCode() {
+    var c = {}, order = [];
+    state.deck.forEach(function (id) { if (!c[id]) { c[id] = 0; order.push(id); } c[id]++; });
+    order.sort();
+    return 'EFD1:' + order.map(function (id) { return c[id] > 1 ? id + '*' + c[id] : id; }).join(',');
+  }
+  function parseDeckCode(txt) {
+    var m = /EFD1:([A-Za-z0-9*,_]+)/.exec(String(txt || '').replace(/\s+/g, ''));
+    if (!m) return null;
+    var ids = [];
+    m[1].split(',').forEach(function (part) {
+      var p = part.split('*'), n = Math.min(MAX_COPIES, parseInt(p[1] || '1', 10) || 1);
+      if (!ALL_MAP[p[0]]) return;
+      for (var i = 0; i < n; i++) ids.push(p[0]);
+    });
+    return ids.length ? ids : null;
+  }
+  function openDeckShare() {
+    var code = deckCode();
+    $('#modal-body').innerHTML = '<div class="detail"><h3>🔗 รหัสแชร์เด็ค</h3>' +
+      '<div class="subline">คัดลอกรหัสนี้ส่งให้เพื่อนได้เลย</div><textarea id="dk-out" class="dk-ta" readonly rows="3"></textarea>' +
+      '<div class="actions"><button class="btn primary" id="dk-copy">คัดลอก</button></div>' +
+      '<div class="subline">นำเข้าเด็คจากรหัส</div><textarea id="dk-in" class="dk-ta" rows="3" placeholder="วางรหัส EFD1:… ที่นี่"></textarea>' +
+      '<div class="actions"><button class="btn" id="dk-import">นำเข้า</button></div><div class="subline" id="dk-msg"></div></div>';
+    $('#dk-out').value = code;
+    modalKind = ''; $('#modal').hidden = false;
+    $('#dk-copy').onclick = function () { try { navigator.clipboard.writeText(code); toast('คัดลอกแล้ว'); } catch (e) { $('#dk-out').select(); toast('เลือกข้อความแล้ว กดคัดลอกเอง'); } };
+    $('#dk-import').onclick = function () {
+      var ids = parseDeckCode($('#dk-in').value);
+      if (!ids) { $('#dk-msg').textContent = 'รหัสไม่ถูกต้อง'; return; }
+      var got = {}, kept = [], miss = [];
+      ids.forEach(function (id) {
+        got[id] = (got[id] || 0) + 1;
+        if (got[id] <= (state.owned[id] || 0)) kept.push(id); else miss.push(ALL_MAP[id].name);
+      });
+      state.deck = kept.slice(0, DECK_SIZE);
+      save();
+      if (state.deck.length < DECK_SIZE) autoDeck(true); else renderDeck();
+      closeModal();
+      toast(miss.length ? 'นำเข้าแล้ว · ขาด ' + miss.length + ' ใบ (เติมให้อัตโนมัติ): ' + miss.slice(0, 3).join(', ') : 'นำเข้าเด็คแล้ว');
+    };
   }
 
   /* =====================================================
@@ -1362,6 +1645,7 @@
     $all('.level[data-level]').forEach(function (b) { b.onclick = function () { startBattle(b.getAttribute('data-level')); }; });
     bindOnline();
     $('#btn-autodeck').onclick = autoDeck;
+    $('#btn-deckshare').onclick = openDeckShare;
     $('#btn-cleardeck').onclick = function () { state.deck = []; save(); renderDeck(); };
     $('#btn-pack').onclick = openPack;
     $('#btn-endturn').onclick = endMyTurn;
@@ -1372,7 +1656,7 @@
   }
 
   /* ---------- มีอะไรใหม่ ---------- */
-  var VERSION = '0.5', SEEN_KEY = 'emoji-fusion-lab-seen';
+  var VERSION = '0.6', SEEN_KEY = 'emoji-fusion-lab-seen';
   function showWhatsNew() { $('#whatsnew').hidden = false; }
   function closeWhatsNew() {
     $('#whatsnew').hidden = true;
@@ -1513,8 +1797,8 @@
   var cloud = { status: 'connecting', user: null, name: null, last: 0, timer: null, started: false, pending: null };
 
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function payload() { return { found: state.found, points: state.points, coins: state.coins, owned: state.owned, deck: state.deck, stats: state.stats }; }
-  function sig(x) { return JSON.stringify({ f: x.found, p: x.points, c: x.coins, o: x.owned, d: x.deck, s: x.stats }); }
+  function payload() { return { found: state.found, points: state.points, coins: state.coins, owned: state.owned, deck: state.deck, stats: state.stats, daily: state.daily }; }
+  function sig(x) { return JSON.stringify({ f: x.found, p: x.points, c: x.coins, o: x.owned, d: x.deck, s: x.stats, y: x.daily }); }
   function pristine(s) { return sig(s) === sig(defaultState()); }
 
   function normalize(c) {
@@ -1522,8 +1806,8 @@
     var s = { found: Array.isArray(c.found) ? c.found.filter(function (x) { return typeof x === 'string'; }) : [],
       points: +c.points || 0, coins: typeof c.coins === 'number' ? c.coins : d.coins,
       owned: (c.owned && typeof c.owned === 'object') ? c.owned : d.owned,
-      deck: Array.isArray(c.deck) ? c.deck : d.deck, stats: d.stats };
-    ['easy', 'medium', 'hard'].forEach(function (k) {
+      deck: Array.isArray(c.deck) ? c.deck : d.deck, stats: d.stats, daily: c.daily ? cleanDaily(c.daily) : d.daily };
+    ['easy', 'medium', 'hard', 'online'].forEach(function (k) {
       var o = c.stats && c.stats[k];
       if (o) s.stats[k] = { w: +o.w || 0, l: +o.l || 0, d: +o.d || 0 };
     });
@@ -1541,9 +1825,11 @@
       m.owned[id] = Math.max(a.owned[id] || 0, b.owned[id] || 0);
     });
     m.deck = (b.ts || 0) > (a.ts || 0) ? b.deck : a.deck;
-    ['easy', 'medium', 'hard'].forEach(function (k) {
-      m.stats[k] = { w: Math.max(a.stats[k].w, b.stats[k].w), l: Math.max(a.stats[k].l, b.stats[k].l), d: Math.max(a.stats[k].d, b.stats[k].d) };
+    ['easy', 'medium', 'hard', 'online'].forEach(function (k) {
+      var sa = a.stats[k] || {}, sb = b.stats[k] || {};
+      m.stats[k] = { w: Math.max(sa.w || 0, sb.w || 0), l: Math.max(sa.l || 0, sb.l || 0), d: Math.max(sa.d || 0, sb.d || 0) };
     });
+    m.daily = mergeDaily(a.daily, b.daily);
     return m;
   }
 
