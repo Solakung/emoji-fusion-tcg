@@ -334,6 +334,15 @@
     }
   }
 
+  // เหรียญจากการค้นพบสูตรใหม่: เต็มจำนวนวันละ 10 สูตรแรก หลังจากนั้นได้แต้มอย่างเดียว (กันการปั๊มเหรียญ)
+  var DISC_COIN_CAP = 10;
+  function discoveryCoins(base) {
+    var D = ensureDaily();
+    if ((D.dc || 0) >= DISC_COIN_CAP) return 0;
+    D.dc = (D.dc || 0) + 1;
+    return base;
+  }
+
   function doFuse() {
     if (!slots[0] || !slots[1]) return;
     var r = F.fuse(slots[0], slots[1]);
@@ -343,7 +352,7 @@
     var pts = 0, coins = 0;
     if (isNew) {
       pts = r.tier === 3 ? 3 : 1;
-      coins = r.tier === 3 ? 15 : 5;
+      coins = discoveryCoins(r.tier === 3 ? 15 : 5);
       state.found.unshift(r.id);
       state.points += pts;
       state.coins += coins;
@@ -355,7 +364,7 @@
     renderLab();
     renderStats();
     setMsg(isNew
-      ? '🎉 ค้นพบสูตรใหม่! ได้ ' + r.name + ' (+' + pts + ' แต้ม +' + coins + ' 🪙)'
+      ? '🎉 ค้นพบสูตรใหม่! ได้ ' + r.name + ' (+' + pts + ' แต้ม' + (coins ? ' +' + coins + ' 🪙' : ' · เหรียญวันนี้ครบ ' + DISC_COIN_CAP + ' สูตรแล้ว') + ')'
       : 'ได้ ' + r.name + ' (สูตรที่เคยค้นพบแล้ว)', isNew);
   }
 
@@ -1019,9 +1028,9 @@
     for (var i = from; i < bs.G.disc.length; i++) {
       var d = bs.G.disc[i]; if (d.side !== ME()) continue;
       var c = getCard(d.id); if (!c || state.found.indexOf(d.id) >= 0) continue;
-      var pts = c.tier === 3 ? 3 : 1, co = c.tier === 3 ? 15 : 5;
-      state.found.unshift(d.id); state.points += pts; state.coins += co; save(); renderStats();
-      toast('🎉 ค้นพบสูตรใหม่กลางศึก! ' + c.emoji + ' ' + c.name + ' (+' + pts + ' แต้ม +' + co + ' 🪙)');
+      var pts = c.tier === 3 ? 3 : 1; // ผสมมั่วในศึก: ได้แต้มอย่างเดียว ไม่ได้เหรียญ
+      state.found.unshift(d.id); state.points += pts; save(); renderStats();
+      toast('🎉 ค้นพบสูตรใหม่กลางศึก! ' + c.emoji + ' ' + c.name + ' (+' + pts + ' แต้ม)');
     }
   }
 
@@ -1159,7 +1168,7 @@
           btn('รายละเอียด', function () { showDetail(pv.card); });
         } else if (pv.unknown) {
           var ev = B.fusePreview(G, ME(), sel.uid, sel.other, true);
-          info('❓ ยังไม่รู้สูตรนี้ — <b>ผสมมั่ว</b> ลุ้นผลลัพธ์ · Cost ' + ev.cost + ' (รวม +' + B.EXP_EXTRA + ') · ⚠️ ไม่เสถียร: เสีย 1 HP ทุกจบเทิร์นของเรา · ถ้าสำเร็จ ได้บันทึกสูตรเข้าสมุด');
+          info('❓ ยังไม่รู้สูตรนี้ — <b>ผสมมั่ว</b> ลุ้นผลลัพธ์ · Cost ' + ev.cost + ' (รวม +' + B.EXP_EXTRA + ') · ⚠️ ไม่เสถียร: เสีย 1 HP ทุกจบเทิร์นของเรา · ถ้าสำเร็จ ได้บันทึกสูตรเข้าสมุด (ได้แต้ม ไม่ได้เหรียญ)');
           btn('🧪 ผสมมั่ว!', function () { act({ t: 'fuse', a: sel.uid, b: sel.other, x: 1 }); }, 'primary', ev.cost > me.mana);
         } else info(pv.error);
         btn('ยกเลิก', function () { bs.sel = null; renderBattle(); });
@@ -1931,12 +1940,12 @@
   function cleanDaily(x) {
     var m = {};
     if (x.m && typeof x.m === 'object') Object.keys(x.m).forEach(function (k) { var v = x.m[k]; if (v) m[k] = { p: +v.p || 0, c: !!v.c }; });
-    return { d: typeof x.d === 'string' ? x.d : '', last: typeof x.last === 'string' ? x.last : '', streak: +x.streak || 0, login: !!x.login, m: m };
+    return { d: typeof x.d === 'string' ? x.d : '', last: typeof x.last === 'string' ? x.last : '', streak: +x.streak || 0, login: !!x.login, dc: Math.max(0, +x.dc || 0), m: m };
   }
   function mergeDaily(a, b) {
     a = cleanDaily(a || {}); b = cleanDaily(b || {});
-    var hi = a.d >= b.d ? a : b, lo = hi === a ? b : a, out = { d: hi.d, last: a.last > b.last ? a.last : b.last, streak: Math.max(a.streak, b.streak), login: hi.login, m: {} };
-    if (a.d === b.d) out.login = a.login || b.login;
+    var hi = a.d >= b.d ? a : b, lo = hi === a ? b : a, out = { d: hi.d, last: a.last > b.last ? a.last : b.last, streak: Math.max(a.streak, b.streak), login: hi.login, dc: hi.dc, m: {} };
+    if (a.d === b.d) { out.login = a.login || b.login; out.dc = Math.max(a.dc, b.dc); }
     Object.keys(hi.m).forEach(function (k) {
       var o = hi.m[k], q = a.d === b.d ? lo.m[k] : null;
       out.m[k] = { p: Math.max(o.p, q ? q.p : 0), c: o.c || !!(q && q.c) };
@@ -1953,7 +1962,7 @@
   }
   function ensureDaily() {
     var key = dayKey(), D = state.daily;
-    if (D.d !== key) { D.d = key; D.login = false; D.m = {}; }
+    if (D.d !== key) { D.d = key; D.login = false; D.m = {}; D.dc = 0; }
     return D;
   }
   function bump(ev, n) {
@@ -2266,6 +2275,7 @@
         '<li>ผสมได้ <b>1 ครั้งต่อเทิร์น</b> และการ์ดที่โจมตีแล้วผสมไม่ได้</li></ul>' },
     { id: 'cards', emoji: '🎁', title: 'ซอง เศษการ์ด และของสะสม', sub: 'เปิดซองยังไง ใบซ้ำไปไหน การันตีหายาก', kind: 'text',
       body: '<ul><li><b>ซองการ์ด 30 🪙</b> 5 ใบ ไม่ซ้ำกันในซอง ได้เหรียญจากชนะบอท ค้นพบสูตร และภารกิจ</li>' +
+        '<li><b>หาเหรียญ</b> ชนะบอท ภารกิจรายวัน โบนัสล็อกอิน และค้นพบสูตรใหม่ในห้องทดลอง (เหรียญเต็มวันละ <b>10 สูตรแรก</b> หลังจากนั้นได้แต้มอย่างเดียว)</li>' +
         '<li><b>ซองตามชุด 40 🪙</b> การ์ดชุดพิเศษเฉพาะซองนี้ ใบสุดท้ายการันตีพิเศษขึ้นไป การ์ดชุดนำไปผสมได้ในห้องทดลอง</li>' +
         '<li><b>ความหายาก</b> ธรรมดา · พิเศษ · หายาก ซองปกติการันตีใบหายากทุก 10 ซอง (ดูตัวนับในร้าน)</li>' +
         '<li><b>ถือได้ 2 ใบต่อชนิด</b> ใบที่เกินเปลี่ยนเป็น ✨ เศษการ์ดอัตโนมัติ (ธรรมดา 2 · พิเศษ 5 · หายาก 12) และกดแลกใบเกินที่ค้างได้</li>' +
@@ -2652,8 +2662,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.25').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.25')
+    var setsP = fetch('sets.json?v=0.26').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.26')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
