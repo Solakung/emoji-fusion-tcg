@@ -1,0 +1,24 @@
+const { chromium } = require('playwright'); const http = require('http'), fs = require('fs'), path = require('path');
+const root = path.join(__dirname, '..');
+const srv = http.createServer((q, r) => { const u = q.url.split('?')[0]; fs.readFile(path.join(root, u === '/' ? 'index.html' : u), (e, b) => { if (e) { r.statusCode = 404; r.end(); } else r.end(b); }); });
+let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++; };
+srv.listen(0, async () => {
+  const b = await chromium.launch(); const pg = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage();
+  const errs = []; pg.on('pageerror', e => errs.push(e.message));
+  await pg.route(/online\.js|firebase/, r => r.abort());
+  await pg.addInitScript(() => localStorage.setItem('emoji-fusion-lab-seen', '0.8'));
+  await pg.goto('http://localhost:' + srv.address().port + '/'); await pg.waitForFunction(() => window.EFL);
+  await pg.evaluate(() => { const s = EFL.state(); s.found = ['(B01+B05)', '(B01+B02)', '(B05+B06)']; s.owned.SP02 = 1; });
+  await pg.click('.tab[data-view=book]');
+  const n0 = await pg.locator('#recipe-groups .group').count(); ok(n0 > 5, 'ไม่ค้นหา: เห็นกลุ่มสูตรปกติ');
+  await pg.fill('#book-search', 'ไอน้ำ'); await pg.waitForTimeout(100);
+  const t = await pg.locator('#recipe-groups').innerText(); ok(/พบ \d+ สูตร/.test(t), 'ค้นหาสูตร: ' + t.split('\n')[0]);
+  const cnt = await pg.locator('#recipe-groups .grid > *').count(); ok(cnt >= 1, 'พบสูตร "ไอน้ำ" ' + cnt + ' ใบ');
+  await pg.fill('#book-search', 'zzzz'); ok(await pg.locator('#recipe-groups .empty').count() === 1, 'ไม่พบ → ข้อความว่าง');
+  await pg.click('[data-book=cards]'); await pg.fill('#book-search', 'จรวด');
+  ok(await pg.locator('#book-cards .mini').count() === 1, 'ค้นการ์ด "จรวด" เจอ 1 ใบ');
+  await pg.fill('#book-search', 'จักรวาล'); ok(await pg.locator('#book-cards .mini').count() === 12, 'ค้นชื่อชุด → ได้ทั้งชุด 12 ใบ');
+  await pg.fill('#book-search', 'ปราการ ดิน'); ok(await pg.locator('#book-cards .mini').count() >= 2, 'หลายคำ (ความสามารถ+ธาตุ)');
+  await pg.fill('#book-search', ''); ok(await pg.locator('#book-cards .mini').count() > 60, 'ล้างคำค้น → กลับมาครบ');
+  ok(!errs.length, 'ไม่มี error ' + errs); console.log(fails ? 'FAILED' : 'ALL PASS'); await b.close(); srv.close(); process.exit(fails ? 1 : 0);
+});

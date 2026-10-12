@@ -18,7 +18,7 @@
   function maxCopies(id) { var c = ALL_MAP[id]; return c && c.type === 'reaction' && c.speed === 3 ? 1 : MAX_COPIES; }
   var state = {};
   var slots = [null, null], result = null, pool = 'base', filter = 'all';
-  var openGroups = {}, bookTab = 'recipes';
+  var openGroups = {}, bookTab = 'recipes', bookQ = '';
   var CARD_CACHE = {}, SPRITES = {};
   var bs = null; // เซสชันต่อสู้
   function ME() { return (bs && bs.me) || 0; }   // ดัชนีผู้เล่นของเรา (บอท = 0 เสมอ, ออนไลน์: เจ้าของห้อง 0 / แขก 1)
@@ -399,6 +399,20 @@
     }
   }
 
+  // ค้นหาการ์ด: ชื่อ, อีโมจิ, ชื่อพ่อแม่ (สูตร), ความสามารถ, ธาตุ, ชื่อชุด, รหัส — พิมพ์หลายคำ = ต้องตรงทุกคำ
+  function cardHay(c) {
+    var el = c.element && F.ELEMENTS[c.element] ? F.ELEMENTS[c.element].name + ' ' + F.ELEMENTS[c.element].emoji : '';
+    var ab = (c.abilities || []).map(function (a) { return (a.name || '') + ' ' + (a.text || ''); }).join(' ');
+    var kws = (c.keywords || []).map(function (k) { return k + ' ' + (F.KEYWORDS[k] ? F.KEYWORDS[k].name : ''); }).join(' ');
+    var st = c.set && SET_MAP[c.set] ? SET_MAP[c.set].name : '';
+    return (c.name + ' ' + c.emoji + ' ' + (c.sub || '') + ' ' + c.id + ' ' + el + ' ' + ab + ' ' + kws + ' ' + st + ' ' + (c.text || '') + ' ' + (c.type === 'creature' ? '' : c.type)).toLowerCase();
+  }
+  function cardMatch(c, q) {
+    if (!q) return true;
+    var h = cardHay(c);
+    return q.toLowerCase().split(/\s+/).filter(Boolean).every(function (w) { return h.indexOf(w) >= 0; });
+  }
+
   function renderRecipes() {
     var t2 = foundByTier(2, true), t2set = foundByTier(2).filter(isSetRecipe), t3 = foundByTier(3);
     var pct = Math.round(t2.length / T2_TOTAL * 100);
@@ -416,6 +430,16 @@
 
     var box = $('#recipe-groups');
     box.innerHTML = '';
+    if (bookQ) { // โหมดค้นหา: แสดงผลลัพธ์รวมจากทุกสูตรที่ค้นพบ
+      var hits = state.found.map(getCard).filter(function (c) { return c && cardMatch(c, bookQ); });
+      box.appendChild(make('div', 'muted', 'พบ ' + hits.length + ' สูตรที่ตรงกับ “' + bookQ.replace(/</g, '&lt;') + '” (จากสูตรที่ค้นพบแล้ว)'));
+      var rg = make('div', 'grid');
+      if (!hits.length) rg.appendChild(make('div', 'empty', 'ไม่พบ ลองคำอื่น หรือผสมการ์ดเพิ่ม'));
+      hits.forEach(function (c) { var e = cardEl(c, 'mini'); e.onclick = function () { showDetail(c); }; rg.appendChild(e); });
+      box.appendChild(rg);
+      $('#t3-list').innerHTML = '';
+      return;
+    }
     GROUPS.forEach(function (g) {
       var n = counts[g.key] || 0;
       var wrap = make('div', 'group' + (n === g.total ? ' complete' : ''));
@@ -464,7 +488,7 @@
     function fill(sel, list) {
       var box = $(sel);
       box.innerHTML = '';
-      list.forEach(function (c) {
+      list.filter(function (c) { return cardMatch(c, bookQ); }).forEach(function (c) {
         var n = state.owned[c.id] || 0;
         var e = cardEl(c, 'mini', n ? '×' + n : null);
         if (!n) e.classList.add('dim');
@@ -481,7 +505,7 @@
       SETS.forEach(function (st) {
         cs.appendChild(make('h2', 'sec', st.emoji + ' ชุด' + st.name));
         var g = make('div', 'grid'); cs.appendChild(g);
-        st.cards.forEach(function (c) {
+        st.cards.filter(function (c) { return cardMatch(c, bookQ); }).forEach(function (c) {
           var n = state.owned[c.id] || 0, e = cardEl(c, 'mini', n ? '×' + n : null);
           if (!n) e.classList.add('dim');
           e.onclick = function () { showDetail(c); };
@@ -1989,6 +2013,7 @@
       };
     });
     $('#slot-result').onclick = function () { if (result) showDetail(result); };
+    $('#book-search').oninput = function () { bookQ = this.value.trim(); renderBook(); };
     $('#btn-fuse').onclick = doFuse;
     $('#btn-clear').onclick = function () { slots = [null, null]; result = null; renderLab(); };
     $('#btn-continue').onclick = function () {
@@ -2404,8 +2429,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.18').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.18')
+    var setsP = fetch('sets.json?v=0.19').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.19')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
