@@ -38,6 +38,8 @@ let fails = 0; const t = (m, got, want) => { const ok = got === want; if (!ok) f
 const H = { uid: 'H' }, G = { uid: 'G' }, X = { uid: 'X' };
 const room = (extra) => Object.assign({ host: { uid: 'H', name: 'hh' }, guest: { uid: 'G', name: 'gg' }, status: 'playing', ranked: true, decks: {}, startedAt: 1 }, extra);
 let db = { efl: { users: { H: { profile: { name: 'Hname', key: 'hname' } }, G: { profile: { name: 'Gname', key: 'gname' } } }, rooms: { ABCDE: room({}) } } };
+t('G เขียนเด็คตัวเองได้', can(db, G, 'efl/rooms/ABCDE/decks/G', '{}'), true);
+t('X เขียนเด็คในห้องคนอื่นไม่ได้', can(db, X, 'efl/rooms/ABCDE/decks/X', '{}'), false);
 t('X แอบเขียน action ไม่ได้', can(db, X, 'efl/rooms/ABCDE/actions/0000', { by: 0, a: '{}', t: 1 }), false);
 t('host เขียน action by=0', can(db, H, 'efl/rooms/ABCDE/actions/0000', { by: 0, a: '{"t":"end"}', t: 1 }), true);
 t('host แอบเขียน action by=1', can(db, H, 'efl/rooms/ABCDE/actions/0000', { by: 1, a: '{}', t: 1 }), false);

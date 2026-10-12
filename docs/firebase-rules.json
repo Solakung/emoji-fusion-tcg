@@ -39,7 +39,7 @@
           },
           "decks": {
             "$uid": {
-              ".write": "auth != null && auth.uid === $uid && !data.exists() && %s",
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && (root.child('efl/rooms/'+$code).child('host/uid').val() === auth.uid || root.child('efl/rooms/'+$code).child('guest/uid').val() === auth.uid)",
               ".validate": "newData.isString() && newData.val().length < 30000"
             }
           },
