@@ -36,6 +36,25 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   // ซองพิเศษ
   await p.evaluate(() => { window.EFL.state().shards = 60; document.querySelector('.tab[data-view=battle]').click(); document.querySelector('.tab[data-view=shop]').click(); });
   await p.evaluate(() => [...document.querySelectorAll('#shop-extra button')].find((x) => /ซองธาตุ/.test(x.textContent)).click());
-  ok(await p.evaluate(() => window.EFL.state().shards >= 40 && document.querySelectorAll('#pack-result .card').length === 5), 'เปิดซองธาตุด้วยเศษ ได้ 5 ใบ');
+  ok(await p.evaluate(() => document.querySelectorAll('#pack-result .card-back').length === 5), 'เปิดซองแล้วเห็นหลังการ์ดคว่ำ 5 ใบ');
+  const rareBacks = await p.evaluate(() => document.querySelectorAll('#pack-result .card-back.r-rare, #pack-result .card-back.r-uncommon, #pack-result .card-back.r-common').length);
+  ok(rareBacks === 5, 'หลังการ์ดมีสีขอบบอกความหายาก');
+  await p.click('#pack-result .card-back'); await p.waitForTimeout(450);
+  ok(await p.evaluate(() => document.querySelectorAll('#pack-result .card').length === 1 && document.querySelectorAll('#pack-result .card-back').length === 4), 'แตะพลิกทีละใบ');
+  await p.click('#pack-flipall'); await p.waitForTimeout(1400);
+  ok(await p.evaluate(() => document.querySelectorAll('#pack-result .card').length === 5 && /ได้ใบใหม่/.test(document.querySelector('#pack-summary').textContent)), 'พลิกทั้งหมด → เห็นการ์ด 5 ใบ + สรุป');
+  ok(await p.evaluate(() => window.EFL.state().shards >= 40), 'หักเศษ/รับเศษถูกต้อง');
+  // ใบหายาก: มีแสงวาบ
+  await p.evaluate(() => { const s = window.EFL.state(); s.shards = 100; s.coins = 5000; });
+  await p.evaluate(() => { const o = window.EFL.roll; });
+  let sawFlash = false;
+  for (let k = 0; k < 6 && !sawFlash; k++) {
+    await p.evaluate(() => [...document.querySelectorAll('#shop-extra button')].find((x) => /ซองหายาก/.test(x.textContent)).click());
+    await p.click('#pack-flipall');
+    for (let t = 0; t < 12 && !sawFlash; t++) { await p.waitForTimeout(100); sawFlash = await p.evaluate(() => !!document.querySelector('.pack-flash.rare')); }
+    await p.waitForTimeout(800);
+    await p.evaluate(() => { window.EFL.state().shards = 100; document.querySelector('.tab[data-view=battle]').click(); document.querySelector('.tab[data-view=shop]').click(); });
+  }
+  ok(sawFlash, 'ซองหายาก: พลิกใบหายากแล้วมีแสงวาบ');
   await b.close(); srv.close(); console.log(fails ? 'FAILED ' + fails : 'ALL PASS'); process.exit(fails ? 1 : 0);
 })();

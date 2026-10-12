@@ -612,24 +612,71 @@
     return cards;
   }
 
+  // บันทึกการ์ดเข้าคลัง (หรือแปลงเป็นเศษ) แล้วคืนรายการสำหรับเปิดโชว์
   function showPack(cards) {
-    var box = $('#pack-result');
-    box.innerHTML = '';
-    var seenNew = {}, gain = 0, hasRare = false;
-    cards.forEach(function (c, idx) {
+    var seenNew = {}, gain = 0, items = [], news = 0;
+    cards.forEach(function (c) {
       var have = state.owned[c.id] || 0, badge = null;
-      if (c.rarity === 'rare') hasRare = true;
       if (have >= CARD_CAP) { var v = SHARD_VAL[c.rarity] || 2; state.shards += v; gain += v; badge = 'ซ้ำ +' + v + '✨'; }
-      else { state.owned[c.id] = have + 1; if (!have && !seenNew[c.id]) badge = 'ใหม่!'; seenNew[c.id] = 1; }
-      var e = cardEl(c, 'mini', badge);
-      e.classList.add('pop');
-      e.style.animationDelay = (idx * 0.18) + 's';
-      e.style.opacity = '0';
-      e.style.animationFillMode = 'forwards';
-      e.onclick = function () { showDetail(c); };
-      box.appendChild(e);
+      else { state.owned[c.id] = have + 1; if (!have && !seenNew[c.id]) { badge = 'ใหม่!'; news++; } seenNew[c.id] = 1; }
+      items.push({ c: c, badge: badge });
     });
-    return { gain: gain, hasRare: hasRare };
+    return { items: items, gain: gain, news: news };
+  }
+
+  var revealToken = 0;
+  function flash(rare) {
+    var f = make('div', 'pack-flash' + (rare ? ' rare' : ''));
+    document.body.appendChild(f);
+    setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 1000);
+    if (rare) { document.body.classList.add('shake-s'); setTimeout(function () { document.body.classList.remove('shake-s'); }, 450); }
+  }
+  function sparkle(el) {
+    for (var k = 0; k < 10; k++) {
+      var sp = make('span', 'spark', '✨');
+      sp.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
+      sp.style.setProperty('--dy', (-30 - Math.random() * 90) + 'px');
+      sp.style.animationDelay = (Math.random() * 0.25) + 's';
+      el.appendChild(sp);
+    }
+  }
+
+  function revealPack(res) {
+    var token = ++revealToken, box = $('#pack-result'), sum = $('#pack-summary'), packEl = document.querySelector('.shop-box .pack');
+    box.innerHTML = ''; sum.innerHTML = '';
+    var left = res.items.length, slots = [];
+    function summary() {
+      sum.innerHTML = '<b>ได้ใบใหม่ ' + res.news + ' ใบ</b>' + (res.gain ? ' · ใบซ้ำแลกเป็น <b>+' + res.gain + ' ✨</b>' : '') +
+        ' · การันตีหายาก ' + Math.min(state.pity, PITY_AT) + '/' + PITY_AT;
+    }
+    function flip(k) {
+      var sl = slots[k]; if (!sl || sl.done || token !== revealToken) return;
+      sl.done = true;
+      var it = res.items[k], back = sl.back;
+      back.classList.add('flipping');
+      setTimeout(function () {
+        if (token !== revealToken) return;
+        var e = cardEl(it.c, 'mini', it.badge);
+        e.classList.add('flipin');
+        e.onclick = function () { showDetail(it.c); };
+        var wrap = make('div', 'reveal-wrap');
+        wrap.appendChild(e);
+        if (it.c.rarity === 'rare') { flash(true); sparkle(wrap); }
+        else if (it.c.rarity === 'uncommon') { e.classList.add('glow-blue'); }
+        back.parentNode.replaceChild(wrap, back);
+        if (--left === 0) { summary(); var fa = $('#pack-flipall'); if (fa) fa.hidden = true; }
+      }, 200);
+    }
+    res.items.forEach(function (it, k) {
+      var back = make('button', 'card-back r-' + (it.c.rarity || 'common'), '<span>🎴</span>');
+      back.onclick = function () { flip(k); };
+      slots.push({ back: back, done: false });
+      back.style.animationDelay = (k * 0.1) + 's';
+      box.appendChild(back);
+    });
+    var all = $('#pack-flipall'); all.hidden = false;
+    all.onclick = function () { res.items.forEach(function (x, k) { setTimeout(function () { flip(k); }, k * 160); }); };
+    if (packEl) { packEl.classList.add('shake'); setTimeout(function () { packEl.classList.remove('shake'); }, 650); }
   }
 
   function openPack(kind, elem, cost) {
@@ -654,9 +701,9 @@
       state.pity = any ? 0 : state.pity + 1;
     }
     var res = showPack(cards);
-    if (res.gain) toast('ใบซ้ำแลกเป็น +' + res.gain + ' ✨');
     save();
     renderStats(); renderShop();
+    revealPack(res);
   }
 
   function excessList() {
