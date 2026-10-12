@@ -2,6 +2,7 @@
 const B = require('../battle.js'); const d = require('../cards.json');
 const SETC = []; require('../sets.json').sets.forEach(st => st.cards.forEach(c => SETC.push(c)));
 SETC.forEach(c => { const p = c.id.slice(0, 2); const A = +process.env[p + "A"] || 0, H = +process.env[p + "H"] || 0; if (A || H) { c.atk += A; c.hp += H; } });
+const FF = require('../fusion.js'); if (process.env.FACTOR) FF.CONFIG.factor = +process.env.FACTOR; if (process.env.CD) FF.CONFIG.costDelta = +process.env.CD; if (process.env.SLOT2) B.RULES.fuseSlot2Turn = +process.env.SLOT2; if (process.env.DISC === '0') B.RULES.fuseFirstDisc = false; if (process.env.INH === '0') B.RULES.fuseInherit = false;
 if (process.env.RUSH === '0') B.RULES.rush = false;
 d.base.forEach(c => { const A = +process.env[c.id + 'A'] || 0, H = +process.env[c.id + 'H'] || 0; c.atk += A; c.hp += H; });
 const C = id => d.base.find(c => c.id === id) || d.extras.find(c => c.id === id) || SETC.find(c => c.id === id);

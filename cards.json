@@ -279,7 +279,7 @@
    "element": "electric",
    "cost": 2,
    "atk": 3,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "haste"
    ],
@@ -425,7 +425,7 @@
    "element": "wind",
    "cost": 1,
    "atk": 1,
-   "hp": 1,
+   "hp": 2,
    "keywords": [
     "evade"
    ],
@@ -447,7 +447,7 @@
    "element": "wind",
    "cost": 2,
    "atk": 2,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "evade"
    ],
@@ -1030,8 +1030,8 @@
    "emoji": "🕯️🔥",
    "name": "เสริมพลัง",
    "element": "fire",
-   "cost": 3,
-   "atk": 6,
+   "cost": 2,
+   "atk": 7,
    "hp": 3,
    "keywords": [],
    "abilities": [
@@ -1058,8 +1058,8 @@
    "emoji": "🕯️🌋",
    "name": "เสริมพลัง",
    "element": "fire",
-   "cost": 3,
-   "atk": 7,
+   "cost": 2,
+   "atk": 8,
    "hp": 4,
    "keywords": [],
    "abilities": [
@@ -1086,8 +1086,8 @@
    "emoji": "🕯️☀️",
    "name": "เสริมพลัง",
    "element": "fire",
-   "cost": 4,
-   "atk": 9,
+   "cost": 3,
+   "atk": 10,
    "hp": 4,
    "keywords": [],
    "abilities": [
@@ -1114,7 +1114,7 @@
    "emoji": "🕯️💧",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 2,
+   "cost": 1,
    "atk": 3,
    "hp": 3,
    "keywords": [],
@@ -1142,7 +1142,7 @@
    "emoji": "🕯️🐟",
    "name": "ไอน้ำ",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
    "hp": 4,
    "keywords": [],
@@ -1170,9 +1170,9 @@
    "emoji": "🕯️❄️",
    "name": "ไอน้ำ",
    "element": "water",
-   "cost": 3,
-   "atk": 4,
-   "hp": 4,
+   "cost": 2,
+   "atk": 5,
+   "hp": 5,
    "keywords": [],
    "abilities": [
     {
@@ -1198,9 +1198,9 @@
    "emoji": "🕯️🌊",
    "name": "ไอน้ำ",
    "element": "water",
-   "cost": 4,
-   "atk": 5,
-   "hp": 5,
+   "cost": 3,
+   "atk": 6,
+   "hp": 6,
    "keywords": [],
    "abilities": [
     {
@@ -1226,7 +1226,7 @@
    "emoji": "🕯️🌱",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 2,
+   "cost": 1,
    "atk": 3,
    "hp": 2,
    "keywords": [
@@ -1256,7 +1256,7 @@
    "emoji": "🕯️🍄",
    "name": "ไฟป่า",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
    "hp": 3,
    "keywords": [
@@ -1286,9 +1286,9 @@
    "emoji": "🕯️🌸",
    "name": "ไฟป่า",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "regen"
    ],
@@ -1316,9 +1316,9 @@
    "emoji": "🕯️🌳",
    "name": "ไฟป่า",
    "element": "plant",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -1346,7 +1346,7 @@
    "emoji": "🕯️💡",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 2,
+   "cost": 1,
    "atk": 3,
    "hp": 2,
    "keywords": [
@@ -1376,9 +1376,9 @@
    "emoji": "🕯️🔋",
    "name": "พลาสมา",
    "element": "electric",
-   "cost": 3,
-   "atk": 4,
-   "hp": 3,
+   "cost": 2,
+   "atk": 5,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -1406,8 +1406,8 @@
    "emoji": "🕯️🧲",
    "name": "พลาสมา",
    "element": "electric",
-   "cost": 3,
-   "atk": 5,
+   "cost": 2,
+   "atk": 6,
    "hp": 4,
    "keywords": [
     "haste"
@@ -1436,9 +1436,9 @@
    "emoji": "🕯️⚡",
    "name": "พลาสมา",
    "element": "electric",
-   "cost": 4,
-   "atk": 6,
-   "hp": 4,
+   "cost": 3,
+   "atk": 7,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -1466,7 +1466,7 @@
    "emoji": "🕯️🪨",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 2,
+   "cost": 1,
    "atk": 3,
    "hp": 5,
    "keywords": [],
@@ -1494,9 +1494,9 @@
    "emoji": "🕯️🕳️",
    "name": "ลาวา",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 6,
+   "hp": 7,
    "keywords": [],
    "abilities": [
     {
@@ -1522,9 +1522,9 @@
    "emoji": "🕯️💎",
    "name": "ลาวา",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 7,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -1550,9 +1550,9 @@
    "emoji": "🕯️⛰️",
    "name": "ลาวา",
    "element": "earth",
-   "cost": 4,
-   "atk": 4,
-   "hp": 8,
+   "cost": 3,
+   "atk": 5,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -1578,9 +1578,9 @@
    "emoji": "🕯️🪶",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 2,
+   "cost": 1,
    "atk": 3,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "evade"
    ],
@@ -1608,9 +1608,9 @@
    "emoji": "🕯️☁️",
    "name": "พายุไฟ",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "evade"
    ],
@@ -1638,8 +1638,8 @@
    "emoji": "🕯️💨",
    "name": "พายุไฟ",
    "element": "wind",
-   "cost": 3,
-   "atk": 4,
+   "cost": 2,
+   "atk": 5,
    "hp": 4,
    "keywords": [
     "evade"
@@ -1668,9 +1668,9 @@
    "emoji": "🕯️🌪️",
    "name": "พายุไฟ",
    "element": "wind",
-   "cost": 4,
-   "atk": 5,
-   "hp": 4,
+   "cost": 3,
+   "atk": 6,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -1698,8 +1698,8 @@
    "emoji": "🔥🌋",
    "name": "เสริมพลัง",
    "element": "fire",
-   "cost": 4,
-   "atk": 9,
+   "cost": 3,
+   "atk": 10,
    "hp": 4,
    "keywords": [],
    "abilities": [
@@ -1726,8 +1726,8 @@
    "emoji": "🔥☀️",
    "name": "เสริมพลัง",
    "element": "fire",
-   "cost": 4,
-   "atk": 10,
+   "cost": 3,
+   "atk": 11,
    "hp": 4,
    "keywords": [],
    "abilities": [
@@ -1754,8 +1754,8 @@
    "emoji": "🔥💧",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 3,
-   "atk": 4,
+   "cost": 2,
+   "atk": 5,
    "hp": 3,
    "keywords": [],
    "abilities": [
@@ -1782,8 +1782,8 @@
    "emoji": "🔥🐟",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 3,
-   "atk": 5,
+   "cost": 2,
+   "atk": 6,
    "hp": 4,
    "keywords": [],
    "abilities": [
@@ -1810,9 +1810,9 @@
    "emoji": "🔥❄️",
    "name": "ไอน้ำ",
    "element": "water",
-   "cost": 4,
-   "atk": 6,
-   "hp": 4,
+   "cost": 3,
+   "atk": 7,
+   "hp": 5,
    "keywords": [],
    "abilities": [
     {
@@ -1838,9 +1838,9 @@
    "emoji": "🔥🌊",
    "name": "ไอน้ำ",
    "element": "water",
-   "cost": 4,
-   "atk": 7,
-   "hp": 5,
+   "cost": 3,
+   "atk": 8,
+   "hp": 6,
    "keywords": [],
    "abilities": [
     {
@@ -1866,8 +1866,8 @@
    "emoji": "🔥🌱",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 3,
-   "atk": 4,
+   "cost": 2,
+   "atk": 5,
    "hp": 2,
    "keywords": [
     "regen"
@@ -1896,8 +1896,8 @@
    "emoji": "🔥🍄",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 3,
-   "atk": 5,
+   "cost": 2,
+   "atk": 6,
    "hp": 3,
    "keywords": [
     "regen"
@@ -1926,9 +1926,9 @@
    "emoji": "🔥🌸",
    "name": "ไฟป่า",
    "element": "plant",
-   "cost": 4,
-   "atk": 5,
-   "hp": 4,
+   "cost": 3,
+   "atk": 6,
+   "hp": 5,
    "keywords": [
     "regen"
    ],
@@ -1956,9 +1956,9 @@
    "emoji": "🔥🌳",
    "name": "ไฟป่า",
    "element": "plant",
-   "cost": 4,
-   "atk": 6,
-   "hp": 5,
+   "cost": 3,
+   "atk": 7,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -1986,8 +1986,8 @@
    "emoji": "🔥💡",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 3,
-   "atk": 4,
+   "cost": 2,
+   "atk": 5,
    "hp": 2,
    "keywords": [
     "haste"
@@ -2016,9 +2016,9 @@
    "emoji": "🔥🔋",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 3,
-   "atk": 6,
-   "hp": 3,
+   "cost": 2,
+   "atk": 7,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -2046,8 +2046,8 @@
    "emoji": "🔥🧲",
    "name": "พลาสมา",
    "element": "electric",
-   "cost": 4,
-   "atk": 7,
+   "cost": 3,
+   "atk": 8,
    "hp": 4,
    "keywords": [
     "haste"
@@ -2076,9 +2076,9 @@
    "emoji": "🔥⚡",
    "name": "พลาสมา",
    "element": "electric",
-   "cost": 4,
-   "atk": 8,
-   "hp": 4,
+   "cost": 3,
+   "atk": 9,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -2106,8 +2106,8 @@
    "emoji": "🔥🪨",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 3,
-   "atk": 4,
+   "cost": 2,
+   "atk": 5,
    "hp": 5,
    "keywords": [],
    "abilities": [
@@ -2134,9 +2134,9 @@
    "emoji": "🔥🕳️",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 3,
-   "atk": 4,
-   "hp": 6,
+   "cost": 2,
+   "atk": 5,
+   "hp": 7,
    "keywords": [],
    "abilities": [
     {
@@ -2162,9 +2162,9 @@
    "emoji": "🔥💎",
    "name": "ลาวา",
    "element": "earth",
-   "cost": 4,
-   "atk": 5,
-   "hp": 7,
+   "cost": 3,
+   "atk": 6,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -2190,9 +2190,9 @@
    "emoji": "🔥⛰️",
    "name": "ลาวา",
    "element": "earth",
-   "cost": 4,
-   "atk": 6,
-   "hp": 8,
+   "cost": 3,
+   "atk": 7,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -2218,9 +2218,9 @@
    "emoji": "🔥🪶",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 3,
-   "atk": 4,
-   "hp": 2,
+   "cost": 2,
+   "atk": 5,
+   "hp": 3,
    "keywords": [
     "evade"
    ],
@@ -2248,9 +2248,9 @@
    "emoji": "🔥☁️",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 3,
-   "atk": 5,
-   "hp": 3,
+   "cost": 2,
+   "atk": 6,
+   "hp": 4,
    "keywords": [
     "evade"
    ],
@@ -2278,8 +2278,8 @@
    "emoji": "🔥💨",
    "name": "พายุไฟ",
    "element": "wind",
-   "cost": 4,
-   "atk": 6,
+   "cost": 3,
+   "atk": 7,
    "hp": 4,
    "keywords": [
     "evade"
@@ -2308,9 +2308,9 @@
    "emoji": "🔥🌪️",
    "name": "พายุไฟ",
    "element": "wind",
-   "cost": 4,
-   "atk": 7,
-   "hp": 4,
+   "cost": 3,
+   "atk": 8,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -2338,8 +2338,8 @@
    "emoji": "🌋☀️",
    "name": "เสริมพลัง",
    "element": "fire",
-   "cost": 5,
-   "atk": 11,
+   "cost": 4,
+   "atk": 12,
    "hp": 5,
    "keywords": [],
    "abilities": [
@@ -2366,8 +2366,8 @@
    "emoji": "🌋💧",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 3,
-   "atk": 5,
+   "cost": 2,
+   "atk": 6,
    "hp": 4,
    "keywords": [],
    "abilities": [
@@ -2394,9 +2394,9 @@
    "emoji": "🌋🐟",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 4,
-   "atk": 6,
-   "hp": 4,
+   "cost": 3,
+   "atk": 7,
+   "hp": 5,
    "keywords": [],
    "abilities": [
     {
@@ -2422,9 +2422,9 @@
    "emoji": "🌋❄️",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 4,
-   "atk": 7,
-   "hp": 5,
+   "cost": 3,
+   "atk": 8,
+   "hp": 6,
    "keywords": [],
    "abilities": [
     {
@@ -2450,9 +2450,9 @@
    "emoji": "🌋🌊",
    "name": "ไอน้ำ",
    "element": "water",
-   "cost": 5,
-   "atk": 8,
-   "hp": 6,
+   "cost": 4,
+   "atk": 9,
+   "hp": 7,
    "keywords": [],
    "abilities": [
     {
@@ -2478,8 +2478,8 @@
    "emoji": "🌋🌱",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 3,
-   "atk": 5,
+   "cost": 2,
+   "atk": 6,
    "hp": 3,
    "keywords": [
     "regen"
@@ -2508,8 +2508,8 @@
    "emoji": "🌋🍄",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 4,
-   "atk": 6,
+   "cost": 3,
+   "atk": 7,
    "hp": 4,
    "keywords": [
     "regen"
@@ -2538,9 +2538,9 @@
    "emoji": "🌋🌸",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 4,
-   "atk": 6,
-   "hp": 5,
+   "cost": 3,
+   "atk": 7,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -2568,9 +2568,9 @@
    "emoji": "🌋🌳",
    "name": "ไฟป่า",
    "element": "plant",
-   "cost": 5,
-   "atk": 7,
-   "hp": 6,
+   "cost": 4,
+   "atk": 8,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -2598,8 +2598,8 @@
    "emoji": "🌋💡",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 3,
-   "atk": 5,
+   "cost": 2,
+   "atk": 6,
    "hp": 3,
    "keywords": [
     "haste"
@@ -2628,9 +2628,9 @@
    "emoji": "🌋🔋",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 4,
-   "atk": 7,
-   "hp": 4,
+   "cost": 3,
+   "atk": 8,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -2658,9 +2658,9 @@
    "emoji": "🌋🧲",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 4,
-   "atk": 8,
-   "hp": 4,
+   "cost": 3,
+   "atk": 9,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -2688,9 +2688,9 @@
    "emoji": "🌋⚡",
    "name": "พลาสมา",
    "element": "electric",
-   "cost": 5,
-   "atk": 8,
-   "hp": 5,
+   "cost": 4,
+   "atk": 9,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -2718,8 +2718,8 @@
    "emoji": "🌋🪨",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 3,
-   "atk": 5,
+   "cost": 2,
+   "atk": 6,
    "hp": 6,
    "keywords": [],
    "abilities": [
@@ -2746,9 +2746,9 @@
    "emoji": "🌋🕳️",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 4,
-   "atk": 5,
-   "hp": 7,
+   "cost": 3,
+   "atk": 6,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -2774,9 +2774,9 @@
    "emoji": "🌋💎",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 4,
-   "atk": 6,
-   "hp": 8,
+   "cost": 3,
+   "atk": 7,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -2802,9 +2802,9 @@
    "emoji": "🌋⛰️",
    "name": "ลาวา",
    "element": "earth",
-   "cost": 5,
-   "atk": 7,
-   "hp": 9,
+   "cost": 4,
+   "atk": 8,
+   "hp": 10,
    "keywords": [],
    "abilities": [
     {
@@ -2830,9 +2830,9 @@
    "emoji": "🌋🪶",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 3,
-   "atk": 5,
-   "hp": 3,
+   "cost": 2,
+   "atk": 6,
+   "hp": 4,
    "keywords": [
     "evade"
    ],
@@ -2860,9 +2860,9 @@
    "emoji": "🌋☁️",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 4,
-   "atk": 6,
-   "hp": 4,
+   "cost": 3,
+   "atk": 7,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -2890,9 +2890,9 @@
    "emoji": "🌋💨",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 4,
-   "atk": 7,
-   "hp": 4,
+   "cost": 3,
+   "atk": 8,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -2920,9 +2920,9 @@
    "emoji": "🌋🌪️",
    "name": "พายุไฟ",
    "element": "wind",
-   "cost": 5,
-   "atk": 8,
-   "hp": 5,
+   "cost": 4,
+   "atk": 9,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -2950,8 +2950,8 @@
    "emoji": "☀️💧",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 4,
-   "atk": 7,
+   "cost": 3,
+   "atk": 8,
    "hp": 4,
    "keywords": [],
    "abilities": [
@@ -2978,9 +2978,9 @@
    "emoji": "☀️🐟",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 4,
-   "atk": 8,
-   "hp": 4,
+   "cost": 3,
+   "atk": 9,
+   "hp": 5,
    "keywords": [],
    "abilities": [
     {
@@ -3006,9 +3006,9 @@
    "emoji": "☀️❄️",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 5,
-   "atk": 8,
-   "hp": 5,
+   "cost": 4,
+   "atk": 9,
+   "hp": 6,
    "keywords": [],
    "abilities": [
     {
@@ -3034,9 +3034,9 @@
    "emoji": "☀️🌊",
    "name": "ไอน้ำ",
    "element": "fire",
-   "cost": 5,
-   "atk": 9,
-   "hp": 6,
+   "cost": 4,
+   "atk": 10,
+   "hp": 7,
    "keywords": [],
    "abilities": [
     {
@@ -3062,8 +3062,8 @@
    "emoji": "☀️🌱",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 4,
-   "atk": 7,
+   "cost": 3,
+   "atk": 8,
    "hp": 3,
    "keywords": [
     "regen"
@@ -3092,8 +3092,8 @@
    "emoji": "☀️🍄",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 4,
-   "atk": 8,
+   "cost": 3,
+   "atk": 9,
    "hp": 4,
    "keywords": [
     "regen"
@@ -3122,9 +3122,9 @@
    "emoji": "☀️🌸",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 5,
-   "atk": 8,
-   "hp": 5,
+   "cost": 4,
+   "atk": 9,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -3152,9 +3152,9 @@
    "emoji": "☀️🌳",
    "name": "ไฟป่า",
    "element": "fire",
-   "cost": 5,
-   "atk": 8,
-   "hp": 6,
+   "cost": 4,
+   "atk": 9,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -3182,8 +3182,8 @@
    "emoji": "☀️💡",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 4,
-   "atk": 7,
+   "cost": 3,
+   "atk": 8,
    "hp": 3,
    "keywords": [
     "haste"
@@ -3212,9 +3212,9 @@
    "emoji": "☀️🔋",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 4,
-   "atk": 8,
-   "hp": 4,
+   "cost": 3,
+   "atk": 9,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -3242,9 +3242,9 @@
    "emoji": "☀️🧲",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 5,
-   "atk": 9,
-   "hp": 4,
+   "cost": 4,
+   "atk": 10,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -3272,9 +3272,9 @@
    "emoji": "☀️⚡",
    "name": "พลาสมา",
    "element": "fire",
-   "cost": 5,
-   "atk": 10,
-   "hp": 5,
+   "cost": 4,
+   "atk": 11,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -3302,8 +3302,8 @@
    "emoji": "☀️🪨",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 4,
-   "atk": 7,
+   "cost": 3,
+   "atk": 8,
    "hp": 6,
    "keywords": [],
    "abilities": [
@@ -3330,9 +3330,9 @@
    "emoji": "☀️🕳️",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 4,
-   "atk": 7,
-   "hp": 7,
+   "cost": 3,
+   "atk": 8,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -3358,9 +3358,9 @@
    "emoji": "☀️💎",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 5,
-   "atk": 8,
-   "hp": 8,
+   "cost": 4,
+   "atk": 9,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -3386,9 +3386,9 @@
    "emoji": "☀️⛰️",
    "name": "ลาวา",
    "element": "fire",
-   "cost": 5,
-   "atk": 8,
-   "hp": 9,
+   "cost": 4,
+   "atk": 9,
+   "hp": 10,
    "keywords": [],
    "abilities": [
     {
@@ -3414,9 +3414,9 @@
    "emoji": "☀️🪶",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 4,
-   "atk": 7,
-   "hp": 3,
+   "cost": 3,
+   "atk": 8,
+   "hp": 4,
    "keywords": [
     "evade"
    ],
@@ -3444,9 +3444,9 @@
    "emoji": "☀️☁️",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 4,
-   "atk": 8,
-   "hp": 4,
+   "cost": 3,
+   "atk": 9,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -3474,9 +3474,9 @@
    "emoji": "☀️💨",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 5,
-   "atk": 8,
-   "hp": 4,
+   "cost": 4,
+   "atk": 9,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -3504,9 +3504,9 @@
    "emoji": "☀️🌪️",
    "name": "พายุไฟ",
    "element": "fire",
-   "cost": 5,
-   "atk": 9,
-   "hp": 5,
+   "cost": 4,
+   "atk": 10,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -3534,9 +3534,9 @@
    "emoji": "💧🐟",
    "name": "เสริมพลัง",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 5,
+   "hp": 6,
    "keywords": [],
    "abilities": [
     {
@@ -3562,9 +3562,9 @@
    "emoji": "💧❄️",
    "name": "เสริมพลัง",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 5,
-   "hp": 6,
+   "hp": 7,
    "keywords": [],
    "abilities": [
     {
@@ -3590,9 +3590,9 @@
    "emoji": "💧🌊",
    "name": "เสริมพลัง",
    "element": "water",
-   "cost": 4,
-   "atk": 5,
-   "hp": 7,
+   "cost": 3,
+   "atk": 6,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -3618,7 +3618,7 @@
    "emoji": "💧🌱",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
    "hp": 3,
    "keywords": [
@@ -3648,7 +3648,7 @@
    "emoji": "💧🍄",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
    "hp": 4,
    "keywords": [
@@ -3678,9 +3678,9 @@
    "emoji": "💧🌸",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -3708,9 +3708,9 @@
    "emoji": "💧🌳",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -3738,7 +3738,7 @@
    "emoji": "💧💡",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
    "hp": 3,
    "keywords": [
@@ -3768,9 +3768,9 @@
    "emoji": "💧🔋",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -3798,9 +3798,9 @@
    "emoji": "💧🧲",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 3,
-   "atk": 4,
-   "hp": 4,
+   "cost": 2,
+   "atk": 5,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -3828,9 +3828,9 @@
    "emoji": "💧⚡",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 4,
-   "atk": 5,
-   "hp": 5,
+   "cost": 3,
+   "atk": 6,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -3858,7 +3858,7 @@
    "emoji": "💧🪨",
    "name": "โคลน",
    "element": "earth",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
    "hp": 4,
    "keywords": [],
@@ -3886,9 +3886,9 @@
    "emoji": "💧🕳️",
    "name": "โคลน",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 2,
-   "hp": 5,
+   "hp": 6,
    "keywords": [],
    "abilities": [
     {
@@ -3914,9 +3914,9 @@
    "emoji": "💧💎",
    "name": "โคลน",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 6,
+   "hp": 7,
    "keywords": [],
    "abilities": [
     {
@@ -3942,9 +3942,9 @@
    "emoji": "💧⛰️",
    "name": "โคลน",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 7,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -3970,9 +3970,9 @@
    "emoji": "💧🪶",
    "name": "หมอก",
    "element": "wind",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "evade"
    ],
@@ -4000,9 +4000,9 @@
    "emoji": "💧☁️",
    "name": "หมอก",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -4030,9 +4030,9 @@
    "emoji": "💧💨",
    "name": "หมอก",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -4060,9 +4060,9 @@
    "emoji": "💧🌪️",
    "name": "หมอก",
    "element": "wind",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -4090,9 +4090,9 @@
    "emoji": "🐟❄️",
    "name": "เสริมพลัง",
    "element": "water",
-   "cost": 4,
-   "atk": 5,
-   "hp": 7,
+   "cost": 3,
+   "atk": 6,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -4118,9 +4118,9 @@
    "emoji": "🐟🌊",
    "name": "เสริมพลัง",
    "element": "water",
-   "cost": 4,
-   "atk": 6,
-   "hp": 8,
+   "cost": 3,
+   "atk": 7,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -4146,7 +4146,7 @@
    "emoji": "🐟🌱",
    "name": "ป่าฝน",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
    "hp": 4,
    "keywords": [
@@ -4176,9 +4176,9 @@
    "emoji": "🐟🍄",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "regen"
    ],
@@ -4206,9 +4206,9 @@
    "emoji": "🐟🌸",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -4236,9 +4236,9 @@
    "emoji": "🐟🌳",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 4,
-   "atk": 4,
-   "hp": 7,
+   "cost": 3,
+   "atk": 5,
+   "hp": 8,
    "keywords": [
     "regen"
    ],
@@ -4266,7 +4266,7 @@
    "emoji": "🐟💡",
    "name": "ช็อต",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
    "hp": 4,
    "keywords": [
@@ -4296,9 +4296,9 @@
    "emoji": "🐟🔋",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 3,
-   "atk": 4,
-   "hp": 4,
+   "cost": 2,
+   "atk": 5,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -4326,9 +4326,9 @@
    "emoji": "🐟🧲",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 4,
-   "atk": 5,
-   "hp": 5,
+   "cost": 3,
+   "atk": 6,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -4356,9 +4356,9 @@
    "emoji": "🐟⚡",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 4,
-   "atk": 6,
-   "hp": 6,
+   "cost": 3,
+   "atk": 7,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -4386,9 +4386,9 @@
    "emoji": "🐟🪨",
    "name": "โคลน",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 4,
+   "hp": 5,
    "keywords": [],
    "abilities": [
     {
@@ -4414,9 +4414,9 @@
    "emoji": "🐟🕳️",
    "name": "โคลน",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 6,
+   "hp": 7,
    "keywords": [],
    "abilities": [
     {
@@ -4442,9 +4442,9 @@
    "emoji": "🐟💎",
    "name": "โคลน",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 7,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -4470,9 +4470,9 @@
    "emoji": "🐟⛰️",
    "name": "โคลน",
    "element": "earth",
-   "cost": 4,
-   "atk": 4,
-   "hp": 8,
+   "cost": 3,
+   "atk": 5,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -4498,9 +4498,9 @@
    "emoji": "🐟🪶",
    "name": "หมอก",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -4528,9 +4528,9 @@
    "emoji": "🐟☁️",
    "name": "หมอก",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -4558,9 +4558,9 @@
    "emoji": "🐟💨",
    "name": "หมอก",
    "element": "wind",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -4588,9 +4588,9 @@
    "emoji": "🐟🌪️",
    "name": "หมอก",
    "element": "wind",
-   "cost": 4,
-   "atk": 5,
-   "hp": 6,
+   "cost": 3,
+   "atk": 6,
+   "hp": 7,
    "keywords": [
     "evade"
    ],
@@ -4618,9 +4618,9 @@
    "emoji": "❄️🌊",
    "name": "เสริมพลัง",
    "element": "water",
-   "cost": 5,
-   "atk": 7,
-   "hp": 9,
+   "cost": 4,
+   "atk": 8,
+   "hp": 10,
    "keywords": [],
    "abilities": [
     {
@@ -4646,9 +4646,9 @@
    "emoji": "❄️🌱",
    "name": "ป่าฝน",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "regen"
    ],
@@ -4676,9 +4676,9 @@
    "emoji": "❄️🍄",
    "name": "ป่าฝน",
    "element": "water",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -4706,9 +4706,9 @@
    "emoji": "❄️🌸",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 4,
-   "atk": 4,
-   "hp": 7,
+   "cost": 3,
+   "atk": 5,
+   "hp": 8,
    "keywords": [
     "regen"
    ],
@@ -4736,9 +4736,9 @@
    "emoji": "❄️🌳",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 5,
-   "atk": 5,
-   "hp": 8,
+   "cost": 4,
+   "atk": 6,
+   "hp": 9,
    "keywords": [
     "regen"
    ],
@@ -4766,9 +4766,9 @@
    "emoji": "❄️💡",
    "name": "ช็อต",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -4796,9 +4796,9 @@
    "emoji": "❄️🔋",
    "name": "ช็อต",
    "element": "water",
-   "cost": 4,
-   "atk": 5,
-   "hp": 5,
+   "cost": 3,
+   "atk": 6,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -4826,9 +4826,9 @@
    "emoji": "❄️🧲",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 4,
-   "atk": 6,
-   "hp": 6,
+   "cost": 3,
+   "atk": 7,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -4856,9 +4856,9 @@
    "emoji": "❄️⚡",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 5,
-   "atk": 7,
-   "hp": 7,
+   "cost": 4,
+   "atk": 8,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -4886,9 +4886,9 @@
    "emoji": "❄️🪨",
    "name": "โคลน",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 5,
+   "hp": 6,
    "keywords": [],
    "abilities": [
     {
@@ -4914,9 +4914,9 @@
    "emoji": "❄️🕳️",
    "name": "โคลน",
    "element": "water",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 7,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -4942,9 +4942,9 @@
    "emoji": "❄️💎",
    "name": "โคลน",
    "element": "earth",
-   "cost": 4,
-   "atk": 4,
-   "hp": 8,
+   "cost": 3,
+   "atk": 5,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -4970,9 +4970,9 @@
    "emoji": "❄️⛰️",
    "name": "โคลน",
    "element": "earth",
-   "cost": 5,
-   "atk": 5,
-   "hp": 8,
+   "cost": 4,
+   "atk": 6,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -4998,9 +4998,9 @@
    "emoji": "❄️🪶",
    "name": "หมอก",
    "element": "water",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -5028,9 +5028,9 @@
    "emoji": "❄️☁️",
    "name": "หมอก",
    "element": "water",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 7,
    "keywords": [
     "evade"
    ],
@@ -5058,9 +5058,9 @@
    "emoji": "❄️💨",
    "name": "หมอก",
    "element": "wind",
-   "cost": 4,
-   "atk": 5,
-   "hp": 6,
+   "cost": 3,
+   "atk": 6,
+   "hp": 7,
    "keywords": [
     "evade"
    ],
@@ -5088,9 +5088,9 @@
    "emoji": "❄️🌪️",
    "name": "หมอก",
    "element": "wind",
-   "cost": 5,
-   "atk": 6,
-   "hp": 7,
+   "cost": 4,
+   "atk": 7,
+   "hp": 8,
    "keywords": [
     "evade"
    ],
@@ -5118,9 +5118,9 @@
    "emoji": "🌊🌱",
    "name": "ป่าฝน",
    "element": "water",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -5148,9 +5148,9 @@
    "emoji": "🌊🍄",
    "name": "ป่าฝน",
    "element": "water",
-   "cost": 4,
-   "atk": 5,
-   "hp": 6,
+   "cost": 3,
+   "atk": 6,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -5178,9 +5178,9 @@
    "emoji": "🌊🌸",
    "name": "ป่าฝน",
    "element": "water",
-   "cost": 5,
-   "atk": 5,
-   "hp": 8,
+   "cost": 4,
+   "atk": 6,
+   "hp": 9,
    "keywords": [
     "regen"
    ],
@@ -5208,9 +5208,9 @@
    "emoji": "🌊🌳",
    "name": "ป่าฝน",
    "element": "plant",
-   "cost": 5,
-   "atk": 6,
-   "hp": 8,
+   "cost": 4,
+   "atk": 7,
+   "hp": 9,
    "keywords": [
     "regen"
    ],
@@ -5238,9 +5238,9 @@
    "emoji": "🌊💡",
    "name": "ช็อต",
    "element": "water",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -5268,9 +5268,9 @@
    "emoji": "🌊🔋",
    "name": "ช็อต",
    "element": "water",
-   "cost": 4,
-   "atk": 6,
-   "hp": 6,
+   "cost": 3,
+   "atk": 7,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -5298,9 +5298,9 @@
    "emoji": "🌊🧲",
    "name": "ช็อต",
    "element": "water",
-   "cost": 5,
-   "atk": 7,
-   "hp": 7,
+   "cost": 4,
+   "atk": 8,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -5328,9 +5328,9 @@
    "emoji": "🌊⚡",
    "name": "ช็อต",
    "element": "electric",
-   "cost": 5,
-   "atk": 8,
-   "hp": 8,
+   "cost": 4,
+   "atk": 9,
+   "hp": 9,
    "keywords": [
     "haste"
    ],
@@ -5358,9 +5358,9 @@
    "emoji": "🌊🪨",
    "name": "โคลน",
    "element": "water",
-   "cost": 4,
-   "atk": 4,
-   "hp": 6,
+   "cost": 3,
+   "atk": 5,
+   "hp": 7,
    "keywords": [],
    "abilities": [
     {
@@ -5386,9 +5386,9 @@
    "emoji": "🌊🕳️",
    "name": "โคลน",
    "element": "water",
-   "cost": 4,
-   "atk": 4,
-   "hp": 8,
+   "cost": 3,
+   "atk": 5,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -5414,9 +5414,9 @@
    "emoji": "🌊💎",
    "name": "โคลน",
    "element": "water",
-   "cost": 5,
-   "atk": 5,
-   "hp": 8,
+   "cost": 4,
+   "atk": 6,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -5442,9 +5442,9 @@
    "emoji": "🌊⛰️",
    "name": "โคลน",
    "element": "earth",
-   "cost": 5,
-   "atk": 6,
-   "hp": 9,
+   "cost": 4,
+   "atk": 7,
+   "hp": 10,
    "keywords": [],
    "abilities": [
     {
@@ -5470,9 +5470,9 @@
    "emoji": "🌊🪶",
    "name": "หมอก",
    "element": "water",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 7,
    "keywords": [
     "evade"
    ],
@@ -5500,9 +5500,9 @@
    "emoji": "🌊☁️",
    "name": "หมอก",
    "element": "water",
-   "cost": 4,
-   "atk": 5,
-   "hp": 6,
+   "cost": 3,
+   "atk": 6,
+   "hp": 8,
    "keywords": [
     "evade"
    ],
@@ -5530,9 +5530,9 @@
    "emoji": "🌊💨",
    "name": "หมอก",
    "element": "water",
-   "cost": 5,
-   "atk": 6,
-   "hp": 7,
+   "cost": 4,
+   "atk": 7,
+   "hp": 8,
    "keywords": [
     "evade"
    ],
@@ -5560,9 +5560,9 @@
    "emoji": "🌊🌪️",
    "name": "หมอก",
    "element": "wind",
-   "cost": 5,
-   "atk": 7,
-   "hp": 8,
+   "cost": 4,
+   "atk": 8,
+   "hp": 9,
    "keywords": [
     "evade"
    ],
@@ -5590,7 +5590,7 @@
    "emoji": "🌱🍄",
    "name": "เสริมพลัง",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
    "hp": 4,
    "keywords": [
@@ -5620,9 +5620,9 @@
    "emoji": "🌱🌸",
    "name": "เสริมพลัง",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -5650,9 +5650,9 @@
    "emoji": "🌱🌳",
    "name": "เสริมพลัง",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 5,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -5680,7 +5680,7 @@
    "emoji": "🌱💡",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
    "hp": 2,
    "keywords": [
@@ -5711,9 +5711,9 @@
    "emoji": "🌱🔋",
    "name": "เมล็ดพลัง",
    "element": "electric",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste",
     "regen"
@@ -5742,8 +5742,8 @@
    "emoji": "🌱🧲",
    "name": "เมล็ดพลัง",
    "element": "electric",
-   "cost": 3,
-   "atk": 4,
+   "cost": 2,
+   "atk": 5,
    "hp": 4,
    "keywords": [
     "haste",
@@ -5773,9 +5773,9 @@
    "emoji": "🌱⚡",
    "name": "เมล็ดพลัง",
    "element": "electric",
-   "cost": 4,
-   "atk": 5,
-   "hp": 4,
+   "cost": 3,
+   "atk": 6,
+   "hp": 5,
    "keywords": [
     "haste",
     "regen"
@@ -5804,7 +5804,7 @@
    "emoji": "🌱🪨",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
    "hp": 3,
    "keywords": [
@@ -5834,9 +5834,9 @@
    "emoji": "🌱🕳️",
    "name": "ป่าทึบ",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 2,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "regen"
    ],
@@ -5864,9 +5864,9 @@
    "emoji": "🌱💎",
    "name": "ป่าทึบ",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -5894,9 +5894,9 @@
    "emoji": "🌱⛰️",
    "name": "ป่าทึบ",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -5924,9 +5924,9 @@
    "emoji": "🌱🪶",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "evade",
     "regen"
@@ -5955,9 +5955,9 @@
    "emoji": "🌱☁️",
    "name": "สปอร์",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "evade",
     "regen"
@@ -5986,7 +5986,7 @@
    "emoji": "🌱💨",
    "name": "สปอร์",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
    "hp": 4,
    "keywords": [
@@ -6017,9 +6017,9 @@
    "emoji": "🌱🌪️",
    "name": "สปอร์",
    "element": "wind",
-   "cost": 4,
-   "atk": 4,
-   "hp": 4,
+   "cost": 3,
+   "atk": 5,
+   "hp": 5,
    "keywords": [
     "evade",
     "regen"
@@ -6048,9 +6048,9 @@
    "emoji": "🍄🌸",
    "name": "เสริมพลัง",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 5,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -6078,9 +6078,9 @@
    "emoji": "🍄🌳",
    "name": "เสริมพลัง",
    "element": "plant",
-   "cost": 4,
-   "atk": 5,
-   "hp": 7,
+   "cost": 3,
+   "atk": 6,
+   "hp": 8,
    "keywords": [
     "regen"
    ],
@@ -6108,7 +6108,7 @@
    "emoji": "🍄💡",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
    "hp": 3,
    "keywords": [
@@ -6139,9 +6139,9 @@
    "emoji": "🍄🔋",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 3,
-   "atk": 4,
-   "hp": 4,
+   "cost": 2,
+   "atk": 5,
+   "hp": 5,
    "keywords": [
     "haste",
     "regen"
@@ -6170,9 +6170,9 @@
    "emoji": "🍄🧲",
    "name": "เมล็ดพลัง",
    "element": "electric",
-   "cost": 4,
-   "atk": 5,
-   "hp": 4,
+   "cost": 3,
+   "atk": 6,
+   "hp": 5,
    "keywords": [
     "haste",
     "regen"
@@ -6201,9 +6201,9 @@
    "emoji": "🍄⚡",
    "name": "เมล็ดพลัง",
    "element": "electric",
-   "cost": 4,
-   "atk": 6,
-   "hp": 5,
+   "cost": 3,
+   "atk": 7,
+   "hp": 6,
    "keywords": [
     "haste",
     "regen"
@@ -6232,7 +6232,7 @@
    "emoji": "🍄🪨",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
    "hp": 4,
    "keywords": [
@@ -6262,9 +6262,9 @@
    "emoji": "🍄🕳️",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -6292,9 +6292,9 @@
    "emoji": "🍄💎",
    "name": "ป่าทึบ",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -6322,9 +6322,9 @@
    "emoji": "🍄⛰️",
    "name": "ป่าทึบ",
    "element": "earth",
-   "cost": 4,
-   "atk": 4,
-   "hp": 7,
+   "cost": 3,
+   "atk": 5,
+   "hp": 8,
    "keywords": [
     "regen"
    ],
@@ -6352,9 +6352,9 @@
    "emoji": "🍄🪶",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "evade",
     "regen"
@@ -6383,9 +6383,9 @@
    "emoji": "🍄☁️",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "evade",
     "regen"
@@ -6414,9 +6414,9 @@
    "emoji": "🍄💨",
    "name": "สปอร์",
    "element": "wind",
-   "cost": 4,
-   "atk": 4,
-   "hp": 4,
+   "cost": 3,
+   "atk": 5,
+   "hp": 5,
    "keywords": [
     "evade",
     "regen"
@@ -6445,9 +6445,9 @@
    "emoji": "🍄🌪️",
    "name": "สปอร์",
    "element": "wind",
-   "cost": 4,
-   "atk": 5,
-   "hp": 5,
+   "cost": 3,
+   "atk": 6,
+   "hp": 6,
    "keywords": [
     "evade",
     "regen"
@@ -6476,9 +6476,9 @@
    "emoji": "🌸🌳",
    "name": "เสริมพลัง",
    "element": "plant",
-   "cost": 5,
-   "atk": 5,
-   "hp": 9,
+   "cost": 4,
+   "atk": 6,
+   "hp": 10,
    "keywords": [
     "regen"
    ],
@@ -6506,9 +6506,9 @@
    "emoji": "🌸💡",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste",
     "regen"
@@ -6537,9 +6537,9 @@
    "emoji": "🌸🔋",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 7,
    "keywords": [
     "haste",
     "regen"
@@ -6568,9 +6568,9 @@
    "emoji": "🌸🧲",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 4,
-   "atk": 5,
-   "hp": 6,
+   "cost": 3,
+   "atk": 6,
+   "hp": 7,
    "keywords": [
     "haste",
     "regen"
@@ -6599,9 +6599,9 @@
    "emoji": "🌸⚡",
    "name": "เมล็ดพลัง",
    "element": "electric",
-   "cost": 5,
-   "atk": 6,
-   "hp": 7,
+   "cost": 4,
+   "atk": 7,
+   "hp": 8,
    "keywords": [
     "haste",
     "regen"
@@ -6630,9 +6630,9 @@
    "emoji": "🌸🪨",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "regen"
    ],
@@ -6660,9 +6660,9 @@
    "emoji": "🌸🕳️",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 3,
-   "hp": 7,
+   "hp": 8,
    "keywords": [
     "regen"
    ],
@@ -6690,9 +6690,9 @@
    "emoji": "🌸💎",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 8,
+   "hp": 9,
    "keywords": [
     "regen"
    ],
@@ -6720,9 +6720,9 @@
    "emoji": "🌸⛰️",
    "name": "ป่าทึบ",
    "element": "earth",
-   "cost": 5,
-   "atk": 4,
-   "hp": 8,
+   "cost": 4,
+   "atk": 5,
+   "hp": 9,
    "keywords": [
     "regen"
    ],
@@ -6750,9 +6750,9 @@
    "emoji": "🌸🪶",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 4,
+   "hp": 6,
    "keywords": [
     "evade",
     "regen"
@@ -6781,9 +6781,9 @@
    "emoji": "🌸☁️",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 5,
+   "hp": 7,
    "keywords": [
     "evade",
     "regen"
@@ -6812,9 +6812,9 @@
    "emoji": "🌸💨",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 4,
-   "atk": 4,
-   "hp": 6,
+   "cost": 3,
+   "atk": 5,
+   "hp": 7,
    "keywords": [
     "evade",
     "regen"
@@ -6843,9 +6843,9 @@
    "emoji": "🌸🌪️",
    "name": "สปอร์",
    "element": "wind",
-   "cost": 5,
-   "atk": 5,
-   "hp": 7,
+   "cost": 4,
+   "atk": 6,
+   "hp": 8,
    "keywords": [
     "evade",
     "regen"
@@ -6874,9 +6874,9 @@
    "emoji": "🌳💡",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste",
     "regen"
@@ -6905,9 +6905,9 @@
    "emoji": "🌳🔋",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 4,
-   "atk": 5,
-   "hp": 6,
+   "cost": 3,
+   "atk": 6,
+   "hp": 8,
    "keywords": [
     "haste",
     "regen"
@@ -6936,9 +6936,9 @@
    "emoji": "🌳🧲",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 5,
-   "atk": 6,
-   "hp": 7,
+   "cost": 4,
+   "atk": 7,
+   "hp": 8,
    "keywords": [
     "haste",
     "regen"
@@ -6967,9 +6967,9 @@
    "emoji": "🌳⚡",
    "name": "เมล็ดพลัง",
    "element": "plant",
-   "cost": 5,
-   "atk": 7,
-   "hp": 8,
+   "cost": 4,
+   "atk": 8,
+   "hp": 9,
    "keywords": [
     "haste",
     "regen"
@@ -6998,9 +6998,9 @@
    "emoji": "🌳🪨",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "regen"
    ],
@@ -7028,9 +7028,9 @@
    "emoji": "🌳🕳️",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 8,
+   "hp": 9,
    "keywords": [
     "regen"
    ],
@@ -7058,9 +7058,9 @@
    "emoji": "🌳💎",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 5,
-   "atk": 4,
-   "hp": 8,
+   "cost": 4,
+   "atk": 5,
+   "hp": 9,
    "keywords": [
     "regen"
    ],
@@ -7088,9 +7088,9 @@
    "emoji": "🌳⛰️",
    "name": "ป่าทึบ",
    "element": "plant",
-   "cost": 5,
-   "atk": 5,
-   "hp": 9,
+   "cost": 4,
+   "atk": 6,
+   "hp": 10,
    "keywords": [
     "regen"
    ],
@@ -7118,9 +7118,9 @@
    "emoji": "🌳🪶",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 5,
+   "hp": 7,
    "keywords": [
     "evade",
     "regen"
@@ -7149,9 +7149,9 @@
    "emoji": "🌳☁️",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 4,
-   "atk": 4,
-   "hp": 6,
+   "cost": 3,
+   "atk": 5,
+   "hp": 8,
    "keywords": [
     "evade",
     "regen"
@@ -7180,9 +7180,9 @@
    "emoji": "🌳💨",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 5,
-   "atk": 5,
-   "hp": 7,
+   "cost": 4,
+   "atk": 6,
+   "hp": 8,
    "keywords": [
     "evade",
     "regen"
@@ -7211,9 +7211,9 @@
    "emoji": "🌳🌪️",
    "name": "สปอร์",
    "element": "plant",
-   "cost": 5,
-   "atk": 6,
-   "hp": 8,
+   "cost": 4,
+   "atk": 7,
+   "hp": 9,
    "keywords": [
     "evade",
     "regen"
@@ -7242,9 +7242,9 @@
    "emoji": "💡🔋",
    "name": "เสริมพลัง",
    "element": "electric",
-   "cost": 3,
+   "cost": 2,
    "atk": 5,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -7272,8 +7272,8 @@
    "emoji": "💡🧲",
    "name": "เสริมพลัง",
    "element": "electric",
-   "cost": 3,
-   "atk": 5,
+   "cost": 2,
+   "atk": 6,
    "hp": 5,
    "keywords": [
     "haste"
@@ -7302,9 +7302,9 @@
    "emoji": "💡⚡",
    "name": "เสริมพลัง",
    "element": "electric",
-   "cost": 4,
-   "atk": 6,
-   "hp": 5,
+   "cost": 3,
+   "atk": 7,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -7332,7 +7332,7 @@
    "emoji": "💡🪨",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
    "hp": 3,
    "keywords": [
@@ -7362,9 +7362,9 @@
    "emoji": "💡🕳️",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 2,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -7392,9 +7392,9 @@
    "emoji": "💡💎",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -7422,9 +7422,9 @@
    "emoji": "💡⛰️",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -7452,9 +7452,9 @@
    "emoji": "💡🪶",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "evade",
     "haste"
@@ -7483,9 +7483,9 @@
    "emoji": "💡☁️",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "evade",
     "haste"
@@ -7514,7 +7514,7 @@
    "emoji": "💡💨",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
    "hp": 4,
    "keywords": [
@@ -7545,9 +7545,9 @@
    "emoji": "💡🌪️",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 4,
-   "atk": 4,
-   "hp": 4,
+   "cost": 3,
+   "atk": 5,
+   "hp": 5,
    "keywords": [
     "evade",
     "haste"
@@ -7576,9 +7576,9 @@
    "emoji": "🔋🧲",
    "name": "เสริมพลัง",
    "element": "electric",
-   "cost": 4,
-   "atk": 7,
-   "hp": 5,
+   "cost": 3,
+   "atk": 8,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -7606,9 +7606,9 @@
    "emoji": "🔋⚡",
    "name": "เสริมพลัง",
    "element": "electric",
-   "cost": 4,
-   "atk": 8,
-   "hp": 6,
+   "cost": 3,
+   "atk": 9,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -7636,9 +7636,9 @@
    "emoji": "🔋🪨",
    "name": "โลหะ",
    "element": "electric",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -7666,9 +7666,9 @@
    "emoji": "🔋🕳️",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 5,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -7696,9 +7696,9 @@
    "emoji": "🔋💎",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 4,
-   "atk": 4,
-   "hp": 6,
+   "cost": 3,
+   "atk": 5,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -7726,9 +7726,9 @@
    "emoji": "🔋⛰️",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 4,
-   "atk": 5,
-   "hp": 7,
+   "cost": 3,
+   "atk": 6,
+   "hp": 9,
    "keywords": [
     "haste"
    ],
@@ -7756,9 +7756,9 @@
    "emoji": "🔋🪶",
    "name": "พายุฟ้า",
    "element": "electric",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 3,
+   "hp": 5,
    "keywords": [
     "evade",
     "haste"
@@ -7787,9 +7787,9 @@
    "emoji": "🔋☁️",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 3,
-   "atk": 4,
-   "hp": 4,
+   "cost": 2,
+   "atk": 5,
+   "hp": 6,
    "keywords": [
     "evade",
     "haste"
@@ -7818,9 +7818,9 @@
    "emoji": "🔋💨",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 4,
-   "atk": 5,
-   "hp": 4,
+   "cost": 3,
+   "atk": 6,
+   "hp": 6,
    "keywords": [
     "evade",
     "haste"
@@ -7849,9 +7849,9 @@
    "emoji": "🔋🌪️",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 4,
-   "atk": 6,
-   "hp": 5,
+   "cost": 3,
+   "atk": 7,
+   "hp": 7,
    "keywords": [
     "evade",
     "haste"
@@ -7880,9 +7880,9 @@
    "emoji": "🧲⚡",
    "name": "เสริมพลัง",
    "element": "electric",
-   "cost": 5,
-   "atk": 9,
-   "hp": 7,
+   "cost": 4,
+   "atk": 10,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -7910,9 +7910,9 @@
    "emoji": "🧲🪨",
    "name": "โลหะ",
    "element": "electric",
-   "cost": 3,
-   "atk": 4,
-   "hp": 4,
+   "cost": 2,
+   "atk": 5,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -7940,9 +7940,9 @@
    "emoji": "🧲🕳️",
    "name": "โลหะ",
    "element": "electric",
-   "cost": 4,
-   "atk": 4,
-   "hp": 6,
+   "cost": 3,
+   "atk": 5,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -7970,9 +7970,9 @@
    "emoji": "🧲💎",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 4,
-   "atk": 5,
-   "hp": 7,
+   "cost": 3,
+   "atk": 6,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -8000,9 +8000,9 @@
    "emoji": "🧲⛰️",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 5,
-   "atk": 6,
-   "hp": 8,
+   "cost": 4,
+   "atk": 7,
+   "hp": 9,
    "keywords": [
     "haste"
    ],
@@ -8030,9 +8030,9 @@
    "emoji": "🧲🪶",
    "name": "พายุฟ้า",
    "element": "electric",
-   "cost": 3,
-   "atk": 4,
-   "hp": 4,
+   "cost": 2,
+   "atk": 5,
+   "hp": 5,
    "keywords": [
     "evade",
     "haste"
@@ -8061,9 +8061,9 @@
    "emoji": "🧲☁️",
    "name": "พายุฟ้า",
    "element": "electric",
-   "cost": 4,
-   "atk": 5,
-   "hp": 4,
+   "cost": 3,
+   "atk": 6,
+   "hp": 6,
    "keywords": [
     "evade",
     "haste"
@@ -8092,9 +8092,9 @@
    "emoji": "🧲💨",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 4,
-   "atk": 6,
-   "hp": 5,
+   "cost": 3,
+   "atk": 7,
+   "hp": 6,
    "keywords": [
     "evade",
     "haste"
@@ -8123,9 +8123,9 @@
    "emoji": "🧲🌪️",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 5,
-   "atk": 7,
-   "hp": 6,
+   "cost": 4,
+   "atk": 8,
+   "hp": 7,
    "keywords": [
     "evade",
     "haste"
@@ -8154,9 +8154,9 @@
    "emoji": "⚡🪨",
    "name": "โลหะ",
    "element": "electric",
-   "cost": 4,
-   "atk": 5,
-   "hp": 5,
+   "cost": 3,
+   "atk": 6,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -8184,9 +8184,9 @@
    "emoji": "⚡🕳️",
    "name": "โลหะ",
    "element": "electric",
-   "cost": 4,
-   "atk": 5,
-   "hp": 7,
+   "cost": 3,
+   "atk": 6,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -8214,9 +8214,9 @@
    "emoji": "⚡💎",
    "name": "โลหะ",
    "element": "electric",
-   "cost": 5,
-   "atk": 6,
-   "hp": 8,
+   "cost": 4,
+   "atk": 7,
+   "hp": 9,
    "keywords": [
     "haste"
    ],
@@ -8244,9 +8244,9 @@
    "emoji": "⚡⛰️",
    "name": "โลหะ",
    "element": "earth",
-   "cost": 5,
-   "atk": 7,
-   "hp": 8,
+   "cost": 4,
+   "atk": 8,
+   "hp": 9,
    "keywords": [
     "haste"
    ],
@@ -8274,9 +8274,9 @@
    "emoji": "⚡🪶",
    "name": "พายุฟ้า",
    "element": "electric",
-   "cost": 4,
-   "atk": 5,
-   "hp": 4,
+   "cost": 3,
+   "atk": 6,
+   "hp": 6,
    "keywords": [
     "evade",
     "haste"
@@ -8305,9 +8305,9 @@
    "emoji": "⚡☁️",
    "name": "พายุฟ้า",
    "element": "electric",
-   "cost": 4,
-   "atk": 6,
-   "hp": 5,
+   "cost": 3,
+   "atk": 7,
+   "hp": 7,
    "keywords": [
     "evade",
     "haste"
@@ -8336,9 +8336,9 @@
    "emoji": "⚡💨",
    "name": "พายุฟ้า",
    "element": "electric",
-   "cost": 5,
-   "atk": 7,
-   "hp": 6,
+   "cost": 4,
+   "atk": 8,
+   "hp": 7,
    "keywords": [
     "evade",
     "haste"
@@ -8367,9 +8367,9 @@
    "emoji": "⚡🌪️",
    "name": "พายุฟ้า",
    "element": "wind",
-   "cost": 5,
-   "atk": 8,
-   "hp": 7,
+   "cost": 4,
+   "atk": 9,
+   "hp": 8,
    "keywords": [
     "evade",
     "haste"
@@ -8398,9 +8398,9 @@
    "emoji": "🪨🕳️",
    "name": "เสริมพลัง",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 6,
+   "hp": 7,
    "keywords": [],
    "abilities": [
     {
@@ -8426,9 +8426,9 @@
    "emoji": "🪨💎",
    "name": "เสริมพลัง",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 7,
+   "hp": 8,
    "keywords": [],
    "abilities": [
     {
@@ -8454,9 +8454,9 @@
    "emoji": "🪨⛰️",
    "name": "เสริมพลัง",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 5,
-   "hp": 8,
+   "hp": 9,
    "keywords": [],
    "abilities": [
     {
@@ -8482,9 +8482,9 @@
    "emoji": "🪨🪶",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 2,
+   "cost": 1,
    "atk": 2,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "evade"
    ],
@@ -8512,9 +8512,9 @@
    "emoji": "🪨☁️",
    "name": "พายุทราย",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -8542,9 +8542,9 @@
    "emoji": "🪨💨",
    "name": "พายุทราย",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "evade"
    ],
@@ -8572,9 +8572,9 @@
    "emoji": "🪨🌪️",
    "name": "พายุทราย",
    "element": "wind",
-   "cost": 4,
-   "atk": 4,
-   "hp": 5,
+   "cost": 3,
+   "atk": 5,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -8602,9 +8602,9 @@
    "emoji": "🕳️💎",
    "name": "เสริมพลัง",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 9,
+   "hp": 10,
    "keywords": [],
    "abilities": [
     {
@@ -8630,9 +8630,9 @@
    "emoji": "🕳️⛰️",
    "name": "เสริมพลัง",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 5,
-   "hp": 9,
+   "hp": 10,
    "keywords": [],
    "abilities": [
     {
@@ -8658,9 +8658,9 @@
    "emoji": "🕳️🪶",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 2,
-   "hp": 4,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -8688,9 +8688,9 @@
    "emoji": "🕳️☁️",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 5,
+   "hp": 7,
    "keywords": [
     "evade"
    ],
@@ -8718,9 +8718,9 @@
    "emoji": "🕳️💨",
    "name": "พายุทราย",
    "element": "wind",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "evade"
    ],
@@ -8748,9 +8748,9 @@
    "emoji": "🕳️🌪️",
    "name": "พายุทราย",
    "element": "wind",
-   "cost": 4,
-   "atk": 4,
-   "hp": 7,
+   "cost": 3,
+   "atk": 5,
+   "hp": 8,
    "keywords": [
     "evade"
    ],
@@ -8778,9 +8778,9 @@
    "emoji": "💎⛰️",
    "name": "เสริมพลัง",
    "element": "earth",
-   "cost": 5,
-   "atk": 5,
-   "hp": 10,
+   "cost": 4,
+   "atk": 6,
+   "hp": 11,
    "keywords": [],
    "abilities": [
     {
@@ -8806,9 +8806,9 @@
    "emoji": "💎🪶",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 3,
+   "cost": 2,
    "atk": 3,
-   "hp": 5,
+   "hp": 7,
    "keywords": [
     "evade"
    ],
@@ -8836,9 +8836,9 @@
    "emoji": "💎☁️",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 6,
+   "hp": 8,
    "keywords": [
     "evade"
    ],
@@ -8866,9 +8866,9 @@
    "emoji": "💎💨",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 4,
-   "atk": 4,
-   "hp": 7,
+   "cost": 3,
+   "atk": 5,
+   "hp": 8,
    "keywords": [
     "evade"
    ],
@@ -8896,9 +8896,9 @@
    "emoji": "💎🌪️",
    "name": "พายุทราย",
    "element": "wind",
-   "cost": 5,
-   "atk": 5,
-   "hp": 8,
+   "cost": 4,
+   "atk": 6,
+   "hp": 9,
    "keywords": [
     "evade"
    ],
@@ -8926,9 +8926,9 @@
    "emoji": "⛰️🪶",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 4,
+   "cost": 3,
    "atk": 4,
-   "hp": 6,
+   "hp": 8,
    "keywords": [
     "evade"
    ],
@@ -8956,9 +8956,9 @@
    "emoji": "⛰️☁️",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 4,
-   "atk": 4,
-   "hp": 7,
+   "cost": 3,
+   "atk": 5,
+   "hp": 9,
    "keywords": [
     "evade"
    ],
@@ -8986,9 +8986,9 @@
    "emoji": "⛰️💨",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 5,
-   "atk": 5,
-   "hp": 8,
+   "cost": 4,
+   "atk": 6,
+   "hp": 9,
    "keywords": [
     "evade"
    ],
@@ -9016,9 +9016,9 @@
    "emoji": "⛰️🌪️",
    "name": "พายุทราย",
    "element": "earth",
-   "cost": 5,
-   "atk": 6,
-   "hp": 8,
+   "cost": 4,
+   "atk": 7,
+   "hp": 9,
    "keywords": [
     "evade"
    ],
@@ -9046,9 +9046,9 @@
    "emoji": "🪶☁️",
    "name": "เสริมพลัง",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 4,
-   "hp": 4,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -9076,9 +9076,9 @@
    "emoji": "🪶💨",
    "name": "เสริมพลัง",
    "element": "wind",
-   "cost": 3,
+   "cost": 2,
    "atk": 5,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "evade"
    ],
@@ -9106,9 +9106,9 @@
    "emoji": "🪶🌪️",
    "name": "เสริมพลัง",
    "element": "wind",
-   "cost": 4,
-   "atk": 5,
-   "hp": 5,
+   "cost": 3,
+   "atk": 6,
+   "hp": 7,
    "keywords": [
     "evade"
    ],
@@ -9136,9 +9136,9 @@
    "emoji": "☁️💨",
    "name": "เสริมพลัง",
    "element": "wind",
-   "cost": 4,
-   "atk": 5,
-   "hp": 5,
+   "cost": 3,
+   "atk": 6,
+   "hp": 7,
    "keywords": [
     "evade"
    ],
@@ -9166,9 +9166,9 @@
    "emoji": "☁️🌪️",
    "name": "เสริมพลัง",
    "element": "wind",
-   "cost": 4,
-   "atk": 6,
-   "hp": 6,
+   "cost": 3,
+   "atk": 7,
+   "hp": 8,
    "keywords": [
     "evade"
    ],
@@ -9196,9 +9196,9 @@
    "emoji": "💨🌪️",
    "name": "เสริมพลัง",
    "element": "wind",
-   "cost": 5,
-   "atk": 7,
-   "hp": 7,
+   "cost": 4,
+   "atk": 8,
+   "hp": 8,
    "keywords": [
     "evade"
    ],

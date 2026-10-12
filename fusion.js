@@ -3,7 +3,7 @@
 (function (root) {
   'use strict';
 
-  var CONFIG = { factor: 0.8, costDelta: 1 }; // ตัวคูณค่าพลัง และ Cost = ปัดขึ้น(เฉลี่ยแม่) + costDelta
+  var CONFIG = { factor: 0.9, costDelta: 0 }; // ตัวคูณค่าพลัง และ Cost = ปัดขึ้น(เฉลี่ยแม่) + costDelta (ตอนนี้ 0)
   // วงจรชนะทาง: แต่ละธาตุชนะธาตุถัดไป
   var CYCLE = ['fire', 'plant', 'earth', 'wind', 'electric', 'water'];
 

@@ -7,7 +7,7 @@
 
   // fuseInherit: การ์ดผสมโจมตีได้ทันที ถ้าแม่ทั้งสองพร้อมโจมตีอยู่
   // rush: การ์ด Haste/ลานเชียร์ที่เพิ่งลง โจมตีผู้เล่นไม่ได้ในเทิร์นที่ลง (ตีการ์ดศัตรูได้)
-  var RULES = { fuseInherit: true, rush: true };
+  var RULES = { fuseInherit: true, rush: true, fuseSlot2Turn: 9, fuseFirstDisc: true };
   var MAX_BOARD = 5, MAX_HAND = 8, MAX_MANA = 8, START_HP = 20, FATIGUE_DMG = 2;
 
   // ชนิดเป้าหมายของเวทย์แต่ละใบ
@@ -105,7 +105,7 @@
     G.turn++;
     P.maxMana = Math.min(MAX_MANA, P.maxMana + 1);
     P.mana = P.maxMana;
-    P.fusionsLeft = 1;
+    P.fusionsLeft = (RULES.fuseSlot2Turn && G.turn >= RULES.fuseSlot2Turn) ? 2 : 1; // กลางเกม (เทิร์นที่ 5 ของแต่ละคน) ผสมได้ 2 ครั้ง
     P.fusionBoost = false;
     G.players.forEach(function (Q) { Q.fusedNow = 0; Q.combo = 0; }); // ตัวนับคอมโบ: การลงการ์ด/เวทย์/ผสมในเทิร์นนี้
     O.board.forEach(function (u) { u.evaded = false; });
@@ -328,6 +328,7 @@
   function fuseCost(P, ua, ub, result) {
     var c = result.cost;
     if (P.field && (P.field.fx === 'library' || (P.field.element && (P.field.element === ua.card.element || P.field.element === ub.card.element)))) c = Math.max(1, c - 1);
+    if (RULES.fuseFirstDisc && P.fusedNow === 0) c = Math.max(1, c - 1); // ผสมครั้งแรกของเทิร์นลด 1
     return c;
   }
 
@@ -543,9 +544,10 @@
       if (P.fusedNow >= 2) { nu.baseMax += 2; nu.hp += 2; }
       log(G, P.field.name + ': ' + res.name + ' ATK +1' + (P.fusedNow >= 2 ? ' HP +2 (ผสมต่อเนื่อง)' : ''));
     }
-    if (RULES.fuseInherit && fa.u.attacksLeft > 0 && fb.u.attacksLeft > 0) {
+    if (RULES.fuseInherit && (fa.u.attacksLeft > 0 || fb.u.attacksLeft > 0)) { // แม่ใบใดใบหนึ่งพร้อมโจมตี ลูกก็โจมตีได้ทันที
       nu.attacksLeft = maxAttacks(nu);
-      nu.rushTurn = (fa.u.rushTurn === G.turn || fb.u.rushTurn === G.turn) ? G.turn : 0; // แม่ที่เพิ่งลงด้วย Haste ส่งต่อข้อจำกัดให้ลูก
+      var rd = [fa.u, fb.u].filter(function (x) { return x.attacksLeft > 0; });
+      nu.rushTurn = rd.every(function (x) { return x.rushTurn === G.turn; }) ? G.turn : 0; // ถ้าแม่ที่พร้อมโจมตีทั้งหมดเพิ่งลงด้วย Haste ส่งต่อข้อจำกัดให้ลูก
     }
     if (P.fusionBoost) { nu.atk += 1; nu.baseMax += 1; nu.hp += 1; }
     if (l.x) { nu.unstable = true; (G.disc = G.disc || []).push({ side: side, id: res.id }); log(G, '🧪 ' + P.name + ' ผสมมั่ว! ได้ ' + res.name + ' (ไม่เสถียร)'); }
