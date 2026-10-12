@@ -195,12 +195,15 @@
     body.appendChild(det);
     modalKind = '';
     $('#modal').hidden = false;
+    if (tour && STEPS[tour.i] && STEPS[tour.i].id === 'look') tour.detailSeen = true;
+    tourSync();
   }
   var modalKind = '';
   function closeModal() {
     $('#modal').hidden = true;
     if (modalKind === 'end') { modalKind = ''; closeBattle(); showView('battle'); }
     modalKind = '';
+    tourSync();
   }
 
   /* ---------- สถิติหัวเว็บ ---------- */
@@ -331,6 +334,7 @@
     list.forEach(function (c) {
       var e = cardEl(c, 'mini');
       if (c.tier >= 3) e.classList.add('dim');
+      e.setAttribute('data-id', c.id);
       e.onclick = function () { c.tier >= 3 ? showDetail(c) : pick(c); };
       box.appendChild(e);
     });
@@ -340,6 +344,7 @@
     renderSlots();
     $('#found-count').textContent = state.found.length;
     renderInventory();
+    tourSync();
   }
 
   /* =====================================================
@@ -640,6 +645,7 @@
     if (targets.indexOf(u.uid) >= 0) cls += ' tgt';
     if (side === 0 && myTurn && u.attacksLeft > 0 && B.curAtk(u) > 0) cls += ' ready';
     var d = make('div', cls);
+    d.setAttribute('data-id', u.card.id);
     var art = make('div', 'u-art');
     art.appendChild(spriteEl(u.card, 52));
     d.appendChild(art);
@@ -720,6 +726,7 @@
     hand.innerHTML = '';
     me.hand.forEach(function (c, i) {
       var e = cardEl(c, 'mini');
+      e.setAttribute('data-id', c.id);
       var playable = myTurn && c.cost <= me.mana && !(c.type === 'creature' && me.board.length >= B.MAX_BOARD);
       if (!playable) e.classList.add('dim');
       if (bs.sel && (bs.sel.k === 'hand' || bs.sel.k === 'spell') && bs.sel.i === i) e.classList.add('sel');
@@ -729,6 +736,7 @@
     if (!me.hand.length) hand.appendChild(make('div', 'empty', 'ไม่มีการ์ดในมือ'));
 
     renderAction();
+    tourSync();
   }
 
   function renderAction() {
@@ -904,16 +912,18 @@
     bs.over = true;
     var w = bs.G.over.winner, lvl = bs.level, st = state.stats[lvl];
     var title, reward;
-    if (w === 0) { st.w++; reward = REWARD[lvl]; title = '🏆 คุณชนะ!'; }
-    else if (w === 1) { st.l++; reward = REWARD.lose; title = '💥 คุณแพ้'; }
-    else { st.d = (st.d || 0) + 1; reward = REWARD.draw; title = '🤝 เสมอ'; }
+    var tut = !!bs.tutorial;
+    if (w === 0) { if (!tut) st.w++; reward = REWARD[lvl]; title = '🏆 คุณชนะ!'; }
+    else if (w === 1) { if (!tut) st.l++; reward = REWARD.lose; title = '💥 คุณแพ้'; }
+    else { if (!tut) st.d = (st.d || 0) + 1; reward = REWARD.draw; title = '🤝 เสมอ'; }
+    if (tut) reward = 0;
     state.coins += reward;
     save();
     renderStats();
     var body = $('#modal-body');
     body.innerHTML = '<div class="detail endgame"><h3>' + title + '</h3>' +
       '<div class="subline">เทิร์นที่ ' + bs.G.turn + ' · พบ ' + LEVEL_NAME[lvl] + '</div>' +
-      '<div class="reward">+' + reward + ' 🪙</div>' +
+      (tut ? '<div class="subline">แมตช์ฝึก ไม่นับรางวัลและสถิติ</div>' : '<div class="reward">+' + reward + ' 🪙</div>') +
       '<div class="actions"><button class="btn primary" id="end-again">เล่นอีกครั้ง</button><button class="btn" id="end-back">กลับเมนู</button></div></div>';
     $('#modal').hidden = false;
     modalKind = 'end';
@@ -939,7 +949,7 @@
   function quitBattle() {
     if (!bs) return;
     if (bs.over || confirm('ยอมแพ้และออกจากการต่อสู้?')) {
-      if (!bs.over && !bs.G.over) { state.stats[bs.level].l++; save(); }
+      if (!bs.over && !bs.G.over && !bs.tutorial) { state.stats[bs.level].l++; save(); }
       closeBattle();
       showView('battle');
     }
@@ -1011,11 +1021,134 @@
   function closeWhatsNew() {
     $('#whatsnew').hidden = true;
     try { localStorage.setItem(SEEN_KEY, VERSION); } catch (e) { /* ไม่เป็นไร */ }
+    maybeStartTour();
   }
   function checkWhatsNew() {
     var seen = null;
     try { seen = localStorage.getItem(SEEN_KEY); } catch (e) { /* ไม่เป็นไร */ }
-    if (seen !== VERSION) showWhatsNew();
+    if (seen !== VERSION) { showWhatsNew(); return true; }
+    return false;
+  }
+
+  /* =====================================================
+     ทัวร์สอนเล่น (ครั้งแรก ข้ามได้)
+     ===================================================== */
+  var TOUR_KEY = 'emoji-fusion-lab-tour';
+  var tour = null;
+  var mePlayed = function (id) { return !!bs && bs.G.players[0].board.some(function (u) { return u.card.id === id; }); };
+  var STEPS = [
+    { id: 'pick', pos: 'bottom', text: '<b>ขั้น 1/3 · ผสมการ์ด</b><br>แตะ 🔥 เปลวไฟ แล้วแตะ 💧 หยดน้ำ (ที่กะพริบ) เพื่อใส่ช่องผสม',
+      hl: ['#inventory [data-id=B02]', '#inventory [data-id=B05]'], done: function () { return !!(slots[0] && slots[1]); } },
+    { id: 'fuse', pos: 'bottom', text: 'ดีมาก! กดปุ่ม <b>⚗️ ผสม!</b>', hl: ['#btn-fuse'], done: function () { return !!result; } },
+    { id: 'look', pos: 'bottom', text: 'ได้การ์ดใหม่แล้ว! แตะ <b>การ์ดผลลัพธ์</b> ที่กะพริบ เพื่อดูความสามารถ',
+      hl: ['#slot-result'], done: function () { return !!tour.detailSeen; } },
+    { id: 'read', pos: 'top', text: '<b>ขั้น 2/3 · ดูความสามารถ</b><br>การ์ดผสมได้ความสามารถตามคู่ธาตุ + ความสามารถเฉพาะตัวของแม่ใบที่ Cost สูงกว่า อ่านแล้วกด ✕ เพื่อปิด',
+      hl: [], done: function () { return $('#modal').hidden; } },
+    { id: 'go', pos: 'top', text: 'ไปลองใช้ในการต่อสู้จริงกัน แมตช์ฝึกให้มานาพิเศษ 7 (เกมจริงเริ่มที่ 1 และเพิ่มทีละ 1) และไม่นับรางวัล',
+      hl: [], button: { label: 'เริ่มแมตช์ฝึก ▶', fn: function () { startTutorialBattle(); } } },
+    { id: 'play1', battle: true, pos: 'top', text: '<b>ขั้น 3/3 · แมตช์ฝึก</b><br>แตะ ⚡ หลอดไฟ ในมือ แล้วกด <b>⬇ ลงสนาม</b> (ธาตุไฟฟ้าลงแล้วโจมตีได้เลย)',
+      hl: ['#b-hand [data-id=B13]'], btns: ['ลงสนาม'], done: function () { return mePlayed('B13'); } },
+    { id: 'atk', battle: true, pos: 'top', text: 'แตะ ⚡ หลอดไฟ บนสนามของคุณ แล้วแตะ <b>ผู้เล่นศัตรูด้านบน</b> เพื่อโจมตี',
+      hl: ['#board-me [data-id=B13]'], hero: true, done: function () { return bs.G.players[0].board.some(function (u) { return u.attacked; }); } },
+    { id: 'play2', battle: true, pos: 'top', text: 'ลง 💧 หยดน้ำ และ 🔥 เปลวไฟ เพิ่ม (เตรียมผสมกันในสนาม)',
+      hl: ['#b-hand [data-id=B05]', '#b-hand [data-id=B02]'], btns: ['ลงสนาม'], done: function () { return mePlayed('B05') && mePlayed('B02'); } },
+    { id: 'fuse2', battle: true, pos: 'top', text: '<b>ผสมในสนาม</b><br>แตะ 💧 บนสนาม → กด ⚗️ ผสม → แตะ 🔥 → กด ⚗️ ยืนยันผสม',
+      hl: ['#board-me [data-id=B05]', '#board-me [data-id=B02]'], btns: ['ผสม'], done: function () { return bs.G.players[0].board.some(function (u) { return u.tier === 2; }); } },
+    { id: 'end', battle: true, pos: 'top', text: 'ปิดเทิร์นด้วย <b>จบเทิร์น</b>', hl: ['#btn-endturn'], done: function () { return bs.G.turn >= 2; } },
+    { id: 'wait', battle: true, pos: 'top', text: '⏳ ตาบอท กำลังเล่น… ดูว่าเขาลงอะไร',
+      hl: [], done: function () { return bs.G.active === 0 && bs.G.turn >= 3 && !bs.busy; } },
+    { id: 'fin', battle: true, pos: 'top', text: '🎓 <b>จบทัวร์!</b> คุณรู้พื้นฐานแล้ว: ลงการ์ด · โจมตี · ผสม · จบเทิร์น เล่นต่อได้เลย (แมตช์นี้ไม่นับรางวัล)',
+      hl: [], button: { label: 'เล่นต่อ', fn: function () { endTour(); } },
+      button2: { label: 'ออกจากแมตช์', fn: function () { endTour(); closeBattle(); showView('battle'); } } }
+  ];
+
+  function tourSeen() {
+    try { return localStorage.getItem(TOUR_KEY) === '1'; } catch (e) { return false; }
+  }
+  function tourMark() { try { localStorage.setItem(TOUR_KEY, '1'); } catch (e) { /* ไม่เป็นไร */ } }
+  function maybeStartTour() { if (!tour && !tourSeen()) startTour(); }
+
+  function startTour() {
+    if (bs) return;
+    tour = { i: 0, detailSeen: false };
+    slots = [null, null]; result = null; pool = 'base'; filter = 'all';
+    $all('.seg-btn[data-pool]').forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-pool') === 'base'); });
+    $('#modal').hidden = true;
+    showView('lab');
+    renderFilters();
+    renderLab();
+  }
+
+  function endTour() {
+    tour = null;
+    tourMark();
+    var p = $('#tour'); if (p) p.hidden = true;
+    $all('.tour-hl').forEach(function (e) { e.classList.remove('tour-hl'); });
+  }
+
+  function startTutorialBattle() {
+    var deck = DEFAULT_DECK.map(function (id) { return ALL_MAP[id]; }).filter(Boolean);
+    var G = B.create({
+      decks: [deck, makeBotDeck('easy')], names: ['คุณ', LEVEL_NAME.easy], first: 0,
+      knows: [{ all: true }, { all: false, set: {} }]
+    });
+    var me = G.players[0];
+    me.hand = [BASE_MAP.B13, BASE_MAP.B05, BASE_MAP.B02].concat(me.hand.slice(0, 2));
+    me.maxMana = 7; me.mana = 7;
+    bs = { G: G, level: 'easy', tutorial: true, sel: null, busy: false, over: false, prev: {}, prevHp: [G.players[0].hp, G.players[1].hp] };
+    tour.i = 5;
+    document.body.classList.add('in-battle');
+    $('#battle').hidden = false;
+    renderBattle();
+  }
+
+  function tourSync() {
+    if (!tour) return;
+    for (var k = 0; k < 20; k++) {
+      var st = STEPS[tour.i];
+      if (!st) { endTour(); return; }
+      if (st.battle && !bs) { endTour(); return; }
+      if (!st.done) break;
+      if (st.battle) {
+        var hi = -1;
+        for (var j = tour.i; j < STEPS.length; j++) if (STEPS[j].battle && STEPS[j].done && STEPS[j].done()) hi = j;
+        if (hi >= tour.i) { tour.i = hi + 1; continue; }
+        break;
+      }
+      if (st.done()) { tour.i++; continue; }
+      break;
+    }
+    tourPanel();
+  }
+
+  function tourPanel() {
+    var st = STEPS[tour.i];
+    if (!st) return;
+    var p = $('#tour');
+    if (!p) { p = make('div'); p.id = 'tour'; document.body.appendChild(p); }
+    p.hidden = false;
+    p.className = 'tour pos-' + st.pos;
+    p.innerHTML = '';
+    p.appendChild(make('div', 'tour-step', '🎓 ทัวร์สอนเล่น · ' + (tour.i + 1) + '/' + STEPS.length));
+    p.appendChild(make('div', 'tour-text', st.text));
+    var row = make('div', 'tour-row');
+    [st.button, st.button2].forEach(function (b) {
+      if (!b) return;
+      var e = make('button', 'btn small primary', b.label);
+      e.onclick = b.fn;
+      row.appendChild(e);
+    });
+    var skip = make('button', 'btn small', st.id === 'fin' ? 'ปิด' : 'ข้ามทัวร์');
+    skip.onclick = endTour;
+    row.appendChild(skip);
+    p.appendChild(row);
+
+    $all('.tour-hl').forEach(function (e) { e.classList.remove('tour-hl'); });
+    (st.hl || []).forEach(function (sel) { var e = document.querySelector(sel); if (e) e.classList.add('tour-hl'); });
+    if (st.btns) $all('#b-action button').forEach(function (b) {
+      if (st.btns.some(function (t) { return b.textContent.indexOf(t) >= 0; })) b.classList.add('tour-hl');
+    });
+    if (st.hero && bs && bs.sel && bs.sel.k === 'unit') $('#hero-opp').classList.add('tour-hl');
   }
 
   function fail(msg) {
@@ -1040,7 +1173,8 @@
         renderLab();
         $('#whatsnew-ok').onclick = closeWhatsNew;
         $('#btn-whatsnew').onclick = showWhatsNew;
-        checkWhatsNew();
+        $('#btn-tour').onclick = function () { startTour(); };
+        if (!checkWhatsNew()) maybeStartTour();
         window.EFL = { state: function () { return state; }, battle: function () { return bs; } };
       })
       .catch(function (e) {
