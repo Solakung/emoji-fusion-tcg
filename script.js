@@ -20,6 +20,8 @@
   var openGroups = {}, bookTab = 'recipes';
   var CARD_CACHE = {}, SPRITES = {};
   var bs = null; // เซสชันต่อสู้
+  function ME() { return (bs && bs.me) || 0; }   // ดัชนีผู้เล่นของเรา (บอท = 0 เสมอ, ออนไลน์: เจ้าของห้อง 0 / แขก 1)
+  function OP() { return 1 - ME(); }
 
   function $(s) { return document.querySelector(s); }
   function $all(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
@@ -208,6 +210,7 @@
   var modalKind = '';
   function closeModal() {
     if (modalKind === 'merge') { resolveMerge('merge'); return; }
+    if (modalKind === 'wait') cancelWaiting();
     $('#modal').hidden = true;
     if (modalKind === 'end') { modalKind = ''; closeBattle(); showView('battle'); }
     modalKind = '';
@@ -598,9 +601,10 @@
     var g = $('#goto-deck');
     if (g) g.onclick = function () { showView('deck'); };
     var st = state.stats;
+    var on = st.online || { w: 0, l: 0 };
     $('#battle-stats').innerHTML = ['easy', 'medium', 'hard'].map(function (k) {
       return '<div class="sum-box"><b>' + st[k].w + '–' + st[k].l + '</b><span>' + AVATAR[k] + ' ชนะ–แพ้</span></div>';
-    }).join('');
+    }).join('') + '<div class="sum-box"><b>' + on.w + '–' + on.l + '</b><span>🌐 ออนไลน์</span></div>';
   }
 
   function makeBotDeck(level) {
@@ -648,11 +652,11 @@
 
   function unitEl(u, side, targets) {
     var G = bs.G;
-    var myTurn = G.active === 0 && !G.over && !bs.busy;
+    var myTurn = G.active === ME() && !G.over && !bs.busy;
     var cls = 'unit el-' + u.element + (u.tier >= 2 ? ' tier' + u.tier : '');
     if (bs.sel && bs.sel.k === 'unit' && bs.sel.uid === u.uid) cls += ' sel';
     if (targets.indexOf(u.uid) >= 0) cls += ' tgt';
-    if (side === 0 && myTurn && u.attacksLeft > 0 && B.curAtk(u) > 0) cls += ' ready';
+    if (side === ME() && myTurn && u.attacksLeft > 0 && B.curAtk(u) > 0) cls += ' ready';
     var d = make('div', cls);
     d.setAttribute('data-id', u.card.id);
     var art = make('div', 'u-art');
@@ -678,11 +682,11 @@
 
   function currentTargets() {
     var G = bs.G, sel = bs.sel;
-    if (!sel || G.active !== 0 || bs.busy) return [];
-    if (sel.k === 'spell') return B.targetsFor(G, 0, sel.i);
-    if (sel.k === 'unit' && sel.mode === 'attack') return B.attackTargets(G, 0, sel.uid);
+    if (!sel || G.active !== ME() || bs.busy) return [];
+    if (sel.k === 'spell') return B.targetsFor(G, ME(), sel.i);
+    if (sel.k === 'unit' && sel.mode === 'attack') return B.attackTargets(G, ME(), sel.uid);
     if (sel.k === 'unit' && sel.mode === 'fuse') {
-      var me = G.players[0], out = [];
+      var me = G.players[ME()], out = [];
       me.board.forEach(function (u) {
         if (u.uid === sel.uid) return;
         var a = me.board.filter(function (x) { return x.uid === sel.uid; })[0];
@@ -693,15 +697,29 @@
     return [];
   }
 
+  function renderTurnLabel() {
+    if (!bs) return;
+    var G = bs.G, t;
+    if (G.over) t = 'จบเกม';
+    else if (G.active === ME()) t = bs.busy ? '…' : '🟢 ตาคุณ';
+    else t = '🔴 ตา' + (bs.online ? 'คู่ต่อสู้' : 'บอท');
+    if (bs.online && !G.over) {
+      var left = Math.max(0, Math.ceil((bs.online.deadline - Date.now()) / 1000));
+      t += ' ⏱' + left;
+      if (bs.online.dc) t = '⚠️ คู่ต่อสู้หลุด… ' + t;
+    }
+    $('#b-turn').textContent = t;
+  }
+
   function renderBattle() {
     if (!bs) return;
-    var G = bs.G, me = G.players[0], op = G.players[1];
-    var myTurn = G.active === 0 && !G.over && !bs.busy;
+    var G = bs.G, me = G.players[ME()], op = G.players[OP()];
+    var myTurn = G.active === ME() && !G.over && !bs.busy;
     var targets = currentTargets();
 
     // แถบฮีโร่
     var hOpp = $('#hero-opp'), hMe = $('#hero-me');
-    $('#opp-avatar').textContent = AVATAR[bs.level];
+    $('#opp-avatar').textContent = bs.online ? '🧑‍🎤' : AVATAR[bs.level];
     $('#opp-name').textContent = op.name;
     $('#opp-sub').innerHTML = manaText(op) + ' · 🂠' + op.deck.length + ' · ✋' + op.hand.length + (op.field ? ' · ' + op.field.emoji : '');
     $('#me-sub').innerHTML = manaText(me) + ' · 🂠' + me.deck.length + (me.field ? ' · ' + me.field.emoji : '');
@@ -709,7 +727,7 @@
     $('#me-hp').textContent = '❤ ' + Math.max(0, me.hp);
     hOpp.classList.toggle('tgt', targets.indexOf('opp') >= 0);
     hMe.classList.toggle('tgt', targets.indexOf('me') >= 0);
-    [['#opp-hp', 1], ['#me-hp', 0]].forEach(function (p) {
+    [['#opp-hp', OP()], ['#me-hp', ME()]].forEach(function (p) {
       var el = $(p[0]), hp = G.players[p[1]].hp, prev = bs.prevHp[p[1]];
       el.classList.remove('hit', 'heal');
       if (hp < prev) { void el.offsetWidth; el.classList.add('hit'); } else if (hp > prev) el.classList.add('heal');
@@ -717,7 +735,7 @@
     });
 
     // สนาม
-    [['#board-opp', op, 1], ['#board-me', me, 0]].forEach(function (cfg) {
+    [['#board-opp', op, OP()], ['#board-me', me, ME()]].forEach(function (cfg) {
       var box = $(cfg[0]);
       box.innerHTML = '';
       cfg[1].board.forEach(function (u) { box.appendChild(unitEl(u, cfg[2], targets)); });
@@ -727,7 +745,7 @@
     // บรรทัดกลาง
     var last = G.log.length ? G.log[G.log.length - 1].text : '—';
     $('#b-log').textContent = last;
-    $('#b-turn').textContent = G.over ? 'จบเกม' : (G.active === 0 ? (bs.busy ? '…' : '🟢 ตาคุณ') : '🔴 ตาบอท');
+    renderTurnLabel();
     $('#btn-endturn').disabled = !myTurn;
 
     // มือ
@@ -749,9 +767,9 @@
   }
 
   function renderAction() {
-    var G = bs.G, me = G.players[0], sel = bs.sel, bar = $('#b-action');
+    var G = bs.G, me = G.players[ME()], sel = bs.sel, bar = $('#b-action');
     bar.innerHTML = '';
-    var myTurn = G.active === 0 && !G.over && !bs.busy;
+    var myTurn = G.active === ME() && !G.over && !bs.busy;
     function btn(label, fn, cls, disabled) {
       var b = make('button', 'btn small ' + (cls || ''), label);
       b.disabled = !!disabled;
@@ -761,7 +779,7 @@
     }
     function info(html) { bar.insertBefore(make('div', 'a-info', html), bar.firstChild); }
 
-    if (!myTurn) { info(G.over ? 'เกมจบแล้ว' : '⏳ ตาบอท กำลังเล่น…'); return; }
+    if (!myTurn) { info(G.over ? 'เกมจบแล้ว' : '⏳ ตา' + (bs.online ? 'คู่ต่อสู้' : 'บอท') + ' กำลังเล่น…'); return; }
     if (!sel) { info('แตะการ์ดในมือเพื่อลง · แตะการ์ดบนสนามเพื่อโจมตี/ผสม'); return; }
 
     if (sel.k === 'hand' || sel.k === 'spell') {
@@ -780,7 +798,7 @@
       var cant = c.cost > me.mana ? 'Mana ไม่พอ' : (c.type === 'creature' && me.board.length >= B.MAX_BOARD ? 'สนามเต็ม' : '');
       if (c.type === 'spell' && B.needsTarget(c)) {
         btn('🎯 เลือกเป้าหมาย', function () {
-          if (!B.targetsFor(G, 0, sel.i).length) { toast('ไม่มีเป้าหมาย'); return; }
+          if (!B.targetsFor(G, ME(), sel.i).length) { toast('ไม่มีเป้าหมาย'); return; }
           bs.sel = { k: 'spell', i: sel.i }; renderBattle();
         }, 'primary', !!cant);
       } else {
@@ -798,7 +816,7 @@
       if (!u) { bs.sel = null; renderAction(); return; }
       var base = '<b>' + u.emoji + ' ' + u.name + '</b> ⚔' + B.curAtk(u) + ' ❤' + u.hp + '/' + B.maxHp(u);
       if (sel.mode === 'fuse' && sel.other) {
-        var pv = B.fusePreview(G, 0, sel.uid, sel.other);
+        var pv = B.fusePreview(G, ME(), sel.uid, sel.other);
         if (pv.ok) {
           info('ผสมได้ <b>' + pv.card.emoji + ' ' + pv.card.name + '</b> ⚔' + pv.card.atk + ' ❤' + pv.card.hp + ' · Cost ' + pv.cost +
             (pv.card.abilities.length ? ' · ' + pv.card.abilities.map(function (a) { return a.name; }).join(', ') : ''));
@@ -827,7 +845,8 @@
 
   function act(a) {
     if (!bs || bs.busy) return;
-    var r = B.apply(bs.G, 0, a);
+    if (bs.online) { sendOnline(a); return; }
+    var r = B.apply(bs.G, ME(), a);
     if (!r.ok) { toast(r.error); return; }
     bs.sel = null;
     renderBattle();
@@ -835,9 +854,9 @@
   }
 
   function onHandClick(i) {
-    var G = bs.G, c = G.players[0].hand[i];
+    var G = bs.G, c = G.players[ME()].hand[i];
     if (!c) return;
-    if (G.active !== 0 || bs.busy || G.over) { showDetail(c); return; }
+    if (G.active !== ME() || bs.busy || G.over) { showDetail(c); return; }
     bs.sel = { k: 'hand', i: i };
     renderBattle();
   }
@@ -847,18 +866,18 @@
     var found = null;
     G.players[side].board.forEach(function (u) { if (u.uid === uid) found = u; });
     if (!found) return;
-    if (G.active !== 0 || bs.busy || G.over) { showDetail(found.card); return; }
+    if (G.active !== ME() || bs.busy || G.over) { showDetail(found.card); return; }
 
     if (sel && sel.k === 'spell') {
-      if (B.targetsFor(G, 0, sel.i).indexOf(uid) >= 0) act({ t: 'play', hand: sel.i, target: uid });
+      if (B.targetsFor(G, ME(), sel.i).indexOf(uid) >= 0) act({ t: 'play', hand: sel.i, target: uid });
       else toast('เป้าหมายไม่ถูกต้อง');
       return;
     }
-    if (side === 1) {
+    if (side === OP()) {
       if (sel && sel.k === 'unit' && sel.mode === 'attack') {
-        if (B.attackTargets(G, 0, sel.uid).indexOf(uid) >= 0) act({ t: 'attack', unit: sel.uid, target: uid });
+        if (B.attackTargets(G, ME(), sel.uid).indexOf(uid) >= 0) act({ t: 'attack', unit: sel.uid, target: uid });
         else {
-          var hasTaunt = G.players[1].board.some(function (x) { return x.abil.indexOf('taunt') >= 0 || x.abil.indexOf('guard') >= 0; });
+          var hasTaunt = G.players[OP()].board.some(function (x) { return x.abil.indexOf('taunt') >= 0 || x.abil.indexOf('guard') >= 0; });
           toast(hasTaunt ? 'ต้องโจมตีตัวล่อก่อน' : 'โจมตีไม่ได้');
         }
         return;
@@ -878,23 +897,24 @@
   function onHeroClick(who) {
     if (!bs) return;
     var G = bs.G, sel = bs.sel;
-    if (G.active !== 0 || bs.busy || G.over || !sel) return;
+    if (G.active !== ME() || bs.busy || G.over || !sel) return;
     if (sel.k === 'spell') {
-      if (B.targetsFor(G, 0, sel.i).indexOf(who) >= 0) act({ t: 'play', hand: sel.i, target: who });
+      if (B.targetsFor(G, ME(), sel.i).indexOf(who) >= 0) act({ t: 'play', hand: sel.i, target: who });
       else toast('เป้าหมายไม่ถูกต้อง');
     } else if (sel.k === 'unit' && sel.mode === 'attack' && who === 'opp') {
-      if (B.attackTargets(G, 0, sel.uid).indexOf('opp') >= 0) act({ t: 'attack', unit: sel.uid, target: 'opp' });
+      if (B.attackTargets(G, ME(), sel.uid).indexOf('opp') >= 0) act({ t: 'attack', unit: sel.uid, target: 'opp' });
       else toast('ต้องโจมตีตัวล่อก่อน');
     }
   }
 
   function endMyTurn() {
-    if (!bs || bs.busy || bs.G.active !== 0 || bs.G.over) return;
+    if (!bs || bs.busy || bs.G.active !== ME() || bs.G.over) return;
     bs.sel = null;
-    var r = B.apply(bs.G, 0, { t: 'end' });
+    if (bs.online) { sendOnline({ t: 'end' }); return; }
+    var r = B.apply(bs.G, ME(), { t: 'end' });
     if (!r.ok) { toast(r.error); return; }
     renderBattle();
-    if (!checkEnd() && bs.G.active === 1) runBot();
+    if (!checkEnd() && !bs.online && bs.G.active === 1) runBot();
   }
 
   function runBot() {
@@ -919,11 +939,12 @@
   function checkEnd() {
     if (!bs || bs.over || !bs.G.over) return false;
     bs.over = true;
+    if (bs.online) { endOnline(); return true; }
     var w = bs.G.over.winner, lvl = bs.level, st = state.stats[lvl];
     var title, reward;
     var tut = !!bs.tutorial;
-    if (w === 0) { if (!tut) st.w++; reward = REWARD[lvl]; title = '🏆 คุณชนะ!'; }
-    else if (w === 1) { if (!tut) st.l++; reward = REWARD.lose; title = '💥 คุณแพ้'; }
+    if (w === ME()) { if (!tut) st.w++; reward = REWARD[lvl]; title = '🏆 คุณชนะ!'; }
+    else if (w === OP()) { if (!tut) st.l++; reward = REWARD.lose; title = '💥 คุณแพ้'; }
     else { if (!tut) st.d = (st.d || 0) + 1; reward = REWARD.draw; title = '🤝 เสมอ'; }
     if (tut) reward = 0;
     state.coins += reward;
@@ -942,6 +963,7 @@
   }
 
   function closeBattle() {
+    if (bs && bs.online) leaveOnline();
     bs = null;
     $('#battle').hidden = true;
     document.body.classList.remove('in-battle');
@@ -957,11 +979,335 @@
 
   function quitBattle() {
     if (!bs) return;
+    if (bs.online && !bs.over && !bs.G.over) {
+      if (confirm('ยอมแพ้และออกจากการต่อสู้?')) {
+        Online.setFinal(bs.online.code, { winner: OP(), reason: 'resign', by: ME() });
+        bs.finalReason = 'resign'; bs.G.over = { winner: OP() };
+        renderBattle(); checkEnd();
+      }
+      return;
+    }
     if (bs.over || confirm('ยอมแพ้และออกจากการต่อสู้?')) {
       if (!bs.over && !bs.G.over && !bs.tutorial) { state.stats[bs.level].l++; save(); }
       closeBattle();
       showView('battle');
     }
+  }
+
+
+  /* =====================================================
+     ออนไลน์ — ห้อง / จับคู่เร็ว / เล่นแบบ lockstep
+     ทั้งสองเครื่องรันเอนจินเดียวกันด้วย seed เดียวกัน แล้วแลกเปลี่ยนเฉพาะ "คำสั่ง"
+     ===================================================== */
+  var net = null;
+  var TURN_SECS = 90, ROOM_KEY = 'efl_room';
+  var EMOTES = ['👍 เก่งมาก', '😄 555', '😮 ว้าว', '🙏 ขอบคุณ', '😢 โอ๊ย', '⏩ เร็วหน่อย'];
+
+  function roomMark(code) { try { if (code) localStorage.setItem(ROOM_KEY, code); else localStorage.removeItem(ROOM_KEY); } catch (e) { } }
+  function myPayload() { return { d: state.deck.slice(), f: state.found.slice() }; }
+  function onlineReady() {
+    if (!window.Online) { toast('ออนไลน์ใช้ไม่ได้ตอนนี้ (กำลังเชื่อมต่อ หรือไม่มีอินเทอร์เน็ต)'); return false; }
+    if (bs) return false;
+    if (!validDeck()) { toast('เด็คต้องมี ' + DECK_SIZE + ' ใบก่อน'); showView('deck'); return false; }
+    return true;
+  }
+  function netFail(e) { toast((e && e.message) || 'เกิดข้อผิดพลาด'); }
+
+  function bindOnline() {
+    var q = $('#on-quick'), c = $('#on-create'), j = $('#on-join'), inp = $('#on-code');
+    if (!q) return;
+    q.onclick = function () {
+      if (!onlineReady()) return;
+      q.disabled = true;
+      window.Online.quick(myPayload(), false).then(function (r) { openNet(r.code, r.role); }).catch(netFail)
+        .then(function () { q.disabled = false; });
+    };
+    c.onclick = function () {
+      if (!onlineReady()) return;
+      window.Online.createRoom(myPayload(), {}).then(function (r) { openNet(r.code, 'host'); }).catch(netFail);
+    };
+    j.onclick = function () {
+      if (!onlineReady()) return;
+      var code = (inp.value || '').trim().toUpperCase();
+      if (code.length !== 5) { toast('รหัสห้องมี 5 ตัวอักษร'); return; }
+      window.Online.joinRoom(code, myPayload()).then(function (r) { openNet(r.code, 'guest'); }).catch(netFail);
+    };
+    $('#b-emote').onclick = toggleEmotePalette;
+  }
+
+  function openNet(code, role, rejoin) {
+    closeNet();
+    net = { code: code, role: role, queue: {}, hold: {}, st: {}, rejoin: !!rejoin, sawRoom: false, started: false, lastEmote: 0 };
+    var mine = net;
+    net.off = window.Online.listen(code, {
+      state: function (st) { if (net === mine) netState(st); },
+      action: function (i, v) {
+        if (net !== mine) return;
+        mine.queue[i] = v;
+        drain();
+      },
+      emote: function (v) { if (net === mine) onEmote(v); }
+    });
+    showWaiting();
+  }
+
+  function closeNet() {
+    if (!net) return;
+    try { if (net.off) net.off(); } catch (e) { }
+    try { if (net.pres) net.pres(); } catch (e) { }
+    net = null;
+  }
+
+  function showWaiting() {
+    var n = net; if (!n) return;
+    var txt = n.rejoin ? 'กำลังกลับเข้าเกม…' : n.role === 'host' ? 'รอคู่ต่อสู้…' : 'กำลังเข้าห้อง…';
+    $('#modal-body').innerHTML = '<div class="detail endgame"><h3>🌐 ' + txt + '</h3>' +
+      (n.role === 'host' ? '<div class="subline">แชร์รหัสนี้ให้เพื่อน หรือรอคนจับคู่เร็ว</div><div class="room-code" id="rc">' + n.code + '</div>' +
+        '<div class="actions"><button class="btn" id="rc-copy">คัดลอกรหัส</button></div>' : '') +
+      '<div class="actions"><button class="btn" id="rc-cancel">ยกเลิก</button></div></div>';
+    $('#modal').hidden = false;
+    modalKind = 'wait';
+    var cp = $('#rc-copy');
+    if (cp) cp.onclick = function () {
+      try { navigator.clipboard.writeText(n.code); toast('คัดลอกแล้ว'); } catch (e) { toast('รหัสห้อง: ' + n.code); }
+    };
+    $('#rc-cancel').onclick = function () { closeModal(); };
+  }
+
+  function cancelWaiting() {
+    modalKind = '';
+    var n = net;
+    if (!n || n.started) return;
+    if (n.role === 'host' && !n.rejoin) window.Online.cancelRoom(n.code, false);
+    roomMark(null);
+    closeNet();
+  }
+
+  function netState(st) {
+    var n = net; n.st = st;
+    if (st.host) n.sawRoom = true;
+    if (!n.started) {
+      if (n.sawRoom && !st.host) { modalKind = ''; $('#modal').hidden = true; roomMark(null); closeNet(); toast('ห้องถูกยกเลิก'); return; }
+      if (n.role === 'host' && !n.rejoin && st.guest && st.status === 'waiting' && !n.starting) {
+        n.starting = true;
+        window.Online.startGame(n.code).catch(function (e) { n.starting = false; netFail(e); });
+      }
+      if (st.status === 'playing' && st.host && st.guest && st.decks && st.decks[st.host.uid] && st.decks[st.guest.uid] &&
+          st.seed != null && st.first != null) beginGame();
+      return;
+    }
+    if (bs && bs.online) {
+      if (st.final && !bs.G.over) {
+        bs.finalReason = st.final.reason;
+        bs.G.over = { winner: st.final.winner };
+        renderBattle(); checkEnd();
+      }
+      evalPresence();
+    }
+  }
+
+  function cleanName(n) { return String(n || '').replace(/[^\p{L}\p{N}_ ]/gu, '').slice(0, 16) || 'ผู้เล่น'; }
+
+  function beginGame() {
+    var n = net, st = n.st, uid = window.Online.user().uid;
+    n.started = true;
+    var me = st.host.uid === uid ? 0 : 1;
+    var parsed, decks, knows;
+    try {
+      parsed = [JSON.parse(st.decks[st.host.uid]), JSON.parse(st.decks[st.guest.uid])];
+      decks = parsed.map(function (p) {
+        var cnt = {};
+        if (!Array.isArray(p.d) || p.d.length !== DECK_SIZE) throw new Error('size');
+        return p.d.map(function (id) {
+          if (typeof id !== 'string' || (cnt[id] = (cnt[id] || 0) + 1) > MAX_COPIES) throw new Error('copies');
+          var c = getCard(id); if (!c || !c.type) throw new Error('card');
+          return c;
+        });
+      });
+      knows = parsed.map(function (p) { var s = {}; (Array.isArray(p.f) ? p.f : []).forEach(function (id) { if (typeof id === 'string') s[id] = true; }); return { all: false, set: s }; });
+    } catch (e) {
+      toast('เด็คไม่ถูกต้อง เกมถูกยกเลิก');
+      window.Online.setFinal(n.code, { winner: me, reason: 'baddeck', by: me });
+      closeNet(); roomMark(null); modalKind = ''; $('#modal').hidden = true;
+      return;
+    }
+    var G = B.create({ decks: decks, names: [cleanName(st.host.name), cleanName(st.guest.name)], knows: knows, seed: st.seed, first: st.first });
+    bs = {
+      G: G, level: 'online', sel: null, busy: false, over: false, prev: {}, prevHp: [G.players[0].hp, G.players[1].hp], me: me,
+      online: { code: n.code, next: 0, pending: false, forcing: false, timeouts: [0, 0], deadline: Date.now() + TURN_SECS * 1000,
+        startedAt: Date.now(), uids: [st.host.uid, st.guest.uid], dc: false, lastActive: G.active }
+    };
+    bs.online.timer = setInterval(onlineTick, 1000);
+    n.pres = window.Online.presence(n.code);
+    roomMark(n.code);
+    modalKind = ''; $('#modal').hidden = true;
+    document.body.classList.add('in-battle');
+    $('#battle').hidden = false;
+    $('#b-emote').hidden = false;
+    drain(true);
+    renderBattle();
+    if (st.final) netState(st);
+  }
+
+  // นำคำสั่งที่ยืนยันแล้วมาใช้ตามลำดับ
+  function drain(quiet) {
+    if (!bs || !bs.online || !net) return;
+    var o = bs.online, G = bs.G, applied = false;
+    while (net.queue[o.next] && !net.hold[o.next]) {
+      var v = net.queue[o.next]; delete net.queue[o.next]; o.next++;
+      o.forcing = false;
+      if (v.by === ME()) o.pending = false;
+      if (v.by !== 0 && v.by !== 1) continue;
+      var a; try { a = JSON.parse(v.a); } catch (e) { continue; }
+      var r = B.apply(G, v.by, a);
+      if (!r.ok) continue;
+      applied = true;
+      if (v.forced) {
+        o.timeouts[v.by]++;
+        if (o.timeouts[v.by] >= 3 && !G.over) window.Online.setFinal(o.code, { winner: 1 - v.by, reason: 'idle', by: ME() });
+      } else o.timeouts[v.by] = 0;
+      if (v.by !== ME()) bs.sel = null;
+      if (G.active !== o.lastActive) { o.lastActive = G.active; o.deadline = Date.now() + TURN_SECS * 1000; }
+    }
+    if (applied && !quiet) { renderBattle(); checkEnd(); }
+    else if (applied) checkEnd();
+  }
+
+  function sendOnline(a) {
+    var o = bs.online;
+    if (o.pending || bs.G.over) return;
+    var t = B.apply(B.clone(bs.G), ME(), a);
+    if (!t.ok) { toast(t.error); return; }
+    pushAction(ME(), a, false, true);
+    bs.sel = null; renderBattle();
+  }
+
+  function pushAction(side, a, forced, mine) {
+    var o = bs.online, idx = o.next, json = JSON.stringify(a), n = net, session = bs;
+    if (mine) o.pending = true; else o.forcing = true;
+    n.hold[idx] = true;
+    window.Online.sendAction(o.code, idx, side, json, forced).then(function () {
+      if (net !== n) return;
+      delete n.hold[idx]; drain();
+    }).catch(function () {
+      if (net !== n || bs !== session) return;
+      delete n.hold[idx];
+      var q = n.queue[idx];
+      if (q && q.by === side && q.a === json) delete n.queue[idx];
+      if (mine) { o.pending = false; toast('ส่งคำสั่งไม่สำเร็จ ลองอีกครั้ง'); }
+      else o.forcing = false;
+      drain(); renderBattle();
+    });
+  }
+
+  function onlineTick() {
+    if (!bs || !bs.online) return;
+    var o = bs.online, G = bs.G;
+    if (bs.over || G.over) { renderTurnLabel(); return; }
+    renderTurnLabel();
+    var left = (o.deadline - Date.now()) / 1000;
+    if (o.pending || o.forcing || document.hidden && G.active !== ME()) return;
+    if (G.active === ME() && left <= 0) { toast('หมดเวลา จบเทิร์นให้อัตโนมัติ'); pushAction(ME(), { t: 'end' }, true, false); }
+    else if (G.active === OP() && left <= -8) pushAction(OP(), { t: 'end' }, true, false);
+  }
+
+  function evalPresence() {
+    if (!bs || !bs.online || !net) return;
+    var o = bs.online, pr = net.st.presence || {}, ou = o.uids[OP()], v = pr[ou];
+    var gone = v === false || (v === undefined && Date.now() - o.startedAt > 45000);
+    if (gone && !o.dcTimer && !bs.G.over) {
+      o.dc = true;
+      o.dcTimer = setTimeout(function () {
+        o.dcTimer = null;
+        var p2 = (net && net.st.presence) || {};
+        if (bs && bs.online === o && !bs.G.over && p2[ou] !== true) window.Online.setFinal(o.code, { winner: ME(), reason: 'dc', by: ME() });
+      }, 20000);
+    } else if (!gone && o.dcTimer) { clearTimeout(o.dcTimer); o.dcTimer = null; o.dc = false; }
+    else if (!gone) o.dc = false;
+    renderTurnLabel();
+  }
+
+  function leaveOnline() {
+    var o = bs.online;
+    clearInterval(o.timer); clearTimeout(o.dcTimer);
+    roomMark(null);
+    closeNet();
+    $('#b-emote').hidden = true;
+    $('#emote-pal').hidden = true;
+  }
+
+  var REASON = { resign: 'ยอมแพ้', dc: 'หลุดการเชื่อมต่อ', idle: 'ไม่ได้เล่นหลายเทิร์น', baddeck: 'เด็คไม่ถูกต้อง' };
+  function endOnline() {
+    var G = bs.G, o = bs.online, w = G.over.winner, turn = G.turn;
+    if (!bs.finalReason) window.Online.setFinal(o.code, { winner: w, reason: 'game', by: ME() });
+    clearInterval(o.timer);
+    roomMark(null);
+    var st = state.stats.online = state.stats.online || { w: 0, l: 0, d: 0 };
+    var title, reward;
+    if (w === ME()) { st.w++; reward = 30; title = '🏆 คุณชนะ!'; }
+    else if (w === OP()) { st.l++; reward = 10; title = '💥 คุณแพ้'; }
+    else { st.d = (st.d || 0) + 1; reward = 15; title = '🤝 เสมอ'; }
+    if (turn < 4) reward = 0;
+    state.coins += reward;
+    save(); renderStats();
+    var why = REASON[bs.finalReason];
+    var oppName = G.players[OP()].name;
+    var whyTxt = why ? (w === ME() ? (bs.finalReason === 'resign' ? 'คู่ต่อสู้ยอมแพ้' : 'คู่ต่อสู้ ' + why) : (bs.finalReason === 'resign' ? 'คุณยอมแพ้' : why)) : '';
+    $('#modal-body').innerHTML = '<div class="detail endgame"><h3>' + title + '</h3>' +
+      '<div class="subline">เทิร์นที่ ' + turn + ' · พบ ' + esc(oppName) + (whyTxt ? ' · ' + whyTxt : '') + '</div>' +
+      (reward ? '<div class="reward">+' + reward + ' 🪙</div>' : '<div class="subline">เกมสั้นเกินไป ไม่มีรางวัล</div>') +
+      '<div class="actions"><button class="btn primary" id="end-back">กลับเมนู</button></div></div>';
+    $('#modal').hidden = false;
+    modalKind = 'end';
+    $('#end-back').onclick = function () { closeModal(); };
+  }
+
+  /* ---------- อีโมต ---------- */
+  function toggleEmotePalette() {
+    var pal = $('#emote-pal');
+    if (!pal.hidden) { pal.hidden = true; return; }
+    pal.innerHTML = '';
+    EMOTES.forEach(function (e) {
+      var b = make('button', 'btn small', e);
+      b.onclick = function () { pal.hidden = true; sendEmote(e); };
+      pal.appendChild(b);
+    });
+    var muted = emoteMuted();
+    var m = make('button', 'btn small', muted ? '🔔 เปิดอีโมตคู่ต่อสู้' : '🔕 ซ่อนอีโมตคู่ต่อสู้');
+    m.onclick = function () { try { localStorage.setItem('efl_mute', muted ? '' : '1'); } catch (e) { } pal.hidden = true; };
+    pal.appendChild(m);
+    pal.hidden = false;
+  }
+  function emoteMuted() { try { return !!localStorage.getItem('efl_mute'); } catch (e) { return false; } }
+  function sendEmote(e) {
+    if (!bs || !bs.online || !net) return;
+    if (Date.now() - net.lastEmote < 2500) { toast('ส่งอีโมตถี่เกินไป'); return; }
+    net.lastEmote = Date.now();
+    window.Online.sendEmote(net.code, ME(), e).catch(function () { });
+  }
+  function onEmote(v) {
+    if (!bs || !bs.online || !v || typeof v.e !== 'string') return;
+    if (typeof v.t === 'number' && window.Online.now() - v.t > 6000) return;
+    var mineSide = v.by === ME();
+    if (!mineSide && emoteMuted()) return;
+    var host = $(mineSide ? '#hero-me' : '#hero-opp');
+    var b = make('div', 'emote-bubble ' + (mineSide ? 'me' : 'opp'), esc(v.e.slice(0, 20)));
+    host.appendChild(b);
+    setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 2600);
+  }
+
+  /* ---------- กลับเข้าเกมที่ค้าง ---------- */
+  function checkRejoin() {
+    var code; try { code = localStorage.getItem(ROOM_KEY); } catch (e) { }
+    if (!code || !window.Online || !window.Online.user() || bs || net) return;
+    window.Online.getRoom(code).then(function (room) {
+      var u = window.Online.user();
+      if (!u || !room || room.status !== 'playing' || room.final || !room.guest || (room.host.uid !== u.uid && room.guest.uid !== u.uid) ||
+          window.Online.now() - (room.startedAt || 0) > 3 * 3600 * 1000) { roomMark(null); return; }
+      if (bs || net) return;
+      if (confirm('มีเกมออนไลน์ที่ยังค้างอยู่ กลับเข้าไปเล่นต่อไหม?')) openNet(code, room.host.uid === u.uid ? 'host' : 'guest', true);
+      else roomMark(null);
+    }).catch(function () { roomMark(null); });
   }
 
   /* =====================================================
@@ -1013,7 +1359,8 @@
         toast('ล้างข้อมูลแล้ว');
       }
     };
-    $all('.level').forEach(function (b) { b.onclick = function () { startBattle(b.getAttribute('data-level')); }; });
+    $all('.level[data-level]').forEach(function (b) { b.onclick = function () { startBattle(b.getAttribute('data-level')); }; });
+    bindOnline();
     $('#btn-autodeck').onclick = autoDeck;
     $('#btn-cleardeck').onclick = function () { state.deck = []; save(); renderDeck(); };
     $('#btn-pack').onclick = openPack;
@@ -1284,6 +1631,7 @@
 
   function handleAuth(u) {
     var first = !startupDone;
+    if (first) setTimeout(checkRejoin, 1200);
     if (!u || u.isAnonymous) {
       cloud.user = null; cloud.name = null; cloud.status = 'guest'; renderAccount();
       if (first) startup();

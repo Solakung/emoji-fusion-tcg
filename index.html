@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14121f">
   <title>Emoji Fusion TCG</title>
-  <link rel="stylesheet" href="style.css?v=0.7">
+  <link rel="stylesheet" href="style.css?v=0.8">
 </head>
 <body>
   <header class="top">
@@ -55,9 +55,16 @@
 
     <!-- ต่อสู้ (เมนู) -->
     <section id="view-battle" class="view">
-      <h2 class="sec">ต่อสู้กับบอท</h2>
-      <div id="account-card" class="notice acc"></div>
+            <div id="account-card" class="notice acc"></div>
       <div id="battle-deck-status" class="notice"></div>
+      <h2 class="sec">🌐 ต่อสู้ออนไลน์</h2>
+      <div class="online-box">
+        <button id="on-quick" class="btn primary">⚡ จับคู่เร็ว</button>
+        <button id="on-create" class="btn">🔑 สร้างห้องส่วนตัว</button>
+        <div class="join-row"><input id="on-code" maxlength="5" placeholder="รหัสห้อง 5 ตัว" autocomplete="off" autocapitalize="characters"><button id="on-join" class="btn">เข้าห้อง</button></div>
+        <small>เล่นกับคนจริงแบบเรียลไทม์ · ใช้เด็คของคุณ · มีเวลา 90 วินาทีต่อเทิร์น</small>
+      </div>
+      <h2 class="sec">🤖 ต่อสู้กับบอท</h2>
       <div class="levels">
         <button class="level" data-level="easy">
           <span class="lv-ico">🐣</span>
@@ -166,6 +173,8 @@
     <div class="b-action" id="b-action"></div>
     <div class="b-hand" id="b-hand"></div>
     <button class="b-quit" id="btn-quit" aria-label="ยอมแพ้">🏳️</button>
+    <button class="b-emote" id="b-emote" aria-label="อีโมต" hidden>💬</button>
+    <div class="emote-pal" id="emote-pal" hidden></div>
   </div>
 
   <div id="modal" class="modal" hidden>
@@ -199,9 +208,9 @@
   </div>
   <div id="toast" class="toast" hidden></div>
 
-  <script src="fusion.js?v=0.7"></script>
-  <script src="battle.js?v=0.7"></script>
-  <script src="script.js?v=0.7"></script>
-  <script type="module" src="online.js?v=0.7"></script>
+  <script src="fusion.js?v=0.8"></script>
+  <script src="battle.js?v=0.8"></script>
+  <script src="script.js?v=0.8"></script>
+  <script type="module" src="online.js?v=0.8"></script>
 </body>
 </html>

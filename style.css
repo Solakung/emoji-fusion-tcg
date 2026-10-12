@@ -373,3 +373,19 @@ h1 { white-space: nowrap; font-size: 16px; }
 .wl-box .btn { display: block; width: 100%; margin: 0 0 10px; padding: 14px; font-size: 17px; }
 .wl-box small { display: block; margin-top: 14px; font-size: 12px; line-height: 1.5; color: var(--muted, #a8a3c7); }
 .wl-box .btn.primary { max-width: none; flex: none; }
+
+/* ออนไลน์ */
+.online-box { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #1d1a33; }
+.online-box small { color: #9a96c4; font-size: 12px; }
+.join-row { display: flex; gap: 8px; }
+.join-row input { flex: 1; min-width: 0; padding: 10px; border-radius: 10px; border: 2px solid var(--line); background: #14122a; color: #fff; font-size: 16px; letter-spacing: 3px; text-transform: uppercase; text-align: center; }
+.room-code { font-size: 38px; font-weight: 800; letter-spacing: 8px; margin: 10px 0; color: #ffd86b; }
+.b-emote { position: absolute; top: calc(8px + env(safe-area-inset-top)); right: 46px; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--line); background: #231f3c; font-size: 14px; padding: 0; z-index: 2; opacity: .85; }
+.b-hero.opp { margin-right: 82px; }
+.emote-pal { position: absolute; right: 8px; top: calc(44px + env(safe-area-inset-top)); z-index: 5; display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 12px; background: #231f3c; border: 2px solid var(--line); }
+.emote-pal[hidden] { display: none; }
+.b-hero { position: relative; }
+.emote-bubble { position: absolute; left: 50%; transform: translateX(-50%); z-index: 6; padding: 6px 12px; border-radius: 14px; background: #fff; color: #222; font-weight: 700; font-size: 14px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.4); animation: emo 2.6s ease-out forwards; pointer-events: none; }
+.emote-bubble.opp { top: 100%; }
+.emote-bubble.me { bottom: 100%; }
+@keyframes emo { 0% { opacity: 0; transform: translateX(-50%) scale(.6); } 10% { opacity: 1; transform: translateX(-50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
