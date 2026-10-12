@@ -42,7 +42,7 @@
     BASE.forEach(function (c) { owned[c.id] = 1; });
     STARTER_SPELLS.forEach(function (id) { owned[id] = 1; });
     return {
-      found: [], points: 0, coins: 120, owned: owned, deck: DEFAULT_DECK.slice(),
+      found: [], points: 0, coins: 120, owned: owned, deck: DEFAULT_DECK.slice(), uid: null, ts: 0,
       stats: { easy: { w: 0, l: 0, d: 0 }, medium: { w: 0, l: 0, d: 0 }, hard: { w: 0, l: 0, d: 0 } }
     };
   }
@@ -57,13 +57,20 @@
         if (o && typeof o.coins === 'number') s.coins = o.coins;
         if (o && o.owned && typeof o.owned === 'object') s.owned = o.owned;
         if (o && Array.isArray(o.deck)) s.deck = o.deck;
+        if (o && typeof o.uid === 'string') s.uid = o.uid;
+        if (o && typeof o.ts === 'number') s.ts = o.ts;
         if (o && o.stats) { ['easy', 'medium', 'hard'].forEach(function (k) { if (o.stats[k]) s.stats[k] = o.stats[k]; }); }
       }
     } catch (e) { /* ใช้ค่าเริ่มต้น */ }
     state = s;
   }
-  function save() {
+  function saveLocal() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ไม่เป็นไร */ }
+  }
+  function save() {
+    state.ts = Date.now();
+    saveLocal();
+    schedulePush();
   }
 
   function getCard(id) {
@@ -200,6 +207,7 @@
   }
   var modalKind = '';
   function closeModal() {
+    if (modalKind === 'merge') { resolveMerge('merge'); return; }
     $('#modal').hidden = true;
     if (modalKind === 'end') { modalKind = ''; closeBattle(); showView('battle'); }
     modalKind = '';
@@ -581,6 +589,7 @@
      ต่อสู้ — เมนู
      ===================================================== */
   function renderBattleMenu() {
+    renderAccount();
     var ok = validDeck();
     var n = $('#battle-deck-status');
     n.className = 'notice ' + (ok ? 'ok' : 'warn');
@@ -1151,6 +1160,223 @@
     if (st.hero && bs && bs.sel && bs.sel.k === 'unit') $('#hero-opp').classList.add('tour-hl');
   }
 
+  /* =====================================================
+     บัญชีผู้เล่น + เซฟบนคลาวด์ (ใช้ window.Online จาก online.js)
+     ===================================================== */
+  var cloud = { status: 'connecting', user: null, name: null, last: 0, timer: null, started: false, pending: null };
+
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function payload() { return { found: state.found, points: state.points, coins: state.coins, owned: state.owned, deck: state.deck, stats: state.stats }; }
+  function sig(x) { return JSON.stringify({ f: x.found, p: x.points, c: x.coins, o: x.owned, d: x.deck, s: x.stats }); }
+  function pristine(s) { return sig(s) === sig(defaultState()); }
+
+  function normalize(c) {
+    var d = defaultState();
+    var s = { found: Array.isArray(c.found) ? c.found.filter(function (x) { return typeof x === 'string'; }) : [],
+      points: +c.points || 0, coins: typeof c.coins === 'number' ? c.coins : d.coins,
+      owned: (c.owned && typeof c.owned === 'object') ? c.owned : d.owned,
+      deck: Array.isArray(c.deck) ? c.deck : d.deck, stats: d.stats };
+    ['easy', 'medium', 'hard'].forEach(function (k) {
+      var o = c.stats && c.stats[k];
+      if (o) s.stats[k] = { w: +o.w || 0, l: +o.l || 0, d: +o.d || 0 };
+    });
+    return s;
+  }
+
+  function mergeStates(a, b) { // a = ในเครื่อง, b = บนคลาวด์ (รวมแบบไม่ทำให้เสียของฝั่งใด)
+    var m = defaultState();
+    var seen = {};
+    m.found = b.found.concat(a.found).filter(function (id) { if (seen[id]) return false; seen[id] = 1; return true; });
+    m.points = Math.max(a.points, b.points);
+    m.coins = Math.max(a.coins, b.coins);
+    m.owned = {};
+    Object.keys(a.owned).concat(Object.keys(b.owned)).forEach(function (id) {
+      m.owned[id] = Math.max(a.owned[id] || 0, b.owned[id] || 0);
+    });
+    m.deck = (b.ts || 0) > (a.ts || 0) ? b.deck : a.deck;
+    ['easy', 'medium', 'hard'].forEach(function (k) {
+      m.stats[k] = { w: Math.max(a.stats[k].w, b.stats[k].w), l: Math.max(a.stats[k].l, b.stats[k].l), d: Math.max(a.stats[k].d, b.stats[k].d) };
+    });
+    return m;
+  }
+
+  function refreshAll() {
+    state.found = state.found.filter(function (id) { return !!getCard(id); });
+    renderStats(); renderLab(); renderBook(); renderDeck(); renderBattleMenu();
+  }
+
+  function adopt(next, uid, ts) { // ใช้ข้อมูลชุดใหม่แทนของเดิมในเครื่อง
+    state = next; state.uid = uid; state.ts = ts || Date.now();
+    var owned = state.owned;
+    state.deck = state.deck.filter(function (id) { return !!ALL_MAP[id]; });
+    var cnt = {};
+    state.deck = state.deck.filter(function (id) { cnt[id] = (cnt[id] || 0) + 1; return cnt[id] <= (owned[id] || 0); });
+    if (state.deck.length !== DECK_SIZE) state.deck = DEFAULT_DECK.slice();
+    saveLocal();
+    refreshAll();
+  }
+
+  function pushNow() {
+    if (!cloud.user || state.uid !== cloud.user.uid || !window.Online) return Promise.resolve();
+    clearTimeout(cloud.timer); cloud.timer = null;
+    cloud.status = 'syncing'; renderAccount();
+    return window.Online.pushSave(cloud.user.uid, JSON.stringify(payload()), state.ts).then(function () {
+      cloud.last = Date.now(); cloud.status = 'member'; renderAccount();
+    }).catch(function () { cloud.status = 'error'; renderAccount(); });
+  }
+  function schedulePush() {
+    if (!cloud.user || state.uid !== cloud.user.uid) return;
+    clearTimeout(cloud.timer);
+    cloud.timer = setTimeout(pushNow, 1500);
+  }
+
+  function syncDown(u) {
+    return window.Online.loadSave(u.uid).then(function (cs) {
+      var cstate = null;
+      if (cs && cs.data) { try { cstate = normalize(JSON.parse(cs.data)); cstate.ts = cs.updatedAt || 0; } catch (e) { cstate = null; } }
+      if (!cstate) { state.uid = u.uid; state.ts = state.ts || Date.now(); saveLocal(); return pushNow(); } // บัญชีใหม่: อัปโหลดข้อมูลในเครื่องขึ้นไป
+      if (state.uid === u.uid) {                                        // เครื่องนี้ผูกกับบัญชีนี้อยู่แล้ว: ใช้ชุดที่ใหม่กว่า
+        if (cstate.ts > (state.ts || 0)) { adopt(cstate, u.uid, cstate.ts); cloud.last = Date.now(); cloud.status = 'member'; renderAccount(); return null; }
+        return pushNow();
+      }
+      if (pristine(state)) { adopt(cstate, u.uid, cstate.ts); cloud.last = Date.now(); cloud.status = 'member'; renderAccount(); return null; }
+      askMerge(u, cstate);                                              // ทั้งสองฝั่งมีข้อมูล: ให้ผู้เล่นเลือก
+      return null;
+    });
+  }
+
+  function askMerge(u, cstate) {
+    cloud.pending = { user: u, cstate: cstate };
+    $('#modal-body').innerHTML = '<div class="detail"><h3>พบข้อมูลทั้งสองที่</h3>' +
+      '<p class="muted">บัญชีนี้มีเซฟบนคลาวด์ และเครื่องนี้ก็มีข้อมูลที่เล่นไว้ เลือกวิธีรวม</p>' +
+      '<div class="actions wrap"><button class="btn primary" id="mg-merge">รวมข้อมูล (แนะนำ)</button>' +
+      '<button class="btn" id="mg-cloud">ใช้ของคลาวด์ ทิ้งของเครื่องนี้</button></div>' +
+      '<p class="muted">รวม = ได้การ์ดและสูตรจากทั้งสองที่ ใช้ค่าเหรียญและแต้มที่สูงกว่า</p></div>';
+    modalKind = 'merge';
+    $('#modal').hidden = false;
+    $('#mg-merge').onclick = function () { resolveMerge('merge'); };
+    $('#mg-cloud').onclick = function () { resolveMerge('cloud'); };
+  }
+  function resolveMerge(mode) {
+    var p = cloud.pending; cloud.pending = null;
+    modalKind = ''; $('#modal').hidden = true;
+    if (!p) return;
+    var next = mode === 'cloud' ? p.cstate : mergeStates(normalizeLocal(), p.cstate);
+    adopt(next, p.user.uid, Date.now());
+    pushNow().then(function () { toast(mode === 'cloud' ? 'ใช้ข้อมูลจากคลาวด์แล้ว' : 'รวมข้อมูลแล้ว'); });
+    afterSync();
+  }
+  function normalizeLocal() { var s = normalize(payload()); s.ts = state.ts || 0; return s; }
+
+  function afterSync() { if (cloud.user && !cloud.name) openNameModal(); }
+
+  function handleAuth(u) {
+    if (!u || u.isAnonymous) {
+      cloud.user = null; cloud.name = null; cloud.status = 'guest'; renderAccount(); return;
+    }
+    cloud.user = u; cloud.status = 'syncing'; renderAccount();
+    window.Online.getProfile(u.uid).then(function (p) { cloud.name = p ? p.name : null; }).catch(function () { })
+      .then(function () { return syncDown(u); })
+      .then(function () { if (!cloud.pending) afterSync(); })
+      .catch(function () { cloud.status = 'error'; renderAccount(); });
+  }
+
+  function initCloud() {
+    if (cloud.started || !window.Online) return;
+    cloud.started = true; cloud.status = 'guest'; renderAccount();
+    window.Online.onAuth(handleAuth);
+  }
+
+  function renderAccount() {
+    var box = $('#account-card'); if (!box) return;
+    var st = cloud.status, html = '', btns = [];
+    if (st === 'offline') html = '☁️ ออนไลน์ใช้ไม่ได้ตอนนี้ · เล่นออฟไลน์ได้ตามปกติ';
+    else if (st === 'connecting') html = '☁️ กำลังเชื่อมต่อ…';
+    else if (st === 'guest') {
+      html = '👤 <b>เล่นแบบแขก</b><br><small>ข้อมูลอยู่ในเครื่องนี้เท่านั้น ล็อกอินเพื่อเซฟไว้บนคลาวด์</small>';
+      btns.push(['เข้าสู่ระบบ / สมัคร', function () { openAuthModal('login'); }, 'primary']);
+    } else {
+      var who = cloud.name ? '<b>' + esc(cloud.name) + '</b>' : '<b>ยังไม่ตั้งชื่อ</b>';
+      var sync = st === 'syncing' ? 'กำลังซิงก์…' : st === 'error' ? '⚠️ ซิงก์ไม่สำเร็จ'
+        : cloud.last ? '☁️ ซิงก์แล้ว ' + new Date(cloud.last).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '☁️ ล็อกอินแล้ว';
+      html = '👤 ' + who + '<br><small>' + sync + '</small>';
+      if (!cloud.name) btns.push(['ตั้งชื่อ', openNameModal, 'primary']);
+      if (st === 'error') btns.push(['ลองใหม่', function () { pushNow(); }]);
+      btns.push(['ออกจากระบบ', doLogout]);
+    }
+    box.innerHTML = '';
+    box.appendChild(make('div', 'acc-text', html));
+    var row = make('div', 'acc-btns');
+    btns.forEach(function (b) { var e = make('button', 'btn small ' + (b[2] || ''), b[0]); e.onclick = b[1]; row.appendChild(e); });
+    if (btns.length) box.appendChild(row);
+  }
+
+  function openAuthModal(mode) {
+    if (!window.Online) { toast('ออนไลน์ใช้ไม่ได้ตอนนี้'); return; }
+    var reg = mode === 'reg';
+    $('#modal-body').innerHTML = '<div class="detail authbox"><h3>บัญชีผู้เล่น</h3>' +
+      '<div class="seg"><button class="seg-btn' + (reg ? '' : ' active') + '" id="au-t-login">เข้าสู่ระบบ</button>' +
+      '<button class="seg-btn' + (reg ? ' active' : '') + '" id="au-t-reg">สมัครใหม่</button></div>' +
+      '<label class="fld">อีเมล<input id="au-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off"></label>' +
+      '<label class="fld">รหัสผ่าน (อย่างน้อย 6 ตัว)<input id="au-pass" type="password" autocomplete="' + (reg ? 'new-password' : 'current-password') + '"></label>' +
+      '<div class="au-msg" id="au-msg"></div>' +
+      '<div class="actions"><button class="btn primary" id="au-go">' + (reg ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ') + '</button></div>' +
+      (reg ? '' : '<button class="linkbtn" id="au-forgot">ลืมรหัสผ่าน?</button>') +
+      '<p class="muted">เซฟการ์ด เหรียญ เด็ค ไว้บนคลาวด์ เล่นต่อได้ทุกเครื่อง</p></div>';
+    modalKind = ''; $('#modal').hidden = false;
+    $('#au-t-login').onclick = function () { openAuthModal('login'); };
+    $('#au-t-reg').onclick = function () { openAuthModal('reg'); };
+    var msg = function (t) { $('#au-msg').textContent = t || ''; };
+    var go = $('#au-go');
+    go.onclick = function () {
+      var email = $('#au-email').value.trim(), pass = $('#au-pass').value;
+      if (!email || !pass) { msg('กรอกอีเมลและรหัสผ่านก่อน'); return; }
+      go.disabled = true; msg('กำลังดำเนินการ…');
+      (reg ? window.Online.register(email, pass) : window.Online.login(email, pass)).then(function () {
+        closeModal(); toast(reg ? 'สมัครสำเร็จ' : 'เข้าสู่ระบบแล้ว');
+      }).catch(function (e) { go.disabled = false; msg(e.message); });
+    };
+    var fg = $('#au-forgot');
+    if (fg) fg.onclick = function () {
+      var email = $('#au-email').value.trim();
+      if (!email) { msg('กรอกอีเมลก่อน แล้วกดลืมรหัสผ่านอีกครั้ง'); return; }
+      window.Online.reset(email).then(function () { msg('ส่งลิงก์ตั้งรหัสผ่านใหม่ไปที่อีเมลแล้ว (เช็คจดหมายขยะด้วย)'); })
+        .catch(function (e) { msg(e.message); });
+    };
+  }
+
+  function openNameModal() {
+    if (!window.Online || !cloud.user) return;
+    $('#modal-body').innerHTML = '<div class="detail authbox"><h3>ตั้งชื่อผู้เล่น</h3>' +
+      '<p class="muted">ชื่อนี้จะโชว์ให้คนอื่นเห็นตอนเล่นออนไลน์และในตารางอันดับ ไม่ซ้ำกับคนอื่น</p>' +
+      '<label class="fld">ชื่อ (2–16 ตัว)<input id="nm-input" maxlength="16" autocomplete="off"></label>' +
+      '<div class="au-msg" id="nm-msg"></div>' +
+      '<div class="actions"><button class="btn primary" id="nm-go">ตกลง</button></div></div>';
+    modalKind = ''; $('#modal').hidden = false;
+    var go = $('#nm-go');
+    go.onclick = function () {
+      go.disabled = true; $('#nm-msg').textContent = 'กำลังตรวจสอบ…';
+      window.Online.setName($('#nm-input').value).then(function (p) {
+        cloud.name = p.name; closeModal(); renderAccount(); toast('ตั้งชื่อแล้ว: ' + p.name);
+      }).catch(function (e) { go.disabled = false; $('#nm-msg').textContent = e.message; });
+    };
+  }
+
+  function doLogout() {
+    if (!window.Online || !confirm('ออกจากระบบ? ข้อมูลของคุณอยู่บนคลาวด์แล้ว (เครื่องนี้จะกลับเป็นค่าเริ่มต้น)')) return;
+    pushNow().then(function () {
+      if (cloud.status === 'error' && !confirm('ซิงก์ครั้งล่าสุดไม่สำเร็จ ออกต่อจะเสียความคืบหน้าล่าสุด ออกเลยไหม?')) return null;
+      return window.Online.logout().then(function () {
+        state = defaultState(); state.uid = null; state.ts = 0; saveLocal();
+        slots = [null, null]; result = null; refreshAll(); toast('ออกจากระบบแล้ว');
+      });
+    });
+  }
+
+  window.addEventListener('efl-online', initCloud);
+  document.addEventListener('visibilitychange', function () { if (document.hidden && cloud.timer) pushNow(); });
+  setTimeout(function () { if (!cloud.started) { cloud.status = 'offline'; renderAccount(); } }, 7000);
+
   function fail(msg) {
     $('#view-lab').innerHTML = '<div class="empty">' + msg + '</div>';
   }
@@ -1173,6 +1399,7 @@
         renderLab();
         $('#whatsnew-ok').onclick = closeWhatsNew;
         $('#btn-whatsnew').onclick = showWhatsNew;
+        initCloud();
         $('#btn-tour').onclick = function () { startTour(); };
         if (!checkWhatsNew()) maybeStartTour();
         window.EFL = { state: function () { return state; }, battle: function () { return bs; } };

@@ -1,0 +1,28 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "efl": {
+      "users": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && auth.token.firebase.sign_in_provider !== 'anonymous'",
+          "profile": {
+            ".read": "auth != null",
+            ".validate": "newData.hasChildren(['name','key']) && newData.child('name').isString() && newData.child('name').val().length >= 2 && newData.child('name').val().length <= 16 && newData.child('key').isString() && newData.child('key').val().length <= 32"
+          },
+          "save": {
+            ".validate": "newData.hasChildren(['data','updatedAt']) && newData.child('data').isString() && newData.child('data').val().length < 60000 && newData.child('updatedAt').isNumber()"
+          }
+        }
+      },
+      "names": {
+        "$name": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.token.firebase.sign_in_provider !== 'anonymous' && (!data.exists() || data.val() === auth.uid) && (!newData.exists() || newData.val() === auth.uid)",
+          ".validate": "newData.isString() && $name.length <= 32"
+        }
+      }
+    }
+  }
+}
