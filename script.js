@@ -641,6 +641,26 @@
     }
   }
 
+  function tearPack(kind, elem, done) {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || (window.EFL && window.EFL.noTear)) { done(); return; }
+    var st = make('div', 'pack-stage');
+    var foil = make('div', 'foil ' + kind + (kind === 'elem' ? ' e-' + elem : ''));
+    foil.innerHTML = '<div class="foil-top"></div><div class="foil-body"><span class="foil-ico">🧪</span><b>EMOJI FUSION</b><small>' + (kind === 'rare' ? 'ซองหายาก' : kind === 'elem' ? 'ซองธาตุ ' + F.ELEMENTS[elem].emoji : 'ซองการ์ด') + '</small></div><div class="foil-glow"></div>';
+    st.appendChild(foil);
+    var hint = make('div', 'tear-hint', 'แตะเพื่อฉีกซอง');
+    st.appendChild(hint);
+    document.body.appendChild(st);
+    var torn = false;
+    function tear() {
+      if (torn) return; torn = true;
+      hint.remove(); foil.classList.add('tearing'); st.classList.add('burst');
+      setTimeout(function () { st.classList.add('out'); setTimeout(function () { if (st.parentNode) st.parentNode.removeChild(st); done(); }, 320); }, 950);
+    }
+    st.onclick = tear;
+    setTimeout(tear, 3500);
+  }
+
   function revealPack(res) {
     var token = ++revealToken, box = $('#pack-result'), sum = $('#pack-summary'), packEl = document.querySelector('.shop-box .pack');
     box.innerHTML = ''; sum.innerHTML = '';
@@ -676,7 +696,6 @@
     });
     var all = $('#pack-flipall'); all.hidden = false;
     all.onclick = function () { res.items.forEach(function (x, k) { setTimeout(function () { flip(k); }, k * 160); }); };
-    if (packEl) { packEl.classList.add('shake'); setTimeout(function () { packEl.classList.remove('shake'); }, 650); }
   }
 
   function openPack(kind, elem, cost) {
@@ -703,7 +722,7 @@
     var res = showPack(cards);
     save();
     renderStats(); renderShop();
-    revealPack(res);
+    tearPack(kind, elem, function () { revealPack(res); });
   }
 
   function excessList() {
@@ -2341,7 +2360,7 @@
         $('#wl-guest').onclick = closeWelcome;
         $('#wl-login').onclick = function () { openAuthModal('login'); };
         setTimeout(startup, 2500);
-        window.EFL = { roll: function (k, e) { return rollPack(k, e); }, state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
+        window.EFL = { noTear: false, roll: function (k, e) { return rollPack(k, e); }, state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
       })
       .catch(function (e) {
         if (window.console) console.error(e);

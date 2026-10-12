@@ -9,6 +9,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   p.on('pageerror', (e) => console.log('ERR', e.message)); await p.route('**/online.js*', (r) => r.abort());
   await p.addInitScript(() => { localStorage.setItem('emoji-fusion-lab-seen', '0.8'); localStorage.setItem('emoji-fusion-lab-tour', '1'); localStorage.setItem('emoji-fusion-lab-welcome', '1'); });
   await p.goto('http://127.0.0.1:' + srv.address().port + '/'); await p.waitForTimeout(2000);
+  await p.evaluate(() => { window.EFL.noTear = true; });
   const dist = await p.evaluate(() => { const c = { common: 0, uncommon: 0, rare: 0 }; let n = 0; for (let i = 0; i < 4000; i++) window.EFL.roll('normal').forEach((x) => { c[x.rarity]++; n++; }); return { c, n }; });
   const pr = (k) => dist.c[k] / dist.n;
   ok(pr('rare') < 0.1 && pr('rare') > 0.02, 'หายาก ~ ' + (pr('rare') * 100).toFixed(1) + '%');

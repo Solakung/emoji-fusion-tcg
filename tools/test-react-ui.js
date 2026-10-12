@@ -9,6 +9,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   p.on('pageerror', (e) => console.log('ERR', e.message)); await p.route('**/online.js*', (r) => r.abort());
   await p.addInitScript(() => { localStorage.setItem('emoji-fusion-lab-seen', '0.8'); localStorage.setItem('emoji-fusion-lab-tour', '1'); localStorage.setItem('emoji-fusion-lab-welcome', '1'); });
   await p.goto('http://127.0.0.1:' + srv.address().port + '/'); await p.waitForTimeout(2500);
+  await p.evaluate(() => { window.EFL.noTear = true; });
   // ซอง
   await p.evaluate(() => { window.EFL.state().coins = 5000; document.querySelector('.tab[data-view=shop]').click(); });
   for (let i = 0; i < 40; i++) await p.click('#btn-pack');
