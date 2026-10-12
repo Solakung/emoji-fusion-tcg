@@ -1025,7 +1025,7 @@
   }
 
   /* ---------- มีอะไรใหม่ ---------- */
-  var VERSION = '0.4', SEEN_KEY = 'emoji-fusion-lab-seen';
+  var VERSION = '0.5', SEEN_KEY = 'emoji-fusion-lab-seen';
   function showWhatsNew() { $('#whatsnew').hidden = false; }
   function closeWhatsNew() {
     $('#whatsnew').hidden = true;
