@@ -325,12 +325,17 @@
       rs.appendChild(make('span', 'slot-hint', '?'));
     }
     $('#btn-fuse').disabled = !both;
+    var fc = both ? labCost(F.fuse(slots[0], slots[1])) : 0;
+    $('#btn-fuse').textContent = fc ? '⚗️ ผสม! (' + fc + ' ✨)' : '⚗️ ผสม!';
     $('#btn-continue').hidden = !(result && result.tier < 3);
 
     if (!result) {
       if (!both) setMsg('เลือกการ์ด 2 ใบแล้วกดผสม');
       else if (preview) setMsg('รู้สูตรนี้แล้ว: จะได้ ' + preview.name);
-      else setMsg('ยังไม่รู้ว่าจะได้อะไร… ลองผสมดู!');
+      else {
+        var pf = F.fuse(slots[0], slots[1]), pc = labCost(pf);
+        setMsg(pc ? 'ผสมสูตรขั้น 3 ที่ยังไม่รู้ ต้องใช้ ' + pc + ' ✨ เศษการ์ด (มี ' + state.shards + ')' : 'ยังไม่รู้ว่าจะได้อะไร… ลองผสมดู!');
+      }
     }
   }
 
@@ -343,11 +348,18 @@
     return base;
   }
 
+  // ผสมสูตรขั้น 3 ที่ยังไม่เคยค้นพบ ต้องเสียเศษการ์ด (ใบซ้ำที่แปลงเป็นเศษมีประโยชน์ และกันการไล่ผสมมั่วๆ)
+  var T3_SHARDS = 3;
+  function labCost(r) { return r && r.tier === 3 && state.found.indexOf(r.id) < 0 ? T3_SHARDS : 0; }
+
   function doFuse() {
     if (!slots[0] || !slots[1]) return;
     var r = F.fuse(slots[0], slots[1]);
     if (!r) { toast('ผสมคู่นี้ไม่ได้'); return; }
     CARD_CACHE[r.id] = r;
+    var shardCost = labCost(r);
+    if (shardCost > state.shards) { toast('สูตรขั้น 3 ใหม่ต้องใช้ ' + shardCost + ' ✨ เศษการ์ด (มี ' + state.shards + ') — ได้เศษจากใบซ้ำที่เกิน 2 ใบ'); return; }
+    if (shardCost) { state.shards -= shardCost; }
     var isNew = state.found.indexOf(r.id) < 0;
     var pts = 0, coins = 0;
     if (isNew) {
@@ -364,7 +376,7 @@
     renderLab();
     renderStats();
     setMsg(isNew
-      ? '🎉 ค้นพบสูตรใหม่! ได้ ' + r.name + ' (+' + pts + ' แต้ม' + (coins ? ' +' + coins + ' 🪙' : ' · เหรียญวันนี้ครบ ' + DISC_COIN_CAP + ' สูตรแล้ว') + ')'
+      ? '🎉 ค้นพบสูตรใหม่! ได้ ' + r.name + ' (' + (shardCost ? '-' + shardCost + ' ✨ ' : '') + '+' + pts + ' แต้ม' + (coins ? ' +' + coins + ' 🪙' : ' · เหรียญวันนี้ครบ ' + DISC_COIN_CAP + ' สูตรแล้ว') + ')'
       : 'ได้ ' + r.name + ' (สูตรที่เคยค้นพบแล้ว)', isNew);
   }
 
@@ -2276,6 +2288,7 @@
     { id: 'cards', emoji: '🎁', title: 'ซอง เศษการ์ด และของสะสม', sub: 'เปิดซองยังไง ใบซ้ำไปไหน การันตีหายาก', kind: 'text',
       body: '<ul><li><b>ซองการ์ด 30 🪙</b> 5 ใบ ไม่ซ้ำกันในซอง ได้เหรียญจากชนะบอท ค้นพบสูตร และภารกิจ</li>' +
         '<li><b>หาเหรียญ</b> ชนะบอท ภารกิจรายวัน โบนัสล็อกอิน และค้นพบสูตรใหม่ในห้องทดลอง (เหรียญเต็มวันละ <b>10 สูตรแรก</b> หลังจากนั้นได้แต้มอย่างเดียว)</li>' +
+        '<li><b>ใช้เศษการ์ดผสม</b> สูตรขั้น 3 ที่ยังไม่เคยค้นพบ เสีย 3 ✨ ต่อครั้งในห้องทดลอง (สูตรที่เจอแล้วและขั้น 2 ฟรี)</li>' +
         '<li><b>ซองตามชุด 40 🪙</b> การ์ดชุดพิเศษเฉพาะซองนี้ ใบสุดท้ายการันตีพิเศษขึ้นไป การ์ดชุดนำไปผสมได้ในห้องทดลอง</li>' +
         '<li><b>ความหายาก</b> ธรรมดา · พิเศษ · หายาก ซองปกติการันตีใบหายากทุก 10 ซอง (ดูตัวนับในร้าน)</li>' +
         '<li><b>ถือได้ 2 ใบต่อชนิด</b> ใบที่เกินเปลี่ยนเป็น ✨ เศษการ์ดอัตโนมัติ (ธรรมดา 2 · พิเศษ 5 · หายาก 12) และกดแลกใบเกินที่ค้างได้</li>' +
@@ -2662,8 +2675,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.26').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.26')
+    var setsP = fetch('sets.json?v=0.27').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.27')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
