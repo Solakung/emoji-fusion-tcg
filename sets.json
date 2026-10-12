@@ -19,7 +19,7 @@
      "element": "fire",
      "cost": 1,
      "atk": 1,
-     "hp": 2,
+     "hp": 3,
      "keywords": [],
      "abilities": [
       {
@@ -40,7 +40,7 @@
      "element": "fire",
      "cost": 1,
      "atk": 2,
-     "hp": 1,
+     "hp": 2,
      "keywords": [],
      "abilities": [
       {
@@ -61,7 +61,7 @@
      "element": "plant",
      "cost": 2,
      "atk": 2,
-     "hp": 2,
+     "hp": 3,
      "keywords": [],
      "abilities": [
       {
@@ -82,7 +82,7 @@
      "element": "earth",
      "cost": 2,
      "atk": 1,
-     "hp": 3,
+     "hp": 4,
      "keywords": [],
      "abilities": [
       {
@@ -103,7 +103,7 @@
      "element": "wind",
      "cost": 2,
      "atk": 2,
-     "hp": 2,
+     "hp": 3,
      "keywords": [
       "haste"
      ],
@@ -120,7 +120,7 @@
      "element": "water",
      "cost": 3,
      "atk": 3,
-     "hp": 4,
+     "hp": 5,
      "keywords": [],
      "abilities": [
       {
@@ -141,7 +141,7 @@
      "element": "fire",
      "cost": 3,
      "atk": 4,
-     "hp": 3,
+     "hp": 4,
      "keywords": [],
      "abilities": [
       {
@@ -162,7 +162,7 @@
      "element": "earth",
      "cost": 3,
      "atk": 3,
-     "hp": 3,
+     "hp": 4,
      "keywords": [],
      "abilities": [
       {
@@ -183,7 +183,7 @@
      "element": "electric",
      "cost": 3,
      "atk": 4,
-     "hp": 2,
+     "hp": 3,
      "keywords": [],
      "abilities": [
       {
@@ -204,7 +204,7 @@
      "element": "wind",
      "cost": 3,
      "atk": 2,
-     "hp": 3,
+     "hp": 4,
      "keywords": [],
      "abilities": [
       {
@@ -225,7 +225,7 @@
      "element": "fire",
      "cost": 4,
      "atk": 5,
-     "hp": 4,
+     "hp": 5,
      "keywords": [],
      "abilities": [
       {
@@ -246,7 +246,7 @@
      "element": "electric",
      "cost": 4,
      "atk": 4,
-     "hp": 5,
+     "hp": 6,
      "keywords": [],
      "abilities": [
       {
@@ -257,6 +257,267 @@
      ],
      "rarity": "rare",
      "set": "dragon"
+    }
+   ]
+  },
+  {
+   "id": "space",
+   "name": "จักรวาลลึกลับ",
+   "emoji": "🚀",
+   "color": [
+    "#0b1d6e",
+    "#00d4ff"
+   ],
+   "desc": "ดวงดาวและสิ่งมีชีวิตนอกโลก 12 ใบ",
+   "cards": [
+    {
+     "id": "SP01",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🛰️",
+     "name": "ดาวเทียม",
+     "element": "electric",
+     "cost": 1,
+     "atk": 1,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "jolt",
+       "name": "ช็อตไฟ",
+       "text": "ตอนลงสนาม ผู้เล่นศัตรูโดน 1 ดาเมจ"
+      }
+     ],
+     "rarity": "common",
+     "set": "space"
+    },
+    {
+     "id": "SP02",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "☄️",
+     "name": "ดาวหาง",
+     "element": "fire",
+     "cost": 1,
+     "atk": 2,
+     "hp": 2,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "lastflame",
+       "name": "ไฟสุดท้าย",
+       "text": "ตอนถูกกำจัด ผู้เล่นศัตรูโดน 1 ดาเมจ"
+      }
+     ],
+     "rarity": "common",
+     "set": "space"
+    },
+    {
+     "id": "SP03",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🌙",
+     "name": "ดวงจันทร์",
+     "element": "earth",
+     "cost": 2,
+     "atk": 1,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      }
+     ],
+     "rarity": "common",
+     "set": "space"
+    },
+    {
+     "id": "SP04",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "👽",
+     "name": "มนุษย์ต่างดาว",
+     "element": "wind",
+     "cost": 2,
+     "atk": 2,
+     "hp": 3,
+     "keywords": [
+      "evade"
+     ],
+     "abilities": [],
+     "rarity": "common",
+     "set": "space"
+    },
+    {
+     "id": "SP05",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🚀",
+     "name": "จรวด",
+     "element": "fire",
+     "cost": 2,
+     "atk": 3,
+     "hp": 2,
+     "keywords": [
+      "haste"
+     ],
+     "abilities": [],
+     "rarity": "common",
+     "set": "space"
+    },
+    {
+     "id": "SP06",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🌍",
+     "name": "โลก",
+     "element": "plant",
+     "cost": 3,
+     "atk": 2,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "bloom",
+       "name": "ออกดอก",
+       "text": "ตอนลงสนาม พวกเดียวกันทุกตัวฟื้น HP 2"
+      }
+     ],
+     "rarity": "common",
+     "set": "space"
+    },
+    {
+     "id": "SP07",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🌠",
+     "name": "ดาวตก",
+     "element": "fire",
+     "cost": 3,
+     "atk": 4,
+     "hp": 3,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "burn",
+       "name": "เผาไหม้",
+       "text": "โจมตีแล้วเป้าหมายโดนเผา 1 ดาเมจ/เทิร์น (2 เทิร์น)"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "space"
+    },
+    {
+     "id": "SP08",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🛸",
+     "name": "จานบิน",
+     "element": "electric",
+     "cost": 3,
+     "atk": 3,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "attract",
+       "name": "ดูดพลัง",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุด ATK -2 เทิร์นนี้"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "space"
+    },
+    {
+     "id": "SP09",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🌌",
+     "name": "กาแล็กซี",
+     "element": "water",
+     "cost": 3,
+     "atk": 2,
+     "hp": 5,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "freeze",
+       "name": "แช่แข็ง",
+       "text": "ตอนลงสนาม ศัตรูตัวที่ ATK สูงสุดโจมตีไม่ได้ 1 เทิร์น"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "space"
+    },
+    {
+     "id": "SP10",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🔭",
+     "name": "กล้องดูดาว",
+     "element": "wind",
+     "cost": 3,
+     "atk": 2,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "gust",
+       "name": "ลมหมุน",
+       "text": "ตอนลงสนาม จั่วการ์ด 1 ใบ"
+      }
+     ],
+     "rarity": "uncommon",
+     "set": "space"
+    },
+    {
+     "id": "SP11",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🕳️",
+     "name": "หลุมดำ",
+     "element": "earth",
+     "cost": 4,
+     "atk": 3,
+     "hp": 6,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "guard",
+       "name": "ปราการ",
+       "text": "ศัตรูต้องโจมตีตัวนี้ก่อน (Taunt)"
+      },
+      {
+       "id": "trap",
+       "name": "กับดัก",
+       "text": "ตอนถูกโจมตี ผู้โจมตีเสีย ATK 1 ถาวร"
+      }
+     ],
+     "rarity": "rare",
+     "set": "space"
+    },
+    {
+     "id": "SP12",
+     "type": "creature",
+     "tier": 1,
+     "emoji": "🌟",
+     "name": "ซูเปอร์โนวา",
+     "element": "fire",
+     "cost": 4,
+     "atk": 5,
+     "hp": 4,
+     "keywords": [],
+     "abilities": [
+      {
+       "id": "firestorm",
+       "name": "พายุเพลิง",
+       "text": "ตอนลงสนาม ศัตรูทุกตัวโดน 1 ดาเมจ"
+      }
+     ],
+     "rarity": "rare",
+     "set": "space"
     }
    ]
   }
