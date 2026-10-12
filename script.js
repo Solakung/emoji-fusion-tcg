@@ -39,6 +39,24 @@
   }
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
+  /* ---------- ช่องเซฟเด็ค: state.deck = เด็คของช่องที่ใช้อยู่เสมอ, state.decks = ทุกช่อง ---------- */
+  var SLOT_MIN = 5, SLOT_MAX = 20, SLOT_BASE_PRICE = 50, SLOT_STEP = 10;
+  function slotPrice(have) { return SLOT_BASE_PRICE + SLOT_STEP * (have - SLOT_MIN); } // have = จำนวนช่องที่มีอยู่ตอนนี้ (5→50, 6→60, … 19→190)
+  function slotName(i) { var d = state.decks && state.decks[i]; return (d && d.n) || ('เด็ค ' + (i + 1)); }
+  function ensureSlots(s) {
+    var cleanDeckArr = function (a) { return Array.isArray(a) ? a.filter(function (x) { return typeof x === 'string'; }).slice(0, 40) : []; };
+    s.deckSlots = Math.max(SLOT_MIN, Math.min(SLOT_MAX, Math.floor(+s.deckSlots) || SLOT_MIN));
+    var arr = Array.isArray(s.decks) ? s.decks.slice(0, SLOT_MAX) : [];
+    s.decks = arr.map(function (x) { return { n: (x && typeof x.n === 'string') ? x.n.slice(0, 14) : '', d: cleanDeckArr(x && x.d) }; });
+    while (s.decks.length < s.deckSlots) s.decks.push({ n: '', d: [] });
+    s.deckSlots = Math.max(s.deckSlots, Math.min(SLOT_MAX, s.decks.length));
+    s.deckIdx = Math.max(0, Math.min(s.deckSlots - 1, Math.floor(+s.deckIdx) || 0));
+    if (!Array.isArray(s.deck)) s.deck = [];
+    s.decks[s.deckIdx].d = s.deck.slice();
+    return s;
+  }
+  function syncActive() { if (state.decks && state.decks[state.deckIdx]) state.decks[state.deckIdx].d = state.deck.slice(); }
+
   /* ---------- บันทึกข้อมูล ---------- */
   function defaultState() {
     var owned = {};
@@ -47,6 +65,7 @@
     owned.R01 = 1; owned.R04 = 1;
     return {
       found: [], points: 0, coins: 120, owned: owned, deck: DEFAULT_DECK.slice(), uid: null, ts: 0, shards: 0, pity: 0,
+      deckSlots: SLOT_MIN, deckIdx: 0, decks: [],
       stats: { easy: { w: 0, l: 0, d: 0 }, medium: { w: 0, l: 0, d: 0 }, hard: { w: 0, l: 0, d: 0 }, online: { w: 0, l: 0, d: 0 } },
       daily: { d: '', last: '', streak: 0, login: false, m: {} }
     };
@@ -62,6 +81,7 @@
         if (o && typeof o.coins === 'number') s.coins = o.coins;
         if (o && o.owned && typeof o.owned === 'object') s.owned = o.owned;
         if (o && Array.isArray(o.deck)) s.deck = o.deck;
+        if (o && Array.isArray(o.decks)) { s.decks = o.decks; s.deckSlots = o.deckSlots; s.deckIdx = o.deckIdx; }
         if (o && typeof o.uid === 'string') s.uid = o.uid;
         if (o && typeof o.ts === 'number') s.ts = o.ts;
         if (o && typeof o.shards === 'number') s.shards = o.shards;
@@ -71,12 +91,14 @@
       }
     } catch (e) { /* ใช้ค่าเริ่มต้น */ }
     s.owned.R01 = Math.max(s.owned.R01 || 0, 1); s.owned.R04 = Math.max(s.owned.R04 || 0, 1);
-    state = s;
+    if (s.decks && s.decks[s.deckIdx] && Array.isArray(s.decks[s.deckIdx].d) && s.decks[s.deckIdx].d.length) s.deck = s.decks[s.deckIdx].d.slice();
+    state = ensureSlots(s);
   }
   function saveLocal() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ไม่เป็นไร */ }
   }
   function save() {
+    syncActive();
     state.ts = Date.now();
     saveLocal();
     schedulePush();
@@ -598,7 +620,68 @@
     return typeOrder(a) - typeOrder(b) || a.cost - b.cost || (a.id < b.id ? -1 : 1);
   }
 
+  function slotValid(i) {
+    var d = state.decks[i].d; if (d.length !== DECK_SIZE) return false;
+    var c = {}; d.forEach(function (id) { c[id] = (c[id] || 0) + 1; });
+    return Object.keys(c).every(function (id) { return c[id] <= maxCopies(id) && c[id] <= (state.owned[id] || 0) && !!ALL_MAP[id]; });
+  }
+  function switchSlot(i) {
+    if (i < 0 || i >= state.deckSlots || i === state.deckIdx) return;
+    syncActive(); state.deckIdx = i; state.deck = state.decks[i].d.slice();
+    save(); renderDeck(); renderBattleMenu();
+  }
+  var slotBuyArmed = false, slotBuyTimer = null;
+  function buySlot() {
+    if (state.deckSlots >= SLOT_MAX) return;
+    var price = slotPrice(state.deckSlots);
+    if (state.coins < price) { toast('เหรียญไม่พอ (ต้องใช้ ' + price + ' 🪙)'); return; }
+    if (!slotBuyArmed) {
+      slotBuyArmed = true; renderDeckSlots();
+      clearTimeout(slotBuyTimer); slotBuyTimer = setTimeout(function () { slotBuyArmed = false; renderDeckSlots(); }, 3500);
+      return;
+    }
+    clearTimeout(slotBuyTimer); slotBuyArmed = false;
+    state.coins -= price; state.deckSlots++; state.decks.push({ n: '', d: [] });
+    save(); renderStats(); renderDeck(); renderBattleMenu();
+    toast('ปลดล็อกช่องเด็คที่ ' + state.deckSlots + ' แล้ว');
+  }
+  function renderDeckSlots() {
+    var box = $('#deck-slots'); if (!box) return;
+    box.innerHTML = '';
+    for (var i = 0; i < SLOT_MAX; i++) {
+      (function (i) {
+        var unlocked = i < state.deckSlots;
+        var b = make('button', 'slot-chip' + (unlocked ? '' : ' locked') + (unlocked && i === state.deckIdx ? ' active' : ''));
+        if (unlocked) {
+          var ok = slotValid(i), n = state.decks[i].d.length;
+          b.innerHTML = '<b>' + (i + 1) + '</b><i>' + (ok ? '✓' : n + '/' + DECK_SIZE) + '</i>';
+          b.title = slotName(i);
+          b.onclick = function () { switchSlot(i); };
+        } else {
+          b.innerHTML = '<b>🔒</b>';
+          b.onclick = function () { toast(i === state.deckSlots ? 'ปลดล็อกช่องถัดไปด้วยปุ่มด้านล่าง' : 'ต้องปลดล็อกช่องก่อนหน้าก่อน'); };
+        }
+        box.appendChild(b);
+      })(i);
+    }
+    var nm = $('#deck-name');
+    if (nm && document.activeElement !== nm) nm.value = state.decks[state.deckIdx].n || '';
+    if (nm) nm.placeholder = 'ชื่อเด็ค ' + (state.deckIdx + 1);
+    var bb = $('#btn-slotbuy');
+    if (bb) {
+      if (state.deckSlots >= SLOT_MAX) { bb.hidden = true; }
+      else {
+        bb.hidden = false;
+        var p = slotPrice(state.deckSlots);
+        bb.textContent = slotBuyArmed ? '⚠️ แตะอีกครั้งเพื่อยืนยัน (−' + p + ' 🪙)' : '🔓 ปลดล็อกช่องที่ ' + (state.deckSlots + 1) + ' · ' + p + ' 🪙';
+        bb.classList.toggle('armed', slotBuyArmed);
+        bb.classList.toggle('poor', state.coins < p);
+      }
+    }
+  }
+
   function renderDeck() {
+    renderDeckSlots();
     var counts = deckCounts(), n = state.deck.length;
     var cr = 0, sp = 0, fl = 0, rc = 0;
     state.deck.forEach(function (id) {
@@ -917,6 +1000,13 @@
       : '⚠️ เด็คยังไม่ครบ ' + DECK_SIZE + ' ใบ <button class="btn small" id="goto-deck">ไปจัดเด็ค</button>';
     var g = $('#goto-deck');
     if (g) g.onclick = function () { showView('deck'); };
+    var pk = $('#battle-deck-pick');
+    if (pk) {
+      pk.innerHTML = '<label>🃏 เด็คที่ใช้ต่อสู้ <select id="deck-pick-sel">' + state.decks.slice(0, state.deckSlots).map(function (dk, i) {
+        return '<option value="' + i + '"' + (i === state.deckIdx ? ' selected' : '') + '>' + (i + 1) + '. ' + esc(slotName(i)) + (slotValid(i) ? ' ✓' : ' (ยังไม่ครบ)') + '</option>';
+      }).join('') + '</select></label>';
+      $('#deck-pick-sel').onchange = function () { switchSlot(+this.value); };
+    }
     renderRankCard(); renderDaily();
     var st = state.stats;
     var on = st.online || { w: 0, l: 0 };
@@ -2123,6 +2213,8 @@
     $('#btn-autodeck').onclick = autoDeck;
     $('#btn-deckshare').onclick = openDeckShare;
     $('#btn-cleardeck').onclick = function () { state.deck = []; save(); renderDeck(); };
+    $('#btn-slotbuy').onclick = buySlot;
+    $('#deck-name').oninput = function () { state.decks[state.deckIdx].n = this.value.slice(0, 14); save(); renderBattleMenu(); };
     $('#btn-pack').onclick = function () { openPack('normal'); };
     $('#btn-endturn').onclick = endMyTurn;
     $('#b-log').onclick = showBattleLog;
@@ -2391,8 +2483,8 @@
   var cloud = { status: 'connecting', user: null, name: null, last: 0, timer: null, started: false, pending: null };
 
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function payload() { return { found: state.found, points: state.points, coins: state.coins, owned: state.owned, deck: state.deck, stats: state.stats, daily: state.daily, shards: state.shards, pity: state.pity }; }
-  function sig(x) { return JSON.stringify({ f: x.found, p: x.points, c: x.coins, o: x.owned, d: x.deck, s: x.stats, y: x.daily, h: x.shards, t: x.pity }); }
+  function payload() { syncActive(); return { found: state.found, points: state.points, coins: state.coins, owned: state.owned, deck: state.deck, decks: state.decks, deckSlots: state.deckSlots, deckIdx: state.deckIdx, stats: state.stats, daily: state.daily, shards: state.shards, pity: state.pity }; }
+  function sig(x) { return JSON.stringify({ f: x.found, p: x.points, c: x.coins, o: x.owned, d: x.deck, k: x.decks, n: x.deckSlots, i: x.deckIdx, s: x.stats, y: x.daily, h: x.shards, t: x.pity }); }
   function pristine(s) { return sig(s) === sig(defaultState()); }
 
   function normalize(c) {
@@ -2400,7 +2492,10 @@
     var s = { found: Array.isArray(c.found) ? c.found.filter(function (x) { return typeof x === 'string'; }) : [],
       points: +c.points || 0, coins: typeof c.coins === 'number' ? c.coins : d.coins,
       owned: (c.owned && typeof c.owned === 'object') ? c.owned : d.owned,
-      deck: Array.isArray(c.deck) ? c.deck : d.deck, stats: d.stats, daily: c.daily ? cleanDaily(c.daily) : d.daily, shards: +c.shards || 0, pity: +c.pity || 0 };
+      deck: Array.isArray(c.deck) ? c.deck : d.deck, stats: d.stats, daily: c.daily ? cleanDaily(c.daily) : d.daily, shards: +c.shards || 0, pity: +c.pity || 0,
+      decks: Array.isArray(c.decks) ? c.decks : [], deckSlots: c.deckSlots, deckIdx: c.deckIdx };
+    if (s.decks.length && s.decks[Math.max(0, Math.floor(+s.deckIdx) || 0)] && Array.isArray(s.decks[Math.max(0, Math.floor(+s.deckIdx) || 0)].d) && s.decks[Math.max(0, Math.floor(+s.deckIdx) || 0)].d.length) s.deck = s.decks[Math.max(0, Math.floor(+s.deckIdx) || 0)].d.slice();
+    ensureSlots(s);
     ['easy', 'medium', 'hard', 'online'].forEach(function (k) {
       var o = c.stats && c.stats[k];
       if (o) s.stats[k] = { w: +o.w || 0, l: +o.l || 0, d: +o.d || 0 };
@@ -2418,7 +2513,15 @@
     Object.keys(a.owned).concat(Object.keys(b.owned)).forEach(function (id) {
       m.owned[id] = Math.max(a.owned[id] || 0, b.owned[id] || 0);
     });
-    m.deck = (b.ts || 0) > (a.ts || 0) ? b.deck : a.deck;
+    var nw = (b.ts || 0) > (a.ts || 0) ? b : a, od = nw === b ? a : b;
+    m.deckSlots = Math.max(a.deckSlots || SLOT_MIN, b.deckSlots || SLOT_MIN);
+    m.decks = (nw.decks || []).map(function (x) { return { n: x.n, d: x.d.slice() }; });
+    for (var di = 0; di < m.deckSlots; di++) {
+      var cur = m.decks[di], oth = od.decks && od.decks[di];
+      if (!cur || (!cur.d.length && oth && oth.d.length)) m.decks[di] = oth ? { n: oth.n, d: oth.d.slice() } : { n: '', d: [] };
+    }
+    m.deckIdx = Math.min(nw.deckIdx || 0, m.deckSlots - 1); m.deck = nw.deck.slice();
+    ensureSlots(m);
     ['easy', 'medium', 'hard', 'online'].forEach(function (k) {
       var sa = a.stats[k] || {}, sb = b.stats[k] || {};
       m.stats[k] = { w: Math.max(sa.w || 0, sb.w || 0), l: Math.max(sa.l || 0, sb.l || 0), d: Math.max(sa.d || 0, sb.d || 0) };
@@ -2437,10 +2540,13 @@
     state = next; state.uid = uid; state.ts = ts || Date.now();
     var owned = state.owned;
     owned.R01 = Math.max(owned.R01 || 0, 1); owned.R04 = Math.max(owned.R04 || 0, 1);
-    state.deck = state.deck.filter(function (id) { return !!ALL_MAP[id]; });
-    var cnt = {};
-    state.deck = state.deck.filter(function (id) { cnt[id] = (cnt[id] || 0) + 1; return cnt[id] <= (owned[id] || 0); });
-    if (state.deck.length !== DECK_SIZE) state.deck = DEFAULT_DECK.slice();
+    ensureSlots(state);
+    state.decks.forEach(function (dk) {
+      var cnt = {};
+      dk.d = dk.d.filter(function (id) { return !!ALL_MAP[id]; }).filter(function (id) { cnt[id] = (cnt[id] || 0) + 1; return cnt[id] <= (owned[id] || 0); });
+    });
+    if (!state.decks.some(function (dk) { return dk.d.length === DECK_SIZE; })) { state.deckIdx = 0; state.decks[0].d = DEFAULT_DECK.slice(); }
+    state.deck = state.decks[state.deckIdx].d.slice();
     saveLocal();
     refreshAll();
   }
@@ -2675,8 +2781,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.30').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.30')
+    var setsP = fetch('sets.json?v=0.31').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.31')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
@@ -2707,7 +2813,7 @@
         $('#wl-guest').onclick = closeWelcome;
         $('#wl-login').onclick = function () { openAuthModal('login'); };
         setTimeout(startup, 2500);
-        window.EFL = { checkUpdate: checkUpdate, noTear: false, roll: function (k, e) { return rollPack(k, e); }, state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
+        window.EFL = { payload: payload, normalize: normalize, mergeStates: mergeStates, checkUpdate: checkUpdate, noTear: false, roll: function (k, e) { return rollPack(k, e); }, state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
       })
       .catch(function (e) {
         if (window.console) console.error(e);

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14121f">
   <title>Emoji Fusion TCG</title>
-  <link rel="stylesheet" href="style.css?v=0.30">
+  <link rel="stylesheet" href="style.css?v=0.31">
 </head>
 <body>
   <header class="top">
@@ -58,6 +58,7 @@
             <div id="account-card" class="notice acc"></div>
       <div id="daily-card" class="daily"></div>
       <div id="battle-deck-status" class="notice"></div>
+      <div id="battle-deck-pick" class="deck-pick"></div>
       <h2 class="sec">🌐 ต่อสู้ออนไลน์</h2>
       <div class="online-box">
         <button id="on-quick" class="btn primary">⚡ จับคู่เร็ว</button>
@@ -98,6 +99,8 @@
 
     <!-- เด็ค -->
     <section id="view-deck" class="view">
+      <div id="deck-slots" class="deck-slots"></div>
+      <div class="deck-name-row"><input id="deck-name" maxlength="14" placeholder="ชื่อเด็ค" autocomplete="off"><button id="btn-slotbuy" class="btn small"></button></div>
       <div id="deck-summary" class="deck-summary"></div>
       <div class="actions wrap">
         <button id="btn-autodeck" class="btn">✨ จัดเด็คให้อัตโนมัติ</button>
@@ -223,9 +226,9 @@
   </div>
   <div id="toast" class="toast" hidden></div>
 
-  <script src="fusion.js?v=0.30"></script>
-  <script src="battle.js?v=0.30"></script>
-  <script src="script.js?v=0.30"></script>
-  <script type="module" src="online.js?v=0.30"></script>
+  <script src="fusion.js?v=0.31"></script>
+  <script src="battle.js?v=0.31"></script>
+  <script src="script.js?v=0.31"></script>
+  <script type="module" src="online.js?v=0.31"></script>
 </body>
 </html>
