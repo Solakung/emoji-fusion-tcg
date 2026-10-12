@@ -141,7 +141,7 @@
   /* ---------- ตัวการ์ด ---------- */
   function cardEl(card, mode, badge) {
     var cls = 'card ' + mode + ' tier' + (card.tier || 1);
-    if (card.type === 'creature' || card.type === 'field') cls += ' el-' + card.element;
+    if (card.type === 'creature' || (card.type === 'field' && card.element)) cls += ' el-' + card.element;
     if (card.type === 'spell') cls += ' spell';
     if (card.type === 'reaction') cls += ' reaction sp' + card.speed;
     if (!card.parts && (card.rarity === 'rare' || card.rarity === 'uncommon')) cls += ' r-' + card.rarity;
@@ -149,7 +149,7 @@
     var d = make('div', cls);
     d.appendChild(make('span', 'cost', String(card.cost)));
     var tag = '';
-    if (card.type === 'creature' || card.type === 'field') tag += F.ELEMENTS[card.element].emoji;
+    if (card.type === 'creature' || (card.type === 'field' && card.element)) tag += F.ELEMENTS[card.element].emoji;
     if (card.type === 'reaction') tag += card.speed === 3 ? '🛡️' : '⚡';
     if (card.tier === 2) tag += '✦';
     if (card.tier === 3) tag += '★';
@@ -2590,8 +2590,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.23').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.23')
+    var setsP = fetch('sets.json?v=0.24').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.24')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });

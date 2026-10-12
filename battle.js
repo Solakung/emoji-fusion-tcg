@@ -11,7 +11,8 @@
   // ชนิดเป้าหมายของเวทย์แต่ละใบ
   var SPELL_TARGET = {
     S01: 'enemy-any', S02: 'none', S03: 'ally-any', S04: 'enemy-unit', S05: 'none', S06: 'any-unit',
-    S07: 'none', S08: 'none', S09: 'none', S10: 'ally-unit', S11: 'ally-fused', S12: 'enemy-any'
+    S07: 'none', S08: 'none', S09: 'none', S10: 'ally-unit', S11: 'ally-fused', S12: 'enemy-any',
+    S13: 'ally-unit', S14: 'none', S15: 'ally-unit', S16: 'none', S17: 'ally-unit', S18: 'none'
   };
 
   /* ---------- เครื่องมือ ---------- */
@@ -30,7 +31,7 @@
     return arr;
   }
   function beats(a, b) { return F.CYCLE[(F.CYCLE.indexOf(a) + 1) % 6] === b; }
-  function curAtk(u) { return Math.max(0, u.atk + u.tempAtk); }
+  function curAtk(u) { return Math.max(0, u.atk + u.tempAtk + (u.fieldAtk || 0)); }
   function maxHp(u) { return u.baseMax + u.fieldBonus + u.tempHp; }
   function has(u, id) { return u.abil.indexOf(id) >= 0; }
   function kw(u, k) { return u.keywords.indexOf(k) >= 0; }
@@ -46,7 +47,7 @@
   function mkUnit(G, card) {
     return {
       uid: G.nextUid++, card: card, name: card.name, emoji: card.emoji, element: card.element, tier: card.tier,
-      atk: card.atk, tempAtk: 0, baseMax: card.hp, hp: card.hp, fieldBonus: 0, tempHp: 0,
+      atk: card.atk, tempAtk: 0, fieldAtk: 0, baseMax: card.hp, hp: card.hp, fieldBonus: 0, tempHp: 0,
       keywords: card.keywords.slice(), abil: card.abilities.map(function (a) { return a.id; }),
       attacksLeft: 0, attacked: false, burn: 0, stun: 0, evaded: false, grown: 0, unstable: false
     };
@@ -151,9 +152,16 @@
     checkOver(G);
   }
 
-  function syncField(P) {
+  // สนาม: โบนัส HP/ATK ให้ฝั่งเจ้าของ (E = ฝั่งตรงข้าม ใช้กับสนามที่ลดพลังศัตรู)
+  function syncField(P, E) {
+    var f = P.field, ef = E && E.field;
     P.board.forEach(function (u) {
-      var b = (P.field && P.field.element === u.element) ? 1 : 0;
+      var b = (f && f.element && f.element === u.element) ? 1 : 0;
+      var a = 0;
+      if (f && f.fx === 'wall') b = 1;
+      if (f && f.fx === 'arena') a += 1;
+      if (ef && ef.fx === 'haze') a -= 1;
+      u.fieldAtk = a;
       var d = b - u.fieldBonus;
       if (d !== 0) {
         u.fieldBonus = b;
@@ -161,6 +169,7 @@
       }
     });
   }
+  function syncBoth(G) { syncField(G.players[0], G.players[1]); syncField(G.players[1], G.players[0]); }
 
   function dmgUnit(u, amount) {
     if (amount <= 0) return 0;
@@ -215,7 +224,8 @@
     var u = mkUnit(G, card);
     u.attacksLeft = isHaste(u) ? maxAttacks(u) : 0;
     if (idx == null || idx > P.board.length) P.board.push(u); else P.board.splice(idx, 0, u);
-    syncField(P);
+    if (P.field && P.field.fx === 'rally') u.attacksLeft = maxAttacks(u);
+    syncBoth(G);
     return u;
   }
 
@@ -259,7 +269,7 @@
   /* ---------- ผสม ---------- */
   function fuseCost(P, ua, ub, result) {
     var c = result.cost;
-    if (P.field && (P.field.element === ua.card.element || P.field.element === ub.card.element)) c = Math.max(1, c - 1);
+    if (P.field && (P.field.fx === 'library' || (P.field.element && (P.field.element === ua.card.element || P.field.element === ub.card.element)))) c = Math.max(1, c - 1);
     return c;
   }
 
@@ -311,6 +321,12 @@
       case 'S08': draw(G, side); draw(G, side); log(G, card.name + ': จั่ว 2 ใบ'); break;
       case 'S09': P.fusionBoost = true; log(G, card.name + ': การ์ดผสมเทิร์นนี้ +1/+1'); break;
       case 'S10': if (tu) { tu.u.tempHp += 3; tu.u.hp += 3; } log(G, card.name + ': HP +3 จนจบเทิร์น'); break;
+      case 'S13': if (tu) { tu.u.atk += 2; } log(G, card.name + ': ATK +2 ถาวร'); break;
+      case 'S14': O.board.forEach(function (u) { u.stun = Math.max(u.stun, 1); u.attacksLeft = 0; }); log(G, card.name + ': ศัตรูทุกตัวโจมตีไม่ได้ 1 เทิร์น'); break;
+      case 'S15': if (tu) { tu.u.hp = 0; log(G, card.name + ': สังเวย ' + tu.u.name); cleanup(G); draw(G, side); draw(G, side); } break;
+      case 'S16': P.mana += 2; log(G, card.name + ': Mana +2'); break;
+      case 'S17': if (tu) { tu.u.attacksLeft += 1; tu.u.attacked = false; } log(G, card.name + ': โจมตีได้อีก 1 ครั้ง'); break;
+      case 'S18': G.players.forEach(function (Q) { Q.board.forEach(function (u) { dmgUnit(u, 3); }); }); log(G, card.name + ': ทุกใบบนสนามโดน 3 ดาเมจ'); break;
       case 'S11':
         if (tu && tu.u.card.parts) {
           var parts = tu.u.card.parts;
@@ -339,6 +355,14 @@
       case 'R03': return P.board.length > 0;
       case 'R04': case 'R05': case 'R07': return O.board.length > 0;
       case 'R06': return !!(opp && top.speed < 3);
+      case 'R09': return !!(opp && top.kind === 'attack');
+      case 'R10': return !!(opp && top.kind === 'attack' && findUnit(G, top.unit));
+      case 'R11': return !!(opp && (top.kind === 'spell' || top.kind === 'field'));
+      case 'R12': return !!(opp && top.kind === 'fuse');
+      case 'R13': return !!(opp && top.kind === 'summon');
+      case 'R14': return !!opp;
+      case 'R15': return P.deck.length > 0;
+      case 'R16': return O.board.length > 0;
       case 'R08': return P.board.length < MAX_BOARD && P.grave.some(function (c) { return c.type === 'creature'; });
     }
     return false;
@@ -365,11 +389,12 @@
       var l = stack[i];
       if (l.negated) {
         log(G, '🚫 ' + linkName(l) + ' ถูกยกเลิก');
-        if (l.kind === 'summon' || l.kind === 'field') G.players[l.side].grave.push(l.card);
+        if (l.bounce && l.kind === 'summon') { var ow = G.players[l.side]; if (ow.hand.length < MAX_HAND) ow.hand.push(l.card); else ow.grave.push(l.card); }
+        else if (l.kind === 'summon' || l.kind === 'field') G.players[l.side].grave.push(l.card);
         continue;
       }
       resolveLink(G, l, stack, i);
-      syncField(G.players[0]); syncField(G.players[1]);
+      syncBoth(G);
       cleanup(G);
     }
   }
@@ -390,7 +415,7 @@
         break;
       case 'field':
         if (P.field) P.grave.push(P.field);
-        P.field = l.card; syncField(P);
+        P.field = l.card; syncBoth(G);
         log(G, P.name + ' วางสนาม ' + l.card.emoji + ' ' + l.card.name);
         break;
       case 'spell':
@@ -415,6 +440,18 @@
       case 'R04': { var t4 = strongest(1 - side, G); if (t4) dmgUnit(t4, 2); break; }
       case 'R05': { var t5 = strongest(1 - side, G); if (t5) { t5.stun = 1; t5.attacksLeft = 0; } break; }
       case 'R07': O.board.forEach(function (x) { dmgUnit(x, 3); }); break;
+      case 'R09':
+        if (below && below.kind === 'attack') {
+          if (below.target === 'opp') P.hp = Math.min(START_HP, P.hp + 3);
+          else { var df = findUnit(G, below.target); if (df) { df.u.tempHp += 3; df.u.hp += 3; } }
+        }
+        break;
+      case 'R10': if (below && below.kind === 'attack') { var kt = findUnit(G, below.unit); if (kt) { kt.u.hp = 0; } } break;
+      case 'R11': case 'R12': if (below) below.negated = true; break;
+      case 'R13': if (below) { below.negated = true; below.bounce = true; } break;
+      case 'R14': O.hp -= 4; break;
+      case 'R15': draw(G, side); draw(G, side); break;
+      case 'R16': if (O.board.length) { var lw = lowestHp(O.board); lw.hp = 0; } break;
       case 'R08':
         for (var k = P.grave.length - 1; k >= 0; k--) {
           if (P.grave[k].type === 'creature' && P.board.length < MAX_BOARD) { var c = P.grave.splice(k, 1)[0]; var nu = place(G, side, c); enter(G, side, nu); break; }
@@ -590,6 +627,7 @@
 
   function endTurn(G) {
     var side = G.active, P = G.players[side];
+    if (P.field && P.field.fx === 'spring') { P.board.forEach(function (u) { u.hp = Math.min(maxHp(u), u.hp + 1); }); P.hp = Math.min(START_HP, P.hp + 1); }
     P.board.forEach(function (u) {
       if (kw(u, 'regen')) u.hp = Math.min(maxHp(u), u.hp + 1);
       if (has(u, 'rainforest')) P.hp = Math.min(START_HP, P.hp + 1);
