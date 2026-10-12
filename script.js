@@ -1304,6 +1304,8 @@
       if (st === 'error') btns.push(['ลองใหม่', function () { pushNow(); }]);
       btns.push(['ออกจากระบบ', doLogout]);
     }
+    var chip = $('#btn-acct');
+    if (chip) { var inn = (st === 'guest' || st === 'offline' || st === 'connecting'); chip.textContent = inn ? '👤' : '👤✓'; chip.classList.toggle('on', !inn); }
     box.innerHTML = '';
     box.appendChild(make('div', 'acc-text', html));
     var row = make('div', 'acc-btns');
@@ -1400,6 +1402,9 @@
         $('#whatsnew-ok').onclick = closeWhatsNew;
         $('#btn-whatsnew').onclick = showWhatsNew;
         initCloud();
+        $('#btn-acct').onclick = function () {
+          if (cloud.user) showView('battle'); else if (window.Online) openAuthModal('login'); else toast('ออนไลน์ใช้ไม่ได้ตอนนี้ (กำลังเชื่อมต่อ หรือไม่มีอินเทอร์เน็ต)');
+        };
         $('#btn-tour').onclick = function () { startTour(); };
         if (!checkWhatsNew()) maybeStartTour();
         window.EFL = { state: function () { return state; }, battle: function () { return bs; } };

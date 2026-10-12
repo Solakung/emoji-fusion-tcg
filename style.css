@@ -359,3 +359,6 @@ h1 { white-space: nowrap; font-size: 16px; }
 .au-msg { min-height: 20px; margin: 8px 0 0; font-size: 13px; color: #ffb85c; }
 .linkbtn { display: block; margin: 10px auto 0; background: none; border: 0; color: #9db8ff; font-size: 13px; text-decoration: underline; cursor: pointer; }
 .authbox .seg { margin-bottom: 4px; }
+
+.chip.acct { cursor: pointer; font-family: inherit; color: inherit; }
+.chip.acct.on { border-color: #3c8f55; }

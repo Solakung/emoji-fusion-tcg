@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14121f">
   <title>Emoji Fusion TCG</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=0.5">
 </head>
 <body>
   <header class="top">
@@ -17,6 +17,7 @@
       </div>
     </div>
     <div class="stats">
+      <button id="btn-acct" class="chip acct" aria-label="บัญชี" title="บัญชี / เข้าสู่ระบบ">👤</button>
       <span id="stat-coins" class="chip" title="เหรียญ">🪙 0</span>
       <span id="stat-points" class="chip" title="แต้มค้นพบ">⭐ 0</span>
       <span id="stat-recipes" class="chip" title="สูตรขั้น 2 ที่ค้นพบ">📖 0/276</span>
@@ -188,9 +189,9 @@
   </div>
   <div id="toast" class="toast" hidden></div>
 
-  <script src="fusion.js"></script>
-  <script src="battle.js"></script>
-  <script src="script.js"></script>
-  <script type="module" src="online.js"></script>
+  <script src="fusion.js?v=0.5"></script>
+  <script src="battle.js?v=0.5"></script>
+  <script src="script.js?v=0.5"></script>
+  <script type="module" src="online.js?v=0.5"></script>
 </body>
 </html>
