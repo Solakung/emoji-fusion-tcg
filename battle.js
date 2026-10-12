@@ -5,7 +5,9 @@
 
   var F = (typeof module !== 'undefined' && module.exports) ? require('./fusion.js') : root.Fusion;
 
-  var RULES = { fuseInherit: true }; // การ์ดผสมโจมตีได้ทันที ถ้าแม่ทั้งสองพร้อมโจมตีอยู่
+  // fuseInherit: การ์ดผสมโจมตีได้ทันที ถ้าแม่ทั้งสองพร้อมโจมตีอยู่
+  // rush: การ์ด Haste/ลานเชียร์ที่เพิ่งลง โจมตีผู้เล่นไม่ได้ในเทิร์นที่ลง (ตีการ์ดศัตรูได้)
+  var RULES = { fuseInherit: true, rush: true };
   var MAX_BOARD = 5, MAX_HAND = 8, MAX_MANA = 8, START_HP = 20, FATIGUE_DMG = 2;
 
   // ชนิดเป้าหมายของเวทย์แต่ละใบ
@@ -54,7 +56,7 @@
       uid: G.nextUid++, card: card, name: card.name, emoji: card.emoji, element: card.element, tier: card.tier,
       atk: card.atk, tempAtk: 0, fieldAtk: 0, baseMax: card.hp, hp: card.hp, fieldBonus: 0, tempHp: 0,
       keywords: card.keywords.slice(), abil: card.abilities.map(function (a) { return a.id; }),
-      attacksLeft: 0, attacked: false, burn: 0, stun: 0, evaded: false, grown: 0, unstable: false, aura: 0, stoned: 0
+      attacksLeft: 0, attacked: false, burn: 0, stun: 0, evaded: false, grown: 0, unstable: false, aura: 0, stoned: 0, rushTurn: 0
     };
   }
 
@@ -278,8 +280,9 @@
     var P = G.players[side];
     var u = mkUnit(G, card);
     u.attacksLeft = isHaste(u) ? maxAttacks(u) : 0;
+    if (isHaste(u)) u.rushTurn = G.turn;
     if (idx == null || idx > P.board.length) P.board.push(u); else P.board.splice(idx, 0, u);
-    if (P.field && P.field.fx === 'rally') u.attacksLeft = maxAttacks(u);
+    if (P.field && P.field.fx === 'rally') { u.attacksLeft = maxAttacks(u); u.rushTurn = G.turn; }
     syncBoth(G);
     return u;
   }
@@ -295,7 +298,7 @@
     if (!u || u.attacksLeft <= 0 || curAtk(u) <= 0 || G.over || G.active !== side) return [];
     var t = tauntUnits(G, 1 - side);
     if (t.length) return t.map(function (x) { return x.uid; });
-    return ['opp'].concat(O.board.map(function (x) { return x.uid; }));
+    return (RULES.rush && u.rushTurn === G.turn ? [] : ['opp']).concat(O.board.map(function (x) { return x.uid; }));
   }
 
   function spellTargets(G, side, card) {
@@ -540,7 +543,10 @@
       if (P.fusedNow >= 2) { nu.baseMax += 2; nu.hp += 2; }
       log(G, P.field.name + ': ' + res.name + ' ATK +1' + (P.fusedNow >= 2 ? ' HP +2 (ผสมต่อเนื่อง)' : ''));
     }
-    if (RULES.fuseInherit && fa.u.attacksLeft > 0 && fb.u.attacksLeft > 0) nu.attacksLeft = maxAttacks(nu);
+    if (RULES.fuseInherit && fa.u.attacksLeft > 0 && fb.u.attacksLeft > 0) {
+      nu.attacksLeft = maxAttacks(nu);
+      nu.rushTurn = (fa.u.rushTurn === G.turn || fb.u.rushTurn === G.turn) ? G.turn : 0; // แม่ที่เพิ่งลงด้วย Haste ส่งต่อข้อจำกัดให้ลูก
+    }
     if (P.fusionBoost) { nu.atk += 1; nu.baseMax += 1; nu.hp += 1; }
     if (l.x) { nu.unstable = true; (G.disc = G.disc || []).push({ side: side, id: res.id }); log(G, '🧪 ' + P.name + ' ผสมมั่ว! ได้ ' + res.name + ' (ไม่เสถียร)'); }
     log(G, P.name + ' ผสม ' + fa.u.name + ' + ' + fb.u.name + ' → ' + res.name);
@@ -633,6 +639,7 @@
       if (att.attacksLeft <= 0) return { ok: false, error: 'การ์ดนี้โจมตีไม่ได้ในตอนนี้' };
       if (curAtk(att) <= 0) return { ok: false, error: 'ATK เป็น 0' };
       if (targets.indexOf(a.target) < 0) {
+        if (a.target === 'opp' && RULES.rush && att.rushTurn === G.turn) return { ok: false, error: 'การ์ดที่เพิ่งลงด้วย "เร็ว" โจมตีผู้เล่นไม่ได้ในเทิร์นนี้ (ตีการ์ดศัตรูได้)' };
         return { ok: false, error: tauntUnits(G, 1 - side).length ? 'ต้องโจมตีตัวล่อก่อน' : 'เป้าหมายไม่ถูกต้อง' };
       }
       att.attacksLeft--; att.attacked = true;

@@ -2162,10 +2162,8 @@
       hl: [], done: function () { return $('#modal').hidden; } },
     { id: 'go', pos: 'top', text: 'ไปลองใช้ในการต่อสู้จริงกัน แมตช์ฝึกให้มานาพิเศษ 7 (เกมจริงเริ่มที่ 1 และเพิ่มทีละ 1) และไม่นับรางวัล',
       hl: [], button: { label: 'เริ่มแมตช์ฝึก ▶', fn: function () { startTutorialBattle(); } } },
-    { id: 'play1', battle: true, pos: 'top', text: '<b>ขั้น 3/3 · แมตช์ฝึก</b><br>แตะ ⚡ หลอดไฟ ในมือ แล้วกด <b>⬇ ลงสนาม</b> (ธาตุไฟฟ้าลงแล้วโจมตีได้เลย)',
+    { id: 'play1', battle: true, pos: 'top', text: '<b>ขั้น 3/3 · แมตช์ฝึก</b><br>แตะ ⚡ หลอดไฟ ในมือ แล้วกด <b>⬇ ลงสนาม</b> (ธาตุไฟฟ้ามี ⏩ เร็ว: ลงแล้วตีการ์ดศัตรูได้เลย แต่ตีผู้เล่นไม่ได้ในเทิร์นที่ลง)',
       hl: ['#b-hand [data-id=B13]'], btns: ['ลงสนาม'], done: function () { return mePlayed('B13'); } },
-    { id: 'atk', battle: true, pos: 'top', text: 'แตะ ⚡ หลอดไฟ บนสนามของคุณ แล้วแตะ <b>ผู้เล่นศัตรูด้านบน</b> เพื่อโจมตี',
-      hl: ['#board-me [data-id=B13]'], hero: true, done: function () { return bs.G.players[0].board.some(function (u) { return u.attacked; }); } },
     { id: 'play2', battle: true, pos: 'top', text: 'ลง 💧 หยดน้ำ และ 🔥 เปลวไฟ เพิ่ม (เตรียมผสมกันในสนาม)',
       hl: ['#b-hand [data-id=B05]', '#b-hand [data-id=B02]'], btns: ['ลงสนาม'], done: function () { return mePlayed('B05') && mePlayed('B02'); } },
     { id: 'fuse2', battle: true, pos: 'top', text: '<b>ผสมในสนาม</b><br>แตะ 💧 บนสนาม → กด ⚗️ ผสม → แตะ 🔥 → กด ⚗️ ยืนยันผสม',
@@ -2173,6 +2171,8 @@
     { id: 'end', battle: true, pos: 'top', text: 'ปิดเทิร์นด้วย <b>จบเทิร์น</b>', hl: ['#btn-endturn'], done: function () { return bs.G.turn >= 2; } },
     { id: 'wait', battle: true, pos: 'top', text: '⏳ ตาบอท กำลังเล่น… ดูว่าเขาลงอะไร',
       hl: [], done: function () { return bs.G.active === 0 && bs.G.turn >= 3 && !bs.busy; } },
+    { id: 'atk', battle: true, pos: 'top', text: 'ตอนนี้การ์ดของคุณตีผู้เล่นได้แล้ว แตะการ์ดบนสนามของคุณ แล้วแตะ <b>ผู้เล่นศัตรูด้านบน</b> เพื่อโจมตี',
+      hl: ['#board-me .unit'], hero: true, done: function () { return bs.G.turn >= 3 && bs.G.players[0].board.some(function (u) { return u.attacked; }); } },
     { id: 'fin', battle: true, pos: 'top', text: '🎓 <b>จบทัวร์!</b> คุณรู้พื้นฐานแล้ว: ลงการ์ด · โจมตี · ผสม · จบเทิร์น เล่นต่อได้เลย (แมตช์นี้ไม่นับรางวัล)',
       hl: [], button: { label: 'เล่นต่อ', fn: function () { endTour(); } },
       button2: { label: 'ออกจากแมตช์', fn: function () { endTour(); closeBattle(); showView('battle'); } } }
@@ -2280,7 +2280,7 @@
     { id: 'battle', emoji: '⚔️', title: 'กฎสนามรบ', sub: 'ธาตุชนะทาง · มานา · สเปลล์ · การ์ดสนาม', kind: 'text',
       body: '<ul><li><b>ชีวิต 20</b> สนามมีได้ 5 ใบ มือถือได้ 8 ใบ มานาเริ่ม 1 เพิ่มทุกเทิร์น สูงสุด 8</li>' +
         '<li><b>ธาตุชนะทาง</b> 🔥→🌿→🪨→💨→⚡→💧→🔥 ธาตุที่ชนะธาตุถัดไปได้ ATK +1 ตอนสู้กัน</li>' +
-        '<li><b>การ์ดที่ลงใหม่โจมตีไม่ได้</b> ในเทิร์นนั้น ยกเว้นการ์ดที่มี ⏩ เร็ว</li>' +
+        '<li><b>การ์ดที่ลงใหม่โจมตีไม่ได้</b> ในเทิร์นนั้น ยกเว้นการ์ดที่มี ⏩ เร็ว ซึ่งตีได้เฉพาะการ์ดศัตรู (ตีผู้เล่นได้เทิร์นถัดไป)</li>' +
         '<li><b>ปราการ 🛡️ (ล่อ)</b> ศัตรูต้องโจมตีตัวนี้ก่อน</li>' +
         '<li><b>เวทย์</b> ใช้แล้วหมดไป มีผลทันที บางใบต้องเลือกเป้าหมาย</li>' +
         '<li><b>การ์ดสนาม</b> วางได้ทีละใบ ธาตุตรงกันได้โบนัส และลด Cost การผสม 1</li>' +
@@ -2675,8 +2675,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.29').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.29')
+    var setsP = fetch('sets.json?v=0.30').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.30')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });

@@ -256,7 +256,7 @@
    "name": "หลอดไฟ",
    "element": "electric",
    "cost": 1,
-   "atk": 2,
+   "atk": 1,
    "hp": 1,
    "keywords": [
     "haste"
@@ -279,7 +279,7 @@
    "element": "electric",
    "cost": 2,
    "atk": 3,
-   "hp": 1,
+   "hp": 2,
    "keywords": [
     "haste"
    ],
@@ -301,7 +301,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 4,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "haste"
    ],
@@ -323,7 +323,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 5,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -1347,7 +1347,7 @@
    "name": "พลาสมา",
    "element": "fire",
    "cost": 2,
-   "atk": 4,
+   "atk": 3,
    "hp": 2,
    "keywords": [
     "haste"
@@ -1378,7 +1378,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 4,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "haste"
    ],
@@ -1408,7 +1408,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 5,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -1987,7 +1987,7 @@
    "name": "พลาสมา",
    "element": "fire",
    "cost": 3,
-   "atk": 5,
+   "atk": 4,
    "hp": 2,
    "keywords": [
     "haste"
@@ -2018,7 +2018,7 @@
    "element": "fire",
    "cost": 3,
    "atk": 6,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "haste"
    ],
@@ -2048,7 +2048,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 7,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -2599,7 +2599,7 @@
    "name": "พลาสมา",
    "element": "fire",
    "cost": 3,
-   "atk": 6,
+   "atk": 5,
    "hp": 3,
    "keywords": [
     "haste"
@@ -2630,7 +2630,7 @@
    "element": "fire",
    "cost": 4,
    "atk": 7,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -2690,7 +2690,7 @@
    "element": "electric",
    "cost": 5,
    "atk": 8,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -3183,7 +3183,7 @@
    "name": "พลาสมา",
    "element": "fire",
    "cost": 4,
-   "atk": 8,
+   "atk": 7,
    "hp": 3,
    "keywords": [
     "haste"
@@ -3214,7 +3214,7 @@
    "element": "fire",
    "cost": 4,
    "atk": 8,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -3274,7 +3274,7 @@
    "element": "fire",
    "cost": 5,
    "atk": 10,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -3739,7 +3739,7 @@
    "name": "ช็อต",
    "element": "electric",
    "cost": 2,
-   "atk": 3,
+   "atk": 2,
    "hp": 3,
    "keywords": [
     "haste"
@@ -3770,7 +3770,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 4,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -3830,7 +3830,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 5,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -4267,7 +4267,7 @@
    "name": "ช็อต",
    "element": "water",
    "cost": 3,
-   "atk": 4,
+   "atk": 3,
    "hp": 4,
    "keywords": [
     "haste"
@@ -4328,7 +4328,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 5,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -4358,7 +4358,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 6,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -4798,7 +4798,7 @@
    "element": "water",
    "cost": 4,
    "atk": 5,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -4828,7 +4828,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 6,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -4858,7 +4858,7 @@
    "element": "electric",
    "cost": 5,
    "atk": 7,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -5239,7 +5239,7 @@
    "name": "ช็อต",
    "element": "water",
    "cost": 4,
-   "atk": 5,
+   "atk": 4,
    "hp": 5,
    "keywords": [
     "haste"
@@ -5270,7 +5270,7 @@
    "element": "water",
    "cost": 4,
    "atk": 6,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -5300,7 +5300,7 @@
    "element": "water",
    "cost": 5,
    "atk": 7,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -5330,7 +5330,7 @@
    "element": "electric",
    "cost": 5,
    "atk": 8,
-   "hp": 7,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -5681,7 +5681,7 @@
    "name": "เมล็ดพลัง",
    "element": "plant",
    "cost": 2,
-   "atk": 3,
+   "atk": 2,
    "hp": 2,
    "keywords": [
     "haste",
@@ -5713,7 +5713,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 4,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "haste",
     "regen"
@@ -5744,7 +5744,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 4,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste",
     "regen"
@@ -6109,7 +6109,7 @@
    "name": "เมล็ดพลัง",
    "element": "plant",
    "cost": 3,
-   "atk": 4,
+   "atk": 3,
    "hp": 3,
    "keywords": [
     "haste",
@@ -6141,7 +6141,7 @@
    "element": "plant",
    "cost": 3,
    "atk": 4,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste",
     "regen"
@@ -6203,7 +6203,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 6,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste",
     "regen"
@@ -6507,7 +6507,7 @@
    "name": "เมล็ดพลัง",
    "element": "plant",
    "cost": 3,
-   "atk": 4,
+   "atk": 3,
    "hp": 4,
    "keywords": [
     "haste",
@@ -6539,7 +6539,7 @@
    "element": "plant",
    "cost": 4,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste",
     "regen"
@@ -6570,7 +6570,7 @@
    "element": "plant",
    "cost": 4,
    "atk": 5,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste",
     "regen"
@@ -6601,7 +6601,7 @@
    "element": "electric",
    "cost": 5,
    "atk": 6,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "haste",
     "regen"
@@ -6907,7 +6907,7 @@
    "element": "plant",
    "cost": 4,
    "atk": 5,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste",
     "regen"
@@ -6938,7 +6938,7 @@
    "element": "plant",
    "cost": 5,
    "atk": 6,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "haste",
     "regen"
@@ -6969,7 +6969,7 @@
    "element": "plant",
    "cost": 5,
    "atk": 7,
-   "hp": 7,
+   "hp": 8,
    "keywords": [
     "haste",
     "regen"
@@ -7244,7 +7244,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 5,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -7273,8 +7273,8 @@
    "name": "เสริมพลัง",
    "element": "electric",
    "cost": 3,
-   "atk": 6,
-   "hp": 4,
+   "atk": 5,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -7303,7 +7303,7 @@
    "name": "เสริมพลัง",
    "element": "electric",
    "cost": 4,
-   "atk": 7,
+   "atk": 6,
    "hp": 5,
    "keywords": [
     "haste"
@@ -7333,7 +7333,7 @@
    "name": "โลหะ",
    "element": "earth",
    "cost": 2,
-   "atk": 3,
+   "atk": 2,
    "hp": 3,
    "keywords": [
     "haste"
@@ -7363,7 +7363,7 @@
    "name": "โลหะ",
    "element": "earth",
    "cost": 3,
-   "atk": 3,
+   "atk": 2,
    "hp": 4,
    "keywords": [
     "haste"
@@ -7393,7 +7393,7 @@
    "name": "โลหะ",
    "element": "earth",
    "cost": 3,
-   "atk": 4,
+   "atk": 3,
    "hp": 5,
    "keywords": [
     "haste"
@@ -7453,7 +7453,7 @@
    "name": "พายุฟ้า",
    "element": "wind",
    "cost": 2,
-   "atk": 3,
+   "atk": 2,
    "hp": 2,
    "keywords": [
     "evade",
@@ -7484,7 +7484,7 @@
    "name": "พายุฟ้า",
    "element": "wind",
    "cost": 3,
-   "atk": 4,
+   "atk": 3,
    "hp": 3,
    "keywords": [
     "evade",
@@ -7546,7 +7546,7 @@
    "name": "พายุฟ้า",
    "element": "wind",
    "cost": 4,
-   "atk": 5,
+   "atk": 4,
    "hp": 4,
    "keywords": [
     "evade",
@@ -7578,7 +7578,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 7,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -7608,7 +7608,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 8,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -7638,7 +7638,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 4,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "haste"
    ],
@@ -7668,7 +7668,7 @@
    "element": "earth",
    "cost": 3,
    "atk": 4,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -7698,7 +7698,7 @@
    "element": "earth",
    "cost": 4,
    "atk": 4,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -7728,7 +7728,7 @@
    "element": "earth",
    "cost": 4,
    "atk": 5,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -7758,7 +7758,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 4,
-   "hp": 2,
+   "hp": 3,
    "keywords": [
     "evade",
     "haste"
@@ -7789,7 +7789,7 @@
    "element": "wind",
    "cost": 3,
    "atk": 4,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "evade",
     "haste"
@@ -7851,7 +7851,7 @@
    "element": "wind",
    "cost": 4,
    "atk": 6,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "evade",
     "haste"
@@ -7882,7 +7882,7 @@
    "element": "electric",
    "cost": 5,
    "atk": 9,
-   "hp": 5,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -7942,7 +7942,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 4,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "haste"
    ],
@@ -7972,7 +7972,7 @@
    "element": "earth",
    "cost": 4,
    "atk": 5,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -8002,7 +8002,7 @@
    "element": "earth",
    "cost": 5,
    "atk": 6,
-   "hp": 7,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -8032,7 +8032,7 @@
    "element": "electric",
    "cost": 3,
    "atk": 4,
-   "hp": 3,
+   "hp": 4,
    "keywords": [
     "evade",
     "haste"
@@ -8094,7 +8094,7 @@
    "element": "wind",
    "cost": 4,
    "atk": 6,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "evade",
     "haste"
@@ -8125,7 +8125,7 @@
    "element": "wind",
    "cost": 5,
    "atk": 7,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "evade",
     "haste"
@@ -8156,7 +8156,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 5,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "haste"
    ],
@@ -8186,7 +8186,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 5,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "haste"
    ],
@@ -8216,7 +8216,7 @@
    "element": "electric",
    "cost": 5,
    "atk": 6,
-   "hp": 7,
+   "hp": 8,
    "keywords": [
     "haste"
    ],
@@ -8307,7 +8307,7 @@
    "element": "electric",
    "cost": 4,
    "atk": 6,
-   "hp": 4,
+   "hp": 5,
    "keywords": [
     "evade",
     "haste"
@@ -8338,7 +8338,7 @@
    "element": "electric",
    "cost": 5,
    "atk": 7,
-   "hp": 5,
+   "hp": 6,
    "keywords": [
     "evade",
     "haste"
@@ -8369,7 +8369,7 @@
    "element": "wind",
    "cost": 5,
    "atk": 8,
-   "hp": 6,
+   "hp": 7,
    "keywords": [
     "evade",
     "haste"
