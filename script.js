@@ -1174,6 +1174,8 @@
     if (side === ME() && myTurn && u.attacksLeft > 0 && B.curAtk(u) > 0) cls += ' ready';
     var d = make('div', cls);
     d.setAttribute('data-id', u.card.id);
+    d.setAttribute('data-uid', u.uid);
+    if (bs.fxHide && bs.fxHide[u.uid] > Date.now()) d.classList.add('fx-hide');
     var art = make('div', 'u-art');
     art.appendChild(spriteEl(u.card, 52));
     d.appendChild(art);
@@ -1221,7 +1223,7 @@
     else t = '🔴 ตา' + (bs.online || bs.replay ? 'คู่ต่อสู้' : 'บอท');
     if (bs.replay) t = '🎞️ ' + bs.replay.i + '/' + bs.replay.rec.acts.length + ' · ' + t;
     if (bs.online && !G.over) {
-      var left = Math.max(0, Math.ceil(((G.pending ? bs.online.pdl : bs.online.deadline) - Date.now()) / 1000));
+      var left = Math.max(0, Math.ceil(((G.pending ? bs.online.pdl : bs.online.deadline) - nowT()) / 1000));
       if (G.pending) t = '⏳ ตอบโต้';
       t += ' ⏱' + left;
       if (bs.online.dc) t = '⚠️ คู่ต่อสู้หลุด… ' + t;
@@ -1240,6 +1242,133 @@
       state.found.unshift(d.id); state.points += pts; save(); renderStats();
       toast('🎉 ค้นพบสูตรใหม่กลางศึก! ' + c.emoji + ' ' + c.name + ' (+' + pts + ' แต้ม)');
     }
+  }
+
+
+  /* ---------- เอฟเฟกต์ อัญเชิญ / ผสม / เวทย์ (แสดงผลล้วน ไม่แตะกติกา) ---------- */
+  var FX_REDUCE = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function fxOn() { return bs && !bs.replay && !FX_REDUCE && !(window.EFL && window.EFL.noFx); }
+  function fxAdd(cls, x, y, html, ms, vars, color) {
+    var e = make('div', 'fx ' + cls, html || '');
+    e.style.left = x + 'px'; e.style.top = y + 'px';
+    if (color) e.style.setProperty('--c', color);
+    if (vars) for (var k in vars) e.style.setProperty(k, vars[k]);
+    document.body.appendChild(e);
+    setTimeout(function () { if (e.parentNode) e.parentNode.removeChild(e); }, ms);
+    return e;
+  }
+  function fxCtr(r) { return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+  var EL_COLOR = { fire: '#ff7a52', water: '#4ea8ff', plant: '#5fd36b', electric: '#ffd84a', earth: '#b8905e', wind: '#9be8e0', light: '#fff2a8', dark: '#b07aff', ice: '#9fe3ff', metal: '#cfd6e6' };
+  function fxColor(card) { return EL_COLOR[card && card.element] || '#ffd24a'; }
+  function fxShake(el, cls, ms) { if (!el) return; el.classList.add(cls); setTimeout(function () { el.classList.remove(cls); }, ms); }
+  function fxSparks(x, y, n, color, spread) {
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * 6.283, d = (spread || 50) * (0.5 + Math.random() * 0.8);
+      fxAdd('fx-spark', x, y, '', 650, { '--dx': Math.cos(a) * d + 'px', '--dy': Math.sin(a) * d + 'px' }, color);
+    }
+  }
+  // เวลาในแมตช์ออนไลน์หยุดนับระหว่างเอฟเฟกต์ แล้วบวกเวลาที่หยุดกลับเมื่อจบ
+  function nowT() { return bs && bs.fz ? bs.fz.from : Date.now(); }
+  function fxBusy(ms) {
+    if (!bs) return;
+    bs.fxUntil = Math.max(bs.fxUntil || 0, Date.now() + ms);
+    if (!bs.online) return;
+    var session = bs, z = bs.fz;
+    if (!z) z = bs.fz = { from: Date.now(), until: 0, t: null };
+    z.until = Math.max(z.until, Date.now() + ms);
+    clearTimeout(z.t);
+    z.t = setTimeout(function () {
+      if (bs !== session || session.fz !== z) return;
+      var d = Date.now() - z.from; session.fz = null;
+      if (session.online) { session.online.deadline += d; session.online.pdl += d; }
+      renderTurnLabel();
+    }, z.until - Date.now());
+  }
+  function fxBanner(card, delay) {
+    setTimeout(function () {
+      if (!fxOn()) return;
+      fxAdd('fx-banner', window.innerWidth / 2, window.innerHeight * 0.36, '<span>' + card.emoji + '</span> ' + esc(card.name), 1100, null, fxColor(card));
+    }, delay || 0);
+  }
+  function fxRemain() { return bs && bs.fxUntil ? Math.max(0, Math.min(1200, bs.fxUntil - Date.now())) : 0; }
+  function fxPre(side, a) {
+    if (!fxOn() || !a) return;
+    var P = bs.G.players[side], c = null;
+    if (a.t === 'play') c = P.hand[a.hand]; else if (a.t === 'react') c = P.sets[a.slot];
+    if (!c || c.type === 'creature' || (a.t === 'play' && c.type === 'reaction')) return;
+    (bs.fxHints = bs.fxHints || []).push({ card: c, side: side, target: a.target, react: a.t === 'react' });
+  }
+  function fxHeroRect(side) { var e = $(side === ME() ? '#hero-me' : '#hero-opp'); return e && e.getBoundingClientRect(); }
+  function fxCast(h, delay) {
+    setTimeout(function () {
+      if (!fxOn()) return;
+      var W = window.innerWidth, H = window.innerHeight, cx = W / 2, cy = H * 0.44, col = fxColor(h.card);
+      var t = h.card.type;
+      fxAdd('fx-cardpop' + (h.react ? ' flip' : ''), cx, cy, '<div class="cp-e">' + h.card.emoji + '</div><div class="cp-n">' + esc(h.card.name) + '</div>', 750, null, col);
+      if (h.react) fxAdd('fx-flash', cx, cy, '', 500, null, col);
+      if (t === 'field') {
+        setTimeout(function () { fxAdd('fx-wave', cx, cy, '', 800, null, col); fxAdd('fx-wave w2', cx, cy, '', 900, null, col); }, 260);
+      } else if (t === 'spell' || h.react) {
+        var tr = null, tg = h.target;
+        if (tg === 'opp') tr = fxHeroRect(1 - h.side); else if (tg === 'me') tr = fxHeroRect(h.side);
+        else if (tg != null) { var te = document.querySelector('[data-uid="' + tg + '"]'); tr = te && te.getBoundingClientRect(); }
+        var tc = tr ? fxCtr(tr) : { x: cx, y: cy - 20 };
+        setTimeout(function () {
+          fxAdd('fx-orb', cx, cy, '✨', 450, { '--dx': (tc.x - cx) + 'px', '--dy': (tc.y - cy) + 'px' }, col);
+          setTimeout(function () { fxAdd('fx-ring', tc.x, tc.y, '', 550, null, col); fxSparks(tc.x, tc.y, 8, col, 46); }, 400);
+        }, 330);
+      }
+      if (h.card.rarity === 'rare' || h.card.rarity === 'legendary') fxBanner(h.card, 120);
+    }, delay || 0);
+  }
+  function fxUnits(added, removed, prevRects) {
+    var delayBase = 0;
+    added.forEach(function (it) {
+      var u = it.u, el = document.querySelector('[data-uid="' + u.uid + '"]');
+      if (!el) return;
+      var c = fxCtr(el.getBoundingClientRect()), col = fxColor(u.card), big = u.tier >= 3;
+      var parents = removed.filter(function (r) { return r.side === it.side && prevRects[r.uid]; });
+      var board = el.parentNode;
+      if (u.card.parts && parents.length >= 2) {
+        var ms = big ? 1000 : 720, rev = Math.round(ms * 0.52);
+        bs.fxHide = bs.fxHide || {}; bs.fxHide[u.uid] = Date.now() + rev;
+        el.classList.add('fx-hide');
+        parents.forEach(function (pr) {
+          var pc = fxCtr(prevRects[pr.uid]);
+          var g = fxAdd('fx-ghost', pc.x, pc.y, '', 460, { '--dx': (c.x - pc.x) + 'px', '--dy': (c.y - pc.y) + 'px' }, fxColor(pr.card));
+          g.appendChild(spriteEl(pr.card, 44));
+        });
+        setTimeout(function () {
+          fxAdd('fx-flash', c.x, c.y, '', 450, null, '#fff');
+          fxAdd('fx-circle', c.x, c.y, '', ms - rev + 200, null, col);
+          if (big) { fxAdd('fx-rays', c.x, c.y, '', ms - rev + 300, null, '#ffd24a'); fxShake(document.body, 'shake-s', 450); }
+          fxSparks(c.x, c.y, big ? 16 : 10, big ? '#ffd24a' : col, big ? 80 : 56);
+        }, 380);
+        setTimeout(function () {
+          var e2 = document.querySelector('[data-uid="' + u.uid + '"]');
+          if (e2) { e2.classList.remove('fx-hide'); e2.classList.add('fx-reveal'); }
+        }, rev);
+        if (big || u.card.rarity === 'rare') fxBanner(u.card, rev);
+        fxBusy(ms);
+      } else {
+        el.classList.add('fx-land' + (big || u.tier >= 2 ? ' big' : ''));
+        setTimeout(function () {
+          fxAdd('fx-ring', c.x, c.y + 18, '', 550, null, col);
+          fxSparks(c.x, c.y + 18, u.tier >= 2 ? 10 : 6, col, 44);
+          fxShake(board, 'shake-m', 260);
+          if (big) fxShake(document.body, 'shake-s', 450);
+        }, 170);
+        if (big || u.card.rarity === 'rare' || u.card.rarity === 'legendary') fxBanner(u.card, 180);
+        fxBusy(520);
+      }
+    });
+  }
+  function fxPlayHints() {
+    var hs = bs.fxHints; if (!hs || !hs.length) return;
+    bs.fxHints = [];
+    if (!fxOn()) return;
+    hs.forEach(function (h, i) { fxCast(h, i * 700); });
+    fxBusy(hs.length * 700);
   }
 
   function renderBattle() {
@@ -1267,12 +1396,24 @@
     });
 
     // สนาม
+    var fxRects = {};
+    if (fxOn()) document.querySelectorAll('#board-opp [data-uid], #board-me [data-uid]').forEach(function (e) { fxRects[e.getAttribute('data-uid')] = e.getBoundingClientRect(); });
     [['#board-opp', op, OP()], ['#board-me', me, ME()]].forEach(function (cfg) {
       var box = $(cfg[0]);
       box.innerHTML = '';
       cfg[1].board.forEach(function (u) { box.appendChild(unitEl(u, cfg[2], targets)); });
       for (var i = cfg[1].board.length; i < B.MAX_BOARD; i++) box.appendChild(make('div', 'unit empty-slot'));
     });
+    var fxCur = {};
+    [[op, OP()], [me, ME()]].forEach(function (q) { q[0].board.forEach(function (u) { fxCur[u.uid] = { u: u, uid: String(u.uid), card: u.card, side: q[1] }; }); });
+    if (bs.fxUnits && fxOn()) {
+      var fxAddL = [], fxRem = [];
+      Object.keys(fxCur).forEach(function (k) { if (!bs.fxUnits[k]) fxAddL.push(fxCur[k]); });
+      Object.keys(bs.fxUnits).forEach(function (k) { if (!fxCur[k]) fxRem.push(bs.fxUnits[k]); });
+      if (fxAddL.length) fxUnits(fxAddL, fxRem, fxRects);
+    }
+    bs.fxUnits = fxCur;
+    fxPlayHints();
 
     // บรรทัดกลาง
     var last = G.log.length ? G.log[G.log.length - 1].text : '—';
@@ -1471,6 +1612,7 @@
     if (bs.busy && !(bs.G.pending && bs.G.pending.resp === ME())) return;
     if (bs.online) { sendOnline(a); return; }
     var n0 = bs.G.log.length;
+    fxPre(ME(), a);
     var r = B.apply(bs.G, ME(), a);
     if (!r.ok) { toast(r.error); return; }
     bs.sel = null;
@@ -1559,21 +1701,23 @@
       if (G.pending) {
         if (G.pending.resp === 1) {
           var ra = B.botRespond(G, 1, session.level), n1 = G.log.length;
+          fxPre(1, ra);
           var rr = B.apply(G, 1, ra);
           if (!rr.ok) B.apply(G, 1, { t: 'pass' });
           announce(n1); renderBattle();
-          setTimeout(step, 750);
+          setTimeout(step, 750 + fxRemain());
         } else { session.busy = false; renderBattle(); } // รอผู้เล่นตอบโต้
         return;
       }
       if (G.active !== 1) { finish(0); return; }
       var a = B.botAction(G, 1, session.level), n0 = G.log.length;
+      fxPre(1, a);
       var r = B.apply(G, 1, a);
       announce(n0);
       renderBattle();
       if (!r.ok) { B.apply(G, 1, { t: 'end' }); }
       if (!r.ok || a.t === 'end') { finish(350); return; }
-      setTimeout(step, 650);
+      setTimeout(step, 650 + fxRemain());
     }
     setTimeout(step, 600);
   }
@@ -1878,8 +2022,9 @@
       if (v.by === ME()) o.pending = false;
       if (v.by !== 0 && v.by !== 1) continue;
       var a; try { a = JSON.parse(v.a); } catch (e) { continue; }
+      fxPre(v.by, a);
       var r = B.apply(G, v.by, a);
-      if (!r.ok) continue;
+      if (!r.ok) { if (bs.fxHints) bs.fxHints.pop(); continue; }
       if (v.by === ME() && !quiet && !v.forced) { if (a.t === 'play') bump('playCard'); else if (a.t === 'fuse') bump('fuseBattle'); }
       applied = true;
       o.log.push([v.by, v.a]);
@@ -1930,15 +2075,16 @@
     if (!bs || !bs.online) return;
     var o = bs.online, G = bs.G;
     if (bs.over || G.over) { renderTurnLabel(); return; }
+    if (bs.fz) { renderTurnLabel(); return; } // เอฟเฟกต์กำลังเล่น เวลาหยุดนับ
     renderTurnLabel();
     if (G.pending) {
-      var pl = (o.pdl - Date.now()) / 1000;
+      var pl = (o.pdl - nowT()) / 1000;
       if (o.pending || o.forcing) return;
       if (G.pending.resp === ME() && pl <= 0) { toast('หมดเวลาตอบโต้ ผ่านให้อัตโนมัติ'); pushAction(ME(), { t: 'pass' }, true, false); }
       else if (G.pending.resp === OP() && pl <= -8) pushAction(OP(), { t: 'pass' }, true, false);
       return;
     }
-    var left = (o.deadline - Date.now()) / 1000;
+    var left = (o.deadline - nowT()) / 1000;
     if (o.pending || o.forcing || document.hidden && G.active !== ME()) return;
     if (G.active === ME() && left <= 0) { toast('หมดเวลา จบเทิร์นให้อัตโนมัติ'); pushAction(ME(), { t: 'end' }, true, false); }
     else if (G.active === OP() && left <= -8) pushAction(OP(), { t: 'end' }, true, false);
@@ -2888,8 +3034,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.33').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.33')
+    var setsP = fetch('sets.json?v=0.34').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.34')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
