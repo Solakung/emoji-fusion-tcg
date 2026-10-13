@@ -612,3 +612,12 @@ body.in-battle #update-bar { display: none; }
 .unit.fx-reveal { animation: fxreveal .45s ease-out; }
 @keyframes fxreveal { 0% { transform: scale(.2); filter: brightness(5); } 60% { transform: scale(1.12); filter: brightness(2); } 100% { transform: none; filter: none; } }
 .shake-m { animation: bodyshake .26s; }
+.unit.fx-lunge { position: relative; z-index: 30; animation: fxlunge .42s ease-in-out; }
+@keyframes fxlunge { 0% { transform: none; } 38% { transform: translate(var(--dx), var(--dy)) scale(1.18); filter: brightness(1.6); } 55% { transform: translate(var(--dx), var(--dy)) scale(1.05); } 100% { transform: none; filter: none; } }
+.fx-slash { width: 90px; height: 7px; margin: -3px 0 0 -45px; border-radius: 4px; background: linear-gradient(90deg, transparent, #fff 30%, #fff 70%, transparent); box-shadow: 0 0 12px #fff, 0 0 22px var(--c); transform: rotate(var(--rot)); animation: fxslash .38s ease-out forwards; }
+@keyframes fxslash { from { transform: rotate(var(--rot)) scaleX(.1); opacity: 1; } 50% { transform: rotate(var(--rot)) scaleX(1.2); opacity: 1; } to { transform: rotate(var(--rot)) scaleX(1.4); opacity: 0; } }
+.fx-ring.small { width: 30px; height: 30px; margin: -15px 0 0 -15px; border-width: 3px; animation-duration: .45s; }
+.fx-die { margin: -24px 0 0 -24px; filter: drop-shadow(0 0 10px var(--c)); animation: fxdie .6s ease-in forwards; }
+@keyframes fxdie { 0% { transform: scale(1); opacity: 1; filter: brightness(1); } 25% { transform: scale(1.12) rotate(-6deg); filter: brightness(4) drop-shadow(0 0 14px var(--c)); } 100% { transform: translateY(-26px) scale(.2) rotate(18deg); opacity: 0; filter: brightness(2); } }
+.fx-ash { width: 5px; height: 5px; margin: -2px 0 0 -2px; border-radius: 50%; background: var(--c); opacity: .9; animation: fxash .8s ease-out forwards; }
+@keyframes fxash { from { transform: translate(0,0) scale(1); opacity: .9; } to { transform: translate(var(--dx), var(--dy)) scale(.2); opacity: 0; } }

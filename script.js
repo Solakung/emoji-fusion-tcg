@@ -1293,6 +1293,7 @@
   function fxRemain() { return bs && bs.fxUntil ? Math.max(0, Math.min(1200, bs.fxUntil - Date.now())) : 0; }
   function fxPre(side, a) {
     if (!fxOn() || !a) return;
+    if (a.t === 'attack') { (bs.fxAtk = bs.fxAtk || []).push({ uid: a.unit, target: a.target, side: side }); return; }
     var P = bs.G.players[side], c = null;
     if (a.t === 'play') c = P.hand[a.hand]; else if (a.t === 'react') c = P.sets[a.slot];
     if (!c || c.type === 'creature' || (a.t === 'play' && c.type === 'reaction')) return;
@@ -1322,7 +1323,7 @@
     }, delay || 0);
   }
   function fxUnits(added, removed, prevRects) {
-    var delayBase = 0;
+    var consumed = {};
     added.forEach(function (it) {
       var u = it.u, el = document.querySelector('[data-uid="' + u.uid + '"]');
       if (!el) return;
@@ -1330,6 +1331,7 @@
       var parents = removed.filter(function (r) { return r.side === it.side && prevRects[r.uid]; });
       var board = el.parentNode;
       if (u.card.parts && parents.length >= 2) {
+        parents.forEach(function (pr) { consumed[pr.uid] = true; });
         var ms = big ? 1000 : 720, rev = Math.round(ms * 0.52);
         bs.fxHide = bs.fxHide || {}; bs.fxHide[u.uid] = Date.now() + rev;
         el.classList.add('fx-hide');
@@ -1362,6 +1364,50 @@
         fxBusy(520);
       }
     });
+    return consumed;
+  }
+
+  function fxPlayAttacks(prevRects) {
+    var list = bs.fxAtk; if (!list || !list.length) return 0;
+    bs.fxAtk = [];
+    if (!fxOn()) return 0;
+    list.forEach(function (h, i) {
+      var ar = prevRects[h.uid], tr = null;
+      if (h.target === 'opp') tr = fxHeroRect(1 - h.side); else tr = prevRects[h.target];
+      if (!ar || !tr) return;
+      var a = fxCtr(ar), t = fxCtr(tr), col = fxColor(bs.fxUnits && bs.fxUnits[h.uid] && bs.fxUnits[h.uid].card);
+      var uid = h.uid;
+      setTimeout(function () {
+        var e2 = document.querySelector('[data-uid="' + uid + '"]'); if (!e2) return;
+        e2.style.setProperty('--dx', (t.x - a.x) * 0.7 + 'px'); e2.style.setProperty('--dy', (t.y - a.y) * 0.7 + 'px');
+        e2.classList.add('fx-lunge');
+        setTimeout(function () { e2.classList.remove('fx-lunge'); }, 420);
+        setTimeout(function () {
+          var ang = Math.atan2(t.y - a.y, t.x - a.x) * 180 / Math.PI;
+          fxAdd('fx-slash', t.x, t.y, '', 420, { '--rot': ang + 'deg' }, '#fff');
+          fxAdd('fx-ring small', t.x, t.y, '', 450, null, col);
+          fxSparks(t.x, t.y, 7, col, 40);
+          fxShake(document.body, 'shake-m', 260);
+        }, 170);
+      }, i * 450);
+    });
+    fxBusy(list.length * 450);
+    return 260;
+  }
+  function fxDeaths(list, prevRects, delay) {
+    if (!list.length) return;
+    list.forEach(function (r) {
+      var rc = prevRects[r.uid]; if (!rc) return;
+      var c = fxCtr(rc), col = fxColor(r.card);
+      setTimeout(function () {
+        if (!fxOn()) return;
+        var g = fxAdd('fx-die', c.x, c.y, '', 620, null, col);
+        g.appendChild(spriteEl(r.card, 48));
+        fxAdd('fx-ring small', c.x, c.y, '', 450, null, col);
+        for (var i = 0; i < 9; i++) fxAdd('fx-ash', c.x + (Math.random() * 40 - 20), c.y + (Math.random() * 20 - 5), '', 800, { '--dx': (Math.random() * 40 - 20) + 'px', '--dy': (-30 - Math.random() * 50) + 'px' }, col);
+      }, delay || 0);
+    });
+    fxBusy(600 + (delay || 0));
   }
   function fxPlayHints() {
     var hs = bs.fxHints; if (!hs || !hs.length) return;
@@ -1410,8 +1456,10 @@
       var fxAddL = [], fxRem = [];
       Object.keys(fxCur).forEach(function (k) { if (!bs.fxUnits[k]) fxAddL.push(fxCur[k]); });
       Object.keys(bs.fxUnits).forEach(function (k) { if (!fxCur[k]) fxRem.push(bs.fxUnits[k]); });
-      if (fxAddL.length) fxUnits(fxAddL, fxRem, fxRects);
-    }
+      var fxCons = fxAddL.length ? (fxUnits(fxAddL, fxRem, fxRects) || {}) : {};
+      var fxAtkDelay = fxPlayAttacks(fxRects);
+      fxDeaths(fxRem.filter(function (r) { return !fxCons[r.uid]; }), fxRects, fxAtkDelay + 120);
+    } else fxPlayAttacks(fxRects);
     bs.fxUnits = fxCur;
     fxPlayHints();
 
@@ -3034,8 +3082,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.34').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.34')
+    var setsP = fetch('sets.json?v=0.35').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.35')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
