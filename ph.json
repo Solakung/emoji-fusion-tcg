@@ -1,0 +1,348 @@
+{
+ "name": "ฟินิกส์ 12 สี",
+ "emoji": "🌈",
+ "cards": [
+  {
+   "id": "PH01",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🥚",
+   "name": "ไข่ฟินิกส์แดง",
+   "element": "fire",
+   "cost": 1,
+   "atk": 2,
+   "hp": 3,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "vanish",
+     "name": "หายตัว",
+     "text": "ตอนถูกกำจัด กลับเข้ามือเจ้าของ (ถ้ามือไม่เต็ม)"
+    }
+   ],
+   "rarity": "common",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH02",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🐣",
+   "name": "ฟินิกส์ส้ม",
+   "element": "fire",
+   "cost": 1,
+   "atk": 2,
+   "hp": 3,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "embers",
+     "name": "ถ่านคุ",
+     "text": "ตอนลงสนาม ATK +1 ถาวรต่อตัวละครในสุสาน 2 ใบ (สูงสุด +3)"
+    }
+   ],
+   "rarity": "common",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH03",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🐥",
+   "name": "ฟินิกส์เหลือง",
+   "element": "electric",
+   "cost": 2,
+   "atk": 3,
+   "hp": 4,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "seeker",
+     "name": "นักค้นหา",
+     "text": "ตอนลงสนาม ค้นตัวละคร Cost ต่ำสุดจากเด็คขึ้นมือ"
+    }
+   ],
+   "rarity": "common",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH04",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🐤",
+   "name": "ฟินิกส์เขียว",
+   "element": "plant",
+   "cost": 2,
+   "atk": 2,
+   "hp": 5,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "recall",
+     "name": "เรียกคืน",
+     "text": "ตอนลงสนาม เก็บตัวละคร Cost สูงสุดจากสุสานคืนมือ"
+    }
+   ],
+   "rarity": "common",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH05",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🦜",
+   "name": "ฟินิกส์ฟ้า",
+   "element": "water",
+   "cost": 2,
+   "atk": 3,
+   "hp": 4,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "dew",
+     "name": "น้ำค้าง",
+     "text": "ตอนลงสนาม ฟื้น HP ผู้เล่น 2"
+    }
+   ],
+   "rarity": "common",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH06",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🦢",
+   "name": "ฟินิกส์คราม",
+   "element": "water",
+   "cost": 3,
+   "atk": 3,
+   "hp": 5,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "pyre",
+     "name": "เผาสุสาน",
+     "text": "ตอนลงสนาม เนรเทศตัวละครในสุสาน 2 ใบ (Cost ต่ำสุด) แล้วจั่ว 1 ใบ ฟื้น HP ผู้เล่น 2"
+    }
+   ],
+   "rarity": "uncommon",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH07",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🦚",
+   "name": "ฟินิกส์ม่วง",
+   "element": "wind",
+   "cost": 3,
+   "atk": 4,
+   "hp": 4,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "kindle",
+     "name": "ก่อไฟ",
+     "text": "ตอนลงสนาม ถ้าเทิร์นนี้ทำคอมโบ 2 ขึ้นไป: สั่งการ 1 ครั้ง"
+    }
+   ],
+   "rarity": "uncommon",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH08",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🦩",
+   "name": "ฟินิกส์ชมพู",
+   "element": "plant",
+   "cost": 3,
+   "atk": 3,
+   "hp": 6,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "bloom",
+     "name": "ออกดอก",
+     "text": "ตอนลงสนาม พวกเดียวกันทุกตัวฟื้น HP 2"
+    }
+   ],
+   "rarity": "uncommon",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH09",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🕊️",
+   "name": "ฟินิกส์ขาว",
+   "element": "wind",
+   "cost": 3,
+   "atk": 3,
+   "hp": 5,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "embers",
+     "name": "ถ่านคุ",
+     "text": "ตอนลงสนาม ATK +1 ถาวรต่อตัวละครในสุสาน 2 ใบ (สูงสุด +3)"
+    },
+    {
+     "id": "gust",
+     "name": "ลมหมุน",
+     "text": "ตอนลงสนาม จั่วการ์ด 1 ใบ"
+    }
+   ],
+   "rarity": "uncommon",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH10",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🦅",
+   "name": "ฟินิกส์ดำ",
+   "element": "earth",
+   "cost": 3,
+   "atk": 4,
+   "hp": 5,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "wisp",
+     "name": "วิญญาณลม",
+     "text": "ตอนถูกกำจัด จั่วการ์ด 1 ใบ"
+    },
+    {
+     "id": "vanish",
+     "name": "หายตัว",
+     "text": "ตอนถูกกำจัด กลับเข้ามือเจ้าของ (ถ้ามือไม่เต็ม)"
+    }
+   ],
+   "rarity": "uncommon",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH11",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🔥",
+   "name": "ฟินิกส์ทอง",
+   "element": "fire",
+   "cost": 4,
+   "atk": 4,
+   "hp": 7,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "recall",
+     "name": "เรียกคืน",
+     "text": "ตอนลงสนาม เก็บตัวละคร Cost สูงสุดจากสุสานคืนมือ"
+    },
+    {
+     "id": "kindle",
+     "name": "ก่อไฟ",
+     "text": "ตอนลงสนาม ถ้าเทิร์นนี้ทำคอมโบ 2 ขึ้นไป: สั่งการ 1 ครั้ง"
+    }
+   ],
+   "rarity": "rare",
+   "set": "phoenix"
+  },
+  {
+   "id": "PH12",
+   "type": "creature",
+   "tier": 1,
+   "emoji": "🌈",
+   "name": "ฟินิกส์รุ้ง",
+   "element": "wind",
+   "cost": 4,
+   "atk": 5,
+   "hp": 7,
+   "keywords": [],
+   "abilities": [
+    {
+     "id": "rainbow",
+     "name": "รุ้งฟื้นชีพ",
+     "text": "ตอนลงสนาม เก็บตัวละครจากสุสานคืนมือ ถ้าคอมโบ 3 ขึ้นไปสั่งการ 1 ครั้งด้วย"
+    }
+   ],
+   "rarity": "rare",
+   "set": "phoenix"
+  }
+ ],
+ "extras": [
+  {
+   "id": "PHS1",
+   "type": "spell",
+   "emoji": "🪶",
+   "name": "ขนฟินิกส์คืนชีพ",
+   "cost": 1,
+   "rarity": "uncommon",
+   "set": "phoenix",
+   "text": "เก็บตัวละคร Cost สูงสุดจากสุสานคืนมือ ถ้านี่เป็นการกระทำที่ 3 ขึ้นไปของเทิร์น (คอมโบ 3) เก็บเพิ่มอีก 1 ใบ"
+  },
+  {
+   "id": "PHS2",
+   "type": "spell",
+   "emoji": "🕯️",
+   "name": "บูชาเปลวไฟ",
+   "cost": 1,
+   "rarity": "common",
+   "set": "phoenix",
+   "text": "สังเวยการ์ดฝั่งเรา 1 ใบ แล้วจั่ว 1 ใบ (ใบที่มี หายตัว จะกลับมือ)"
+  },
+  {
+   "id": "PHS3",
+   "type": "spell",
+   "emoji": "📯",
+   "name": "เปลวสั่งการ",
+   "cost": 3,
+   "rarity": "rare",
+   "set": "phoenix",
+   "text": "เลือกตัวละครศัตรู 1 ใบ สั่งให้โจมตีผู้เล่นฝั่งมันเอง ดาเมจเท่า ATK (สูงสุด 4) — สั่งการได้ 2 ครั้งต่อเทิร์น ใบเดิมซ้ำไม่ได้"
+  },
+  {
+   "id": "PHS4",
+   "type": "spell",
+   "emoji": "🪽",
+   "name": "ปีกคุ้มกัน",
+   "cost": 2,
+   "rarity": "uncommon",
+   "set": "phoenix",
+   "text": "ฟื้น HP ผู้เล่น 4 และ HP การ์ดฝั่งเราทุกใบ 2"
+  },
+  {
+   "id": "PHS5",
+   "type": "spell",
+   "emoji": "☄️",
+   "name": "รวมเปลวเพลิง",
+   "cost": 3,
+   "rarity": "rare",
+   "set": "phoenix",
+   "text": "ศัตรูโดนดาเมจ = จำนวนตัวละครในสุสานฝั่งเรา ÷ 2 (ปัดลง สูงสุด 5)"
+  },
+  {
+   "id": "PHF1",
+   "type": "field",
+   "emoji": "🏜️",
+   "name": "ทุ่งเถ้าถ่าน",
+   "cost": 2,
+   "rarity": "uncommon",
+   "fx": "ashfield",
+   "element": "fire",
+   "set": "phoenix",
+   "text": "เมื่อการ์ดฝั่งเราถูกกำจัด ฟื้น HP ผู้เล่น 1 · การ์ดธาตุไฟฝั่งเรา HP +1"
+  },
+  {
+   "id": "PHR1",
+   "type": "reaction",
+   "speed": 2,
+   "emoji": "🪞",
+   "name": "ผงเถ้าสะท้อน",
+   "cost": 2,
+   "rarity": "rare",
+   "set": "phoenix",
+   "text": "ตอบโต้การโจมตีของศัตรู: ยกเลิกการโจมตีนั้น แล้วผู้โจมตีตีผู้เล่นฝั่งมันเอง ดาเมจเท่า ATK (สูงสุด 4)"
+  }
+ ]
+}

@@ -93,6 +93,7 @@
     s.owned.R01 = Math.max(s.owned.R01 || 0, 1); s.owned.R04 = Math.max(s.owned.R04 || 0, 1);
     if (s.decks && s.decks[s.deckIdx] && Array.isArray(s.decks[s.deckIdx].d) && s.decks[s.deckIdx].d.length) s.deck = s.decks[s.deckIdx].d.slice();
     state = ensureSlots(s);
+    phSync();
   }
   function saveLocal() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ไม่เป็นไร */ }
@@ -276,9 +277,45 @@
   function foundByTier(t, core) {
     return state.found.map(getCard).filter(function (c) { return c && c.tier === t && (!core || !isSetRecipe(c)); });
   }
+
+  /* ---------- ชุดทดลอง (ล็อกตามบัญชี) ---------- */
+  var PH_HASH = '08998fe722a24a8635991654144d5d764bb738854389a2d4a021c3bcb4d113f7';
+  var PHX = { owner: false, known: false, cards: [], extras: [] };
+  function phIds() { return PHX.cards.concat(PHX.extras).map(function (c) { return c.id; }); }
+  function phSync() { // เจ้าของบัญชี: ได้การ์ดชุดครบ · คนอื่น: เอาออกทั้งหมด
+    var ids = phIds(); if (!ids.length || !state.owned) return;
+    var changed = false;
+    if (PHX.owner) {
+      ids.forEach(function (id) { var want = maxCopies(id); if ((state.owned[id] || 0) < want) { state.owned[id] = want; changed = true; } });
+    } else if (PHX.known) {
+      var set = {}; ids.forEach(function (id) { set[id] = 1; });
+      ids.forEach(function (id) { if (state.owned[id]) { delete state.owned[id]; changed = true; } });
+      var strip = function (a) { var n = a.filter(function (id) { return !set[id]; }); if (n.length !== a.length) changed = true; return n; };
+      state.deck = strip(state.deck);
+      if (state.decks) state.decks.forEach(function (dk) { dk.d = strip(dk.d); });
+    }
+    if (changed) { saveLocal(); }
+  }
+  function sha256hex(str) {
+    if (!(window.crypto && crypto.subtle && window.TextEncoder)) return Promise.resolve('');
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (b) {
+      return Array.prototype.map.call(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+    }).catch(function () { return ''; });
+  }
+  function phCheckUser(u) {
+    var email = (u && !u.isAnonymous && u.email) ? String(u.email).toLowerCase().trim() : '';
+    var was = PHX.owner;
+    if (!email) { PHX.owner = false; PHX.known = true; phSync(); if (was) refreshAll(); return; }
+    sha256hex(email).then(function (h) {
+      PHX.owner = (h === PH_HASH); PHX.known = true;
+      if (PHX.owner !== was || PHX.owner) { phSync(); refreshAll(); }
+    });
+  }
+
   function ownedSetCards() {
     var out = [];
     SETS.forEach(function (st) { st.cards.forEach(function (c) { if ((state.owned[c.id] || 0) > 0) out.push(c); }); });
+    PHX.cards.forEach(function (c) { if ((state.owned[c.id] || 0) > 0) out.push(c); });
     return out;
   }
   function renderStats() {
@@ -597,6 +634,13 @@
     fill('#col-react', REACTS);
     var cs = $('#col-sets'); if (cs) {
       cs.innerHTML = '';
+      if (PHX.owner && PHX.cards.length) {
+        cs.appendChild(make('h2', 'sec', '🌈 ชุดทดลอง · ฟินิกส์ 12 สี'));
+        var pg = make('div', 'grid'); cs.appendChild(pg);
+        PHX.cards.concat(PHX.extras).filter(function (c) { return cardMatch(c, bookQ); }).forEach(function (c) {
+          var e = cardEl(c, 'mini', '×' + (state.owned[c.id] || 0)); e.onclick = function () { showDetail(c); }; pg.appendChild(e);
+        });
+      }
       SETS.forEach(function (st) {
         cs.appendChild(make('h2', 'sec', st.emoji + ' ชุด' + st.name));
         var g = make('div', 'grid'); cs.appendChild(g);
@@ -3081,6 +3125,7 @@
     });
     if (!state.decks.some(function (dk) { return dk.d.length === DECK_SIZE; })) { state.deckIdx = 0; state.decks[0].d = DEFAULT_DECK.slice(); }
     state.deck = state.decks[state.deckIdx].d.slice();
+    phSync();
     saveLocal();
     refreshAll();
   }
@@ -3153,6 +3198,7 @@
 
   function handleAuth(u) {
     var first = !startupDone;
+    phCheckUser(u);
     if (first) setTimeout(checkRejoin, 1200);
     if (!u || u.isAnonymous) {
       cloud.user = null; cloud.name = null; cloud.status = 'guest'; renderAccount();
@@ -3315,11 +3361,12 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.37').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.37')
+    var setsP = fetch('sets.json?v=0.38').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    var phP = fetch('ph.json?v=0.38').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    fetch('cards.json?v=0.38')
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });
+        return setsP.then(function (sd) { data.sets = sd.sets || []; return phP; }).then(function (ph) { data.ph = ph; return data; });
       })
       .then(function (data) {
         BASE = data.base;
@@ -3329,6 +3376,7 @@
         REACTS = data.extras.filter(function (c) { return c.type === 'reaction'; });
         SPELLS.concat(FIELDS, REACTS).forEach(function (c) { ALL_MAP[c.id] = c; });
         SETS = data.sets; SETS.forEach(function (st) { SET_MAP[st.id] = st; st.cards.forEach(function (c) { ALL_MAP[c.id] = c; BASE_MAP[c.id] = c; }); });
+        if (data.ph) { PHX.cards = data.ph.cards || []; PHX.extras = data.ph.extras || []; PHX.cards.forEach(function (c) { ALL_MAP[c.id] = c; BASE_MAP[c.id] = c; }); PHX.extras.forEach(function (c) { ALL_MAP[c.id] = c; }); }
         load();
         state.found = state.found.filter(function (id) { return !!getCard(id); });
         buildGroups();
@@ -3347,7 +3395,7 @@
         $('#wl-guest').onclick = closeWelcome;
         $('#wl-login').onclick = function () { openAuthModal('login'); };
         setTimeout(startup, 2500);
-        window.EFL = { payload: payload, normalize: normalize, mergeStates: mergeStates, checkUpdate: checkUpdate, noTear: false, roll: function (k, e) { return rollPack(k, e); }, state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
+        window.EFL = { phCheck: function (u) { phCheckUser(u); }, phx: function () { return PHX; }, payload: payload, normalize: normalize, mergeStates: mergeStates, checkUpdate: checkUpdate, noTear: false, roll: function (k, e) { return rollPack(k, e); }, state: function () { return state; }, battle: function () { return bs; }, render: function () { renderBattle(); }, act: function (a) { act(a); } };
       })
       .catch(function (e) {
         if (window.console) console.error(e);

@@ -5,7 +5,8 @@ SETC.forEach(c => { const p = c.id.slice(0, 2); const A = +process.env[p + "A"] 
 const FF = require('../fusion.js'); if (process.env.FACTOR) FF.CONFIG.factor = +process.env.FACTOR; if (process.env.CD) FF.CONFIG.costDelta = +process.env.CD; if (process.env.SLOT2) B.RULES.fuseSlot2Turn = +process.env.SLOT2; if (process.env.DISC === '0') B.RULES.fuseFirstDisc = false; if (process.env.INH === '0') B.RULES.fuseInherit = false;
 if (process.env.RUSH === '0') B.RULES.rush = false;
 d.base.forEach(c => { const A = +process.env[c.id + 'A'] || 0, H = +process.env[c.id + 'H'] || 0; c.atk += A; c.hp += H; });
-const C = id => d.base.find(c => c.id === id) || d.extras.find(c => c.id === id) || SETC.find(c => c.id === id);
+const PHD = require('../ph.json'); const PHC = PHD.cards.concat(PHD.extras);
+const C = id => d.base.find(c => c.id === id) || d.extras.find(c => c.id === id) || SETC.find(c => c.id === id) || PHC.find(c => c.id === id);
 const mk = s => s.split(' ').flatMap(t => { const [id, n] = t.split('x'); return Array(+(n || 1)).fill(C(id)); });
 const DECKS = {
   แอกโกร: () => mk('B01x2 B13x2 B14x2 B02x2 B03x2 B15x2 B16x2 S01x2 S04 S17 F07 R14'),
@@ -14,6 +15,7 @@ const DECKS = {
   โกเลม: () => mk('GO01x2 GO02 GO03x2 GO04x2 GO06 GO09x2 GO10x2 GO12 GO13 GO15 S02 S14 F08 R09 R01'),
   ละครสัตว์: () => mk('CI01x2 CI03x2 CI04x2 CI06x2 CI08x2 CI09 CI11x2 CI13 CI14 CI16 S14 S05 R13 R09'),
   ไฟฟ้า: () => mk('B13x2 B14x2 B15x2 B16x2 B21x2 B22x2 B17 B18 S01 S04 S17 F04 R09 R14'),
+  ฟินิกส์: () => mk(process.env.PHDECK || 'PH01x2 PH02x2 PH03 PH04 PH06 PH07x2 PH09 PH10 PH11 PH12 PHS1x2 PHS3 PHS5 PHS4 PHF1 PHR1'),
   สุ่ม: () => { const a = d.base.concat(d.base); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, 20); }
 };
 DECKS.แอกโกร().length === 20 || (() => { throw new Error('aggro ' + DECKS.แอกโกร().length); })();
@@ -34,6 +36,7 @@ function match(a, b) {
   console.log(`${a} vs ${b}: ${a} ชนะ ${wa} (${(100 * wa / (wa + wb)).toFixed(0)}%) · ${b} ชนะ ${wb} · เกมยาวเฉลี่ย ${avg.toFixed(1)} เทิร์น (มัธยฐาน ${turns[turns.length >> 1]}) · ผู้เล่นคนแรกชนะ ${(100 * firstW / turns.length).toFixed(0)}% · ค้าง ${st}`);
 }
 const only = process.argv[3];
+if (only === 'ph') { ['แอกโกร', 'ไฟฟ้า', 'โกเลม', 'ละครสัตว์', 'ตั้งรับ', 'คอนโทรลผสม', 'สุ่ม'].forEach(k => match('ฟินิกส์', k)); process.exit(0); }
 (only === 'rush' ? [['แอกโกร', 'โกเลม'], ['แอกโกร', 'ละครสัตว์'], ['แอกโกร', 'สุ่ม'], ['ไฟฟ้า', 'โกเลม'], ['ไฟฟ้า', 'ละครสัตว์'], ['ไฟฟ้า', 'สุ่ม'], ['สุ่ม', 'สุ่ม']] : only ? [['แอกโกร', 'โกเลม'], ['แอกโกร', 'ละครสัตว์'], ['โกเลม', 'สุ่ม'], ['ละครสัตว์', 'สุ่ม'], ['โกเลม', 'ละครสัตว์']] :
   [['แอกโกร', 'ตั้งรับ'], ['แอกโกร', 'คอนโทรลผสม'], ['แอกโกร', 'สุ่ม'], ['ตั้งรับ', 'สุ่ม'], ['คอนโทรลผสม', 'สุ่ม'], ['สุ่ม', 'สุ่ม'], ['แอกโกร', 'โกเลม'], ['แอกโกร', 'ละครสัตว์'], ['โกเลม', 'สุ่ม'], ['ละครสัตว์', 'สุ่ม'], ['โกเลม', 'ละครสัตว์']]
 ).forEach(p => match(p[0], p[1]));
