@@ -621,3 +621,39 @@ body.in-battle #update-bar { display: none; }
 @keyframes fxdie { 0% { transform: scale(1); opacity: 1; filter: brightness(1); } 25% { transform: scale(1.12) rotate(-6deg); filter: brightness(4) drop-shadow(0 0 14px var(--c)); } 100% { transform: translateY(-26px) scale(.2) rotate(18deg); opacity: 0; filter: brightness(2); } }
 .fx-ash { width: 5px; height: 5px; margin: -2px 0 0 -2px; border-radius: 50%; background: var(--c); opacity: .9; animation: fxash .8s ease-out forwards; }
 @keyframes fxash { from { transform: translate(0,0) scale(1); opacity: .9; } to { transform: translate(var(--dx), var(--dy)) scale(.2); opacity: 0; } }
+
+/* ---------- ตัวเลขดาเมจ · ป้ายเทิร์น · บรรยากาศ · เกจ HP · ฉากจบ · กรอบหายาก ---------- */
+.fx-num { transform: translate(-50%,-50%); font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums; color: #fff; -webkit-text-stroke: 1px rgba(0,0,0,.55); paint-order: stroke fill; text-shadow: 0 2px 0 rgba(0,0,0,.5), 0 0 10px var(--nc); animation: fxnum .95s ease-out forwards; }
+.fx-num.dmg { --nc: #ff3d5e; color: #ff6b80; } .fx-num.heal { --nc: #5fe08a; color: #7ee79a; }
+.fx-num.big { font-size: 36px; }
+@keyframes fxnum { 0% { transform: translate(-50%,-30%) scale(.3); opacity: 0; } 18% { transform: translate(-50%,-70%) scale(1.35); opacity: 1; } 32% { transform: translate(-50%,-80%) scale(1); } 75% { opacity: 1; } 100% { transform: translate(-50%,-190%) scale(.95); opacity: 0; } }
+.fx-turn { left: 0 !important; right: 0; width: 100%; transform: translateY(-50%); text-align: center; padding: 10px 0; font-size: 26px; font-weight: 900; letter-spacing: 1px; color: #fff; border-block: 2px solid var(--c); background: linear-gradient(90deg, transparent, rgba(23,21,42,.92) 20%, rgba(23,21,42,.92) 80%, transparent); animation: fxturn 1.2s ease-out forwards; }
+.fx-turn.me { --c: #7cffa0; text-shadow: 0 0 14px #3ddc7a; } .fx-turn.opp { --c: #ff5c7a; text-shadow: 0 0 14px #ff3d5e; }
+@keyframes fxturn { 0% { transform: translateY(-50%) scaleY(0); opacity: 0; } 15% { transform: translateY(-50%) scaleY(1); opacity: 1; } 75% { opacity: 1; letter-spacing: 3px; } 100% { transform: translateY(-50%) scaleY(1); opacity: 0; letter-spacing: 6px; } }
+.atmos { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; --c: #8d6dff; background: radial-gradient(90% 55% at 50% 100%, color-mix(in srgb, var(--c) 16%, transparent), transparent 70%); }
+.atm-p { position: absolute; border-radius: 50%; background: var(--c); opacity: 0; box-shadow: 0 0 8px var(--c); }
+.atmos.rise .atm-p { bottom: -10px; animation: atmrise linear infinite; }
+.atmos.fall .atm-p { top: -10px; animation: atmfall linear infinite; }
+@keyframes atmrise { 0% { transform: translate(0,0); opacity: 0; } 15% { opacity: .5; } 85% { opacity: .35; } 100% { transform: translate(24px,-105vh); opacity: 0; } }
+@keyframes atmfall { 0% { transform: translate(0,0); opacity: 0; } 15% { opacity: .45; } 85% { opacity: .3; } 100% { transform: translate(-24px,105vh); opacity: 0; } }
+.h-bar { height: 6px; margin-top: 4px; border-radius: 99px; background: rgba(0,0,0,.35); overflow: hidden; }
+.h-bar i { display: block; height: 100%; width: 100%; border-radius: 99px; background: linear-gradient(90deg, #3ddc7a, #8cf08a); transition: width .5s ease, background .4s; }
+.h-bar i.mid { background: linear-gradient(90deg, #ffb13d, #ffd84a); }
+.h-bar i.low { background: linear-gradient(90deg, #ff3d5e, #ff7d92); }
+.b-hero.danger { animation: dangerpulse 1.1s ease-in-out infinite; }
+@keyframes dangerpulse { 50% { box-shadow: 0 0 14px 1px rgba(255,61,94,.55); border-color: rgba(255,92,122,.7); } }
+.fx-end { position: fixed; inset: 0; z-index: 80; pointer-events: none; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.fe-t { font-size: 58px; font-weight: 900; letter-spacing: 2px; animation: fxend 2.6s ease-out forwards; }
+.fx-end.win .fe-t { color: #ffd24a; text-shadow: 0 0 24px #ffb100, 0 4px 0 #8a5a00; }
+.fx-end.lose { background: radial-gradient(circle, transparent 20%, rgba(10,6,20,.78)); animation: fxlose 2.6s ease-out forwards; }
+.fx-end.lose .fe-t { color: #9aa0b8; text-shadow: 0 0 18px #000; }
+.fx-end.draw .fe-t { color: #cfd6ff; text-shadow: 0 0 18px #6a7cff; }
+@keyframes fxend { 0% { transform: scale(.2); opacity: 0; } 18% { transform: scale(1.25); opacity: 1; } 28% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: scale(1.08); opacity: 0; } }
+@keyframes fxlose { 0% { opacity: 0; } 25% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+.fe-c { position: absolute; top: -14px; width: 8px; height: 14px; border-radius: 2px; animation: fxconf linear forwards; }
+@keyframes fxconf { from { transform: translate(0,0) rotate(0); opacity: 1; } to { transform: translate(var(--sx), 105vh) rotate(720deg); opacity: .9; } }
+.card.tier3::after, .card.r-rare::after, .unit.tier3::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; mix-blend-mode: screen; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.38) 44%, rgba(120,210,255,.28) 50%, rgba(255,160,255,.28) 56%, transparent 70%); background-size: 260% 100%; animation: shine 3.4s linear infinite; }
+.card.tier2::after, .card.r-uncommon::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: linear-gradient(160deg, rgba(255,255,255,.10), transparent 40%); }
+.card.tier3 .art { background: radial-gradient(circle, rgba(255,210,74,.30), transparent 68%); }
+.unit.tier3 { position: relative; }
+@media (prefers-reduced-motion: reduce) { .atm-p, .card::after, .unit::after, .b-hero.danger { animation: none !important; } .atmos { display: none; } }

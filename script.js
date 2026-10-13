@@ -1192,6 +1192,7 @@
     var pv = bs.prev[key];
     if (pv != null && u.hp < pv) d.classList.add('hit');
     else if (pv != null && u.hp > pv) d.classList.add('heal');
+    if (pv != null && u.hp !== pv && fxOn()) (bs.fxNums = bs.fxNums || []).push({ uid: u.uid, d: u.hp - pv });
     bs.prev[key] = u.hp;
     d.onclick = function (ev) { ev.stopPropagation(); onUnitClick(side, u.uid); };
     attachLongPress(d, function () { return u.card; });
@@ -1409,6 +1410,65 @@
     });
     fxBusy(600 + (delay || 0));
   }
+
+  function fxPlayNums(delay) {
+    var list = bs.fxNums; if (!list || !list.length) return;
+    bs.fxNums = [];
+    if (!fxOn()) return;
+    list.forEach(function (n, i) {
+      var el = n.hero != null ? $(n.hero === ME() ? '#me-hp' : '#opp-hp') : document.querySelector('[data-uid="' + n.uid + '"]');
+      if (!el) return;
+      var c = fxCtr(el.getBoundingClientRect()), big = Math.abs(n.d) >= 5;
+      setTimeout(function () {
+        fxAdd('fx-num ' + (n.d < 0 ? 'dmg' : 'heal') + (big ? ' big' : ''), c.x + (Math.random() * 14 - 7), c.y - 8, (n.d > 0 ? '+' : '−') + Math.abs(n.d), 950);
+      }, delay + i * 90);
+    });
+  }
+  function fxTurnBanner(mine) {
+    fxAdd('fx-turn ' + (mine ? 'me' : 'opp'), window.innerWidth / 2, window.innerHeight * 0.45, mine ? '⚔ ตาคุณ' : '🛡 ตาคู่ต่อสู้', 1200);
+  }
+  var ATM_RISE = { fire: 1, electric: 1, water: 1, wind: 1, light: 1, ice: 0, earth: 0, plant: 0, dark: 0, metal: 0 };
+  function renderAtmos() {
+    var box = $('#b-atmos'); if (!box || !bs) return;
+    var G = bs.G;
+    if (!bs.atmosBase) {
+      var cnt = {}, best = '', bn = 0;
+      G.players[ME()].deck.concat(G.players[ME()].hand).forEach(function (c) { if (c.type === 'creature') cnt[c.element] = (cnt[c.element] || 0) + 1; });
+      Object.keys(cnt).forEach(function (k) { if (cnt[k] > bn) { bn = cnt[k]; best = k; } });
+      bs.atmosBase = best || 'neutral';
+    }
+    var fe = null; G.players.forEach(function (q) { if (q.field && q.field.element) fe = q.field.element; });
+    var key = fe || bs.atmosBase;
+    if (box.getAttribute('data-k') === key) return;
+    box.setAttribute('data-k', key); box.innerHTML = '';
+    var col = EL_COLOR[key] || '#8d6dff', rise = ATM_RISE[key] !== 0;
+    box.style.setProperty('--c', col); box.className = 'atmos ' + (rise ? 'rise' : 'fall');
+    for (var i = 0; i < 16; i++) {
+      var sp = make('span', 'atm-p');
+      var sz = 3 + Math.random() * 5;
+      sp.style.left = (Math.random() * 100) + '%'; sp.style.width = sp.style.height = sz + 'px';
+      sp.style.animationDuration = (9 + Math.random() * 9) + 's'; sp.style.animationDelay = -(Math.random() * 14) + 's';
+      box.appendChild(sp);
+    }
+  }
+  function fxEnd(w) {
+    if (!fxOn()) return;
+    var mine = w === ME(), draw = w !== 0 && w !== 1;
+    var cls = draw ? 'draw' : mine ? 'win' : 'lose';
+    var o = make('div', 'fx-end ' + cls, '<div class="fe-t">' + (draw ? 'เสมอ' : mine ? 'ชนะ!' : 'พ่ายแพ้') + '</div>');
+    if (mine) {
+      var cols = ['#ffd24a', '#ff7a52', '#4ea8ff', '#5fd36b', '#ff7ad9', '#fff'];
+      for (var i = 0; i < 46; i++) {
+        var c = make('i', 'fe-c');
+        c.style.left = Math.random() * 100 + '%'; c.style.background = cols[i % cols.length];
+        c.style.animationDelay = (Math.random() * 0.8) + 's'; c.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+        c.style.setProperty('--sx', (Math.random() * 120 - 60) + 'px');
+        o.appendChild(c);
+      }
+    }
+    document.body.appendChild(o);
+    setTimeout(function () { if (o.parentNode) o.parentNode.removeChild(o); }, 3400);
+  }
   function fxPlayHints() {
     var hs = bs.fxHints; if (!hs || !hs.length) return;
     bs.fxHints = [];
@@ -1438,8 +1498,18 @@
       var el = $(p[0]), hp = G.players[p[1]].hp, prev = bs.prevHp[p[1]];
       el.classList.remove('hit', 'heal');
       if (hp < prev) { void el.offsetWidth; el.classList.add('hit'); } else if (hp > prev) el.classList.add('heal');
+      if (fxOn() && prev != null && hp !== prev) (bs.fxNums = bs.fxNums || []).push({ hero: p[1], d: hp - prev });
       bs.prevHp[p[1]] = hp;
     });
+    [['#opp-bar', OP()], ['#me-bar', ME()]].forEach(function (p) {
+      var bar = $(p[0]); if (!bar) return;
+      var hp = Math.max(0, G.players[p[1]].hp), r = Math.min(1, hp / B.START_HP);
+      bar.style.width = (r * 100) + '%'; bar.className = r <= 0.3 ? 'low' : r <= 0.6 ? 'mid' : '';
+      var hero = bar.closest('.b-hero'); if (hero) hero.classList.toggle('danger', r <= 0.3 && hp > 0);
+    });
+    renderAtmos();
+    if (fxOn() && !G.over && bs.fxActive !== G.active) fxTurnBanner(G.active === ME());
+    bs.fxActive = G.active;
 
     // สนาม
     var fxRects = {};
@@ -1450,17 +1520,19 @@
       cfg[1].board.forEach(function (u) { box.appendChild(unitEl(u, cfg[2], targets)); });
       for (var i = cfg[1].board.length; i < B.MAX_BOARD; i++) box.appendChild(make('div', 'unit empty-slot'));
     });
-    var fxCur = {};
+    var fxCur = {}, fxAtkDelayV = 0;
     [[op, OP()], [me, ME()]].forEach(function (q) { q[0].board.forEach(function (u) { fxCur[u.uid] = { u: u, uid: String(u.uid), card: u.card, side: q[1] }; }); });
     if (bs.fxUnits && fxOn()) {
       var fxAddL = [], fxRem = [];
+      fxAtkDelayV = 0;
       Object.keys(fxCur).forEach(function (k) { if (!bs.fxUnits[k]) fxAddL.push(fxCur[k]); });
       Object.keys(bs.fxUnits).forEach(function (k) { if (!fxCur[k]) fxRem.push(bs.fxUnits[k]); });
       var fxCons = fxAddL.length ? (fxUnits(fxAddL, fxRem, fxRects) || {}) : {};
-      var fxAtkDelay = fxPlayAttacks(fxRects);
+      var fxAtkDelay = fxAtkDelayV = fxPlayAttacks(fxRects);
       fxDeaths(fxRem.filter(function (r) { return !fxCons[r.uid]; }), fxRects, fxAtkDelay + 120);
-    } else fxPlayAttacks(fxRects);
+    } else fxAtkDelayV = fxPlayAttacks(fxRects);
     bs.fxUnits = fxCur;
+    fxPlayNums(fxAtkDelayV ? fxAtkDelayV + 190 : 0);
     fxPlayHints();
 
     // บรรทัดกลาง
@@ -1773,6 +1845,7 @@
   function checkEnd() {
     if (!bs || bs.over || !bs.G.over) return false;
     bs.over = true;
+    fxEnd(bs.G.over.winner);
     if (bs.online) { endOnline(); return true; }
     var w = bs.G.over.winner, lvl = bs.level, st = state.stats[lvl];
     var title, reward;
@@ -3082,8 +3155,8 @@
   }
 
   function init() {
-    var setsP = fetch('sets.json?v=0.35').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
-    fetch('cards.json?v=0.35')
+    var setsP = fetch('sets.json?v=0.36').then(function (r) { return r.ok ? r.json() : { sets: [] }; }).catch(function () { return { sets: [] }; });
+    fetch('cards.json?v=0.36')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         return setsP.then(function (sd) { data.sets = sd.sets || []; return data; });

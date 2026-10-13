@@ -47,12 +47,21 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
     G.active = 0; const me = P.board[0], en = O.board[0]; me.hp = 9; me.baseMax = 9; me.attacksLeft = 1; me.attacked = false; me.rushTurn = 0; en.hp = 1; E.render(); await sleep(50);
     E.act({ t: 'attack', unit: me.uid, target: en.uid }); await sleep(60);
     out.lunge = !!document.querySelector('.fx-lunge'); await sleep(200); out.slash = !!document.querySelector('.fx-slash');
+    out.num = false; for (let i = 0; i < 14 && !out.num; i++) { out.num = !!document.querySelector('.fx-num'); await sleep(50); }
     await sleep(250); out.die = !!document.querySelector('.fx-die'); out.enemyGone = O.board.length === 0;
     await sleep(1500); out.left = document.querySelectorAll('.fx').length; out.lungeLeft = !!document.querySelector('.fx-lunge');
     return out;
   });
   console.log(JSON.stringify(ad));
-  ok(ad.lunge, 'โจมตี: ผู้โจมตีพุ่งเข้าใส่'); ok(ad.slash, 'โจมตี: เอฟเฟกต์ฟันที่เป้าหมาย'); ok(ad.enemyGone ? ad.die : true, 'ตาย: การ์ดสลายพร้อมประกาย'); ok(ad.left === 0 && !ad.lungeLeft, 'โจมตี/ตาย: เอฟเฟกต์หายหมด');
+  ok(ad.lunge, 'โจมตี: ผู้โจมตีพุ่งเข้าใส่'); ok(ad.slash, 'โจมตี: เอฟเฟกต์ฟันที่เป้าหมาย'); ok(ad.enemyGone ? ad.die : true, 'ตาย: การ์ดสลายพร้อมประกาย'); ok(ad.num, 'ตัวเลขดาเมจลอยขึ้น'); ok(ad.left === 0 && !ad.lungeLeft, 'โจมตี/ตาย: เอฟเฟกต์หายหมด');
+  // ป้ายเทิร์น · บรรยากาศ · เกจ HP
+  const ui = await p.evaluate(async () => {
+    const E = EFL, bs = E.battle(), G = bs.G, P = G.players[0], sleep = ms => new Promise(r => setTimeout(r, ms)), out = {};
+    G.active = 1; E.render(); await sleep(60); out.turn = !!document.querySelector('.fx-turn.opp');
+    G.active = 0; P.hp = 5; E.render(); out.low = document.querySelector('#me-bar').className === 'low'; out.w = document.querySelector('#me-bar').style.width; out.danger = document.querySelector('#hero-me').classList.contains('danger');
+    out.atm = document.querySelectorAll('#b-atmos .atm-p').length; P.hp = 20; E.render(); await sleep(1400); return out;
+  });
+  ok(ui.turn, 'ป้ายเปลี่ยนเทิร์นขึ้น'); ok(ui.atm === 16, 'บรรยากาศพื้นหลังมีอนุภาค'); ok(ui.low && ui.w === '25%' && ui.danger, 'เกจ HP ต่ำเป็นสีแดง + กระพริบ (' + ui.w + ')');
   // เวลาออนไลน์หยุดนับระหว่างเอฟเฟกต์ (จำลองด้วยการวางการ์ดตรงๆ แล้ว render)
   const tz = await p.evaluate(async () => {
     const bs = EFL.battle(), G = bs.G, P = G.players[0], sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -65,6 +74,13 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
     return { during, after: !bs.fz, shift: bs.online.deadline - d0 };
   }).catch(e => ({ err: String(e) }));
   ok(tz.during, 'ออนไลน์: เอฟเฟกต์เริ่ม → เวลาหยุดนับ'); ok(tz.after && tz.shift > 300, 'ออนไลน์: เอฟเฟกต์จบ → บวกเวลาที่หยุดคืน (' + tz.shift + 'ms)');
+  const en = await p.evaluate(async () => {
+    const E = EFL, bs = E.battle(), G = bs.G, P = G.players[0], O = G.players[1], sleep = ms => new Promise(r => setTimeout(r, ms));
+    bs.online = null; G.over = null; bs.over = false; bs.busy = false; G.active = 0; G.pending = null; O.board = []; O.hp = 1; const u = P.board[0]; if (!u) return { skip: true };
+    u.attacksLeft = 1; u.attacked = false; u.rushTurn = 0; E.render(); E.act({ t: 'attack', unit: u.uid, target: 'opp' }); await sleep(300);
+    return { win: !!document.querySelector('.fx-end.win'), conf: document.querySelectorAll('.fe-c').length, over: !!G.over };
+  });
+  console.log(JSON.stringify(en)); if (!en.skip) ok(en.over && en.win && en.conf > 10, 'ฉากชนะ: ตัวอักษร + confetti');
   ok(errs.length === 0, 'ไม่มี error: ' + errs.join('|'));
   await b.close(); srv.close(); process.exit(fails ? 1 : 0);
 })();

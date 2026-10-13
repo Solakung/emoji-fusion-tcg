@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14121f">
   <title>Emoji Fusion TCG</title>
-  <link rel="stylesheet" href="style.css?v=0.35">
+  <link rel="stylesheet" href="style.css?v=0.36">
 </head>
 <body>
   <header class="top">
@@ -170,9 +170,10 @@
 
   <!-- หน้าจอต่อสู้ -->
   <div id="battle" class="battle" hidden>
+    <div class="atmos" id="b-atmos"></div>
     <div class="b-hero opp" id="hero-opp">
       <span class="avatar" id="opp-avatar">🤖</span>
-      <div class="h-main"><b id="opp-name">บอท</b><div class="h-sub" id="opp-sub"></div></div>
+      <div class="h-main"><b id="opp-name">บอท</b><div class="h-sub" id="opp-sub"></div><div class="h-bar"><i id="opp-bar"></i></div></div>
       <div class="h-hp" id="opp-hp">❤ 20</div>
     </div>
     <div class="b-board opp" id="board-opp"></div>
@@ -185,7 +186,7 @@
     <div class="b-sets" id="sets-me" hidden></div>
     <div class="b-hero me" id="hero-me">
       <span class="avatar">🧑‍🔬</span>
-      <div class="h-main"><b>คุณ</b><div class="h-sub" id="me-sub"></div></div>
+      <div class="h-main"><b>คุณ</b><div class="h-sub" id="me-sub"></div><div class="h-bar"><i id="me-bar"></i></div></div>
       <div class="h-hp" id="me-hp">❤ 20</div>
     </div>
     <div class="b-action" id="b-action"></div>
@@ -226,9 +227,9 @@
   </div>
   <div id="toast" class="toast" hidden></div>
 
-  <script src="fusion.js?v=0.35"></script>
-  <script src="battle.js?v=0.35"></script>
-  <script src="script.js?v=0.35"></script>
-  <script type="module" src="online.js?v=0.35"></script>
+  <script src="fusion.js?v=0.36"></script>
+  <script src="battle.js?v=0.36"></script>
+  <script src="script.js?v=0.36"></script>
+  <script type="module" src="online.js?v=0.36"></script>
 </body>
 </html>
