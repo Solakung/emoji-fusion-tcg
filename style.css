@@ -657,3 +657,40 @@ body.in-battle #update-bar { display: none; }
 .card.tier3 .art { background: radial-gradient(circle, rgba(255,210,74,.30), transparent 68%); }
 .unit.tier3 { position: relative; }
 @media (prefers-reduced-motion: reduce) { .atm-p, .card::after, .unit::after, .b-hero.danger { animation: none !important; } .atmos { display: none; } }
+
+/* ---------- เอฟเฟกต์เฉพาะตัว · หน้าผสม · หน้าสะสม ---------- */
+.fx.sigwrap { inset: 0; width: 100%; height: 100%; z-index: 68; background: transparent; }
+.sig-skip { position: absolute; right: 12px; bottom: 14px; font-size: 11px; color: rgba(255,255,255,.55); }
+.fx.sig { z-index: 69; pointer-events: none; }
+.sig-tint { width: 100vw; height: 100vh; transform: translate(-50%,-50%); background: radial-gradient(circle, transparent 20%, color-mix(in srgb, var(--c) 45%, transparent)); animation: sigfade 1.1s ease-out forwards; }
+@keyframes sigfade { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+.sig-white { width: 100vw; height: 100vh; transform: translate(-50%,-50%); background: radial-gradient(circle, #fff, color-mix(in srgb, var(--c) 60%, transparent) 60%, transparent); animation: sigflash .5s ease-out forwards; }
+@keyframes sigflash { 0% { opacity: .95; } 100% { opacity: 0; } }
+.sig-dragon { font-size: 130px; line-height: 1; filter: drop-shadow(0 0 22px var(--c)) drop-shadow(0 0 40px var(--c)); transform: translate(-30%, -50%); animation: sigdragon 1s cubic-bezier(.3,.1,.5,1) forwards; }
+@keyframes sigdragon { 0% { transform: translate(-40%,-30%) scale(.6) rotate(-14deg); opacity: 0; } 15% { opacity: 1; } 55% { transform: translate(calc(var(--w) * .5), -70%) scale(1.5) rotate(0); } 100% { transform: translate(calc(var(--w) * 1.1), -110%) scale(1) rotate(10deg); opacity: 0; } }
+.sig-bolt { z-index: 69; }
+.sig-bolt svg { position: fixed; left: 0; top: 0; filter: drop-shadow(0 0 10px var(--c)); }
+.sig-bolt polyline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: sigbolt .22s ease-out forwards, sigfade .7s ease-out forwards; }
+@keyframes sigbolt { to { stroke-dashoffset: 0; } }
+.sig-hole { width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; background: radial-gradient(circle, #000 35%, #2a0a4a 60%, transparent 72%); box-shadow: 0 0 30px 8px #6a2cc4; animation: sighole 1.1s ease-in-out forwards; }
+@keyframes sighole { 0% { transform: scale(.2) rotate(0); opacity: 0; } 25% { transform: scale(9) rotate(180deg); opacity: 1; } 65% { transform: scale(7) rotate(420deg); opacity: 1; } 100% { transform: scale(.1) rotate(720deg); opacity: 0; } }
+.sig-nova { width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: radial-gradient(circle, #fff 20%, var(--c) 45%, transparent 70%); animation: signova 1.1s ease-out forwards; }
+@keyframes signova { 0% { transform: scale(.2); opacity: 1; } 35% { transform: scale(22); opacity: 1; } 100% { transform: scale(30); opacity: 0; } }
+.sig-tide { width: 120vw; height: 52vh; transform: translate(-50%, 0); background: linear-gradient(180deg, rgba(120,200,255,.0), rgba(78,168,255,.55) 18%, rgba(30,90,200,.65)); border-radius: 50% 50% 0 0 / 40px 40px 0 0; animation: sigtide 1.1s ease-in-out forwards; }
+@keyframes sigtide { 0% { transform: translate(-50%, 100%); } 40% { transform: translate(-50%, 0); } 70% { transform: translate(-50%, 6%); opacity: 1; } 100% { transform: translate(-50%, 100%); opacity: 0; } }
+.sig-gear { font-size: 56px; margin: -28px 0 0 -28px; filter: drop-shadow(0 0 12px var(--c)); animation: siggear 1.1s ease-out forwards; }
+@keyframes siggear { 0% { transform: scale(.2) rotate(0); opacity: 0; } 25% { opacity: 1; transform: scale(1.2) rotate(calc(120deg * var(--dir))); } 80% { opacity: 1; } 100% { transform: scale(.6) rotate(calc(480deg * var(--dir))); opacity: 0; } }
+.sig-crack { width: 160px; height: 8px; margin: -4px 0 0 -80px; background: linear-gradient(90deg, transparent, #2a1a0a 20%, #2a1a0a 80%, transparent); box-shadow: 0 0 12px var(--c); clip-path: polygon(0 40%, 15% 0, 30% 70%, 45% 10%, 60% 80%, 75% 20%, 100% 60%, 100% 100%, 0 100%); animation: sigcrack 1.1s ease-out forwards; }
+@keyframes sigcrack { 0% { transform: scaleX(.1); opacity: 0; } 20% { transform: scaleX(1.3); opacity: 1; } 80% { opacity: 1; } 100% { transform: scaleX(1.5); opacity: 0; } }
+.sig-spot { width: 220px; height: var(--h); margin-left: -110px; background: linear-gradient(180deg, rgba(255,242,168,.0), rgba(255,242,168,.38)); clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%); animation: sigspot 1.15s ease-out forwards; }
+@keyframes sigspot { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+.card.fx-hide-lab, .unit.fx-hide-lab { visibility: hidden; }
+.card.fx-reveal { animation: fxreveal .45s ease-out; }
+.card.unknown .art canvas { filter: brightness(0) contrast(2); opacity: .6; }
+.card.unknown .stats-row, .card.unknown .ab, .card.unknown .tag { visibility: hidden; }
+.card.unknown .art::after { content: '?'; position: absolute; font-size: 30px; font-weight: 900; color: rgba(255,255,255,.35); }
+.card.unknown .art { position: relative; }
+#book-cards .card { transition: transform .25s ease-out; will-change: transform; }
+#book-cards .card.tilting { transition: transform .06s linear; z-index: 2; }
+#book-cards .card.tilting.r-rare::after, #book-cards .card.tilting.tier3::after { animation: none; background-position: var(--hp, 50%) 0; }
+@media (prefers-reduced-motion: reduce) { .sig-dragon, .sig-hole, .sig-nova, .sig-tide, .sig-gear { animation: none; opacity: 0; } }

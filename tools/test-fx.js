@@ -54,6 +54,18 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
   });
   console.log(JSON.stringify(ad));
   ok(ad.lunge, 'โจมตี: ผู้โจมตีพุ่งเข้าใส่'); ok(ad.slash, 'โจมตี: เอฟเฟกต์ฟันที่เป้าหมาย'); ok(ad.enemyGone ? ad.die : true, 'ตาย: การ์ดสลายพร้อมประกาย'); ok(ad.num, 'ตัวเลขดาเมจลอยขึ้น'); ok(ad.left === 0 && !ad.lungeLeft, 'โจมตี/ตาย: เอฟเฟกต์หายหมด');
+  // เอฟเฟกต์เฉพาะตัว + เสียง
+  const sg = await p.evaluate(async () => {
+    const E = EFL, bs = E.battle(), G = bs.G, P = G.players[0], C = id => window.__base.find(c => c.id === id), sleep = ms => new Promise(r => setTimeout(r, ms)), out = {};
+    bs.online = null; bs.busy = false; G.active = 0; G.pending = null; P.mana = P.maxMana = 10; P.board = []; G.players[1].board = []; P.hand = [C('B16'), C('B16')]; E.render(); await sleep(50);
+    E.sfxLog = []; E.act({ t: 'play', hand: 0 }); await sleep(450);
+    out.wrap = !!document.querySelector('.fx.sigwrap'); out.bolt = !!document.querySelector('.sig-bolt'); out.snd = (E.sfxLog || []).join(',');
+    document.querySelector('.fx.sigwrap') && document.querySelector('.fx.sigwrap').click(); await sleep(50); out.skipped = !document.querySelector('.fx.sigwrap');
+    await sleep(900); P.board = []; E.render(); await sleep(50); E.act({ t: 'play', hand: 0 }); await sleep(450); out.second = !!document.querySelector('.fx.sigwrap');
+    await sleep(1200); return out;
+  });
+  console.log(JSON.stringify(sg));
+  ok(sg.wrap && sg.bolt, 'เอฟเฟกต์เฉพาะตัว (สายฟ้า) ขึ้น'); ok(sg.skipped, 'แตะเพื่อข้ามได้'); ok(!sg.second, 'ใบเดิมซ้ำในแมตช์เดียวกันไม่เล่นเต็มซ้ำ'); ok(/thunder/.test(sg.snd) && /land|big/.test(sg.snd), 'เสียงเล่น: ' + sg.snd);
   // ป้ายเทิร์น · บรรยากาศ · เกจ HP
   const ui = await p.evaluate(async () => {
     const E = EFL, bs = E.battle(), G = bs.G, P = G.players[0], sleep = ms => new Promise(r => setTimeout(r, ms)), out = {};
